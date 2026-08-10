@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NOVA Web STB</title>
+<style>
+  :root{
+    --bg:#05070c; --panel:rgba(14,18,28,.82); --panel-solid:#0d1220;
+    --line:rgba(255,255,255,.10); --txt:#eef2f8; --muted:#8b98ad;
+    --accent:#12d0b4; --accent2:#3aa0ff; --warn:#ffcf5a; --danger:#ff5a6a;
+    --sel:rgba(18,208,180,.18); --sel-line:rgba(18,208,180,.9);
+    --radius:14px; --shadow:0 18px 60px rgba(0,0,0,.55);
+    font-synthesis:none;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;background:#000;color:var(--txt);overflow:hidden;
+    font-family:"Segoe UI",Roboto,-apple-system,system-ui,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;user-select:none;
+  }
+  #stage{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center}
+  video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
+
+  /* ---------------- BOOT ---------------- */
+  #boot{position:absolute;inset:0;z-index:60;background:radial-gradient(1200px 700px at 50% 35%,#0b1526,#04060b 70%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;transition:opacity .6s}
+  #boot.hide{opacity:0;pointer-events:none}
+  .brand{display:flex;align-items:center;gap:16px}
+  .brand .mark{width:60px;height:60px;border-radius:16px;background:conic-gradient(from 210deg,var(--accent),var(--accent2),var(--accent));
+    box-shadow:0 0 40px rgba(18,208,180,.5);display:grid;place-items:center;font-weight:800;font-size:30px;color:#04121c;font-family:Menlo,Consolas,monospace}
+  .brand h1{margin:0;font-size:40px;letter-spacing:6px;font-weight:700}
+  .brand h1 span{color:var(--accent)}
+  .brand small{display:block;letter-spacing:3px;color:var(--muted);font-size:12px;margin-top:4px}
+  .bootbox{width:min(520px,86vw);text-align:center}
+  .bar{height:8px;border-radius:20px;background:rgba(255,255,255,.08);overflow:hidden;margin:18px 0 10px}
+  .bar > i{display:block;height:100%;width:0;border-radius:20px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .25s}
+  #bootmsg{color:var(--muted);font-size:13px;letter-spacing:.5px;min-height:18px}
+  .power-hint{margin-top:8px;color:var(--muted);font-size:12px;letter-spacing:1px}
+  #powerBtn{margin-top:10px;cursor:pointer;border:0;border-radius:999px;padding:14px 26px;font-size:15px;font-weight:700;letter-spacing:1px;
+    color:#04121c;background:linear-gradient(90deg,var(--accent),var(--accent2));box-shadow:0 10px 30px rgba(18,208,180,.4)}
+  #powerBtn:active{transform:translateY(1px)}
+  .firm{color:var(--muted);font-size:11px;letter-spacing:2px;position:absolute;bottom:22px}
+
+  /* ---------------- OSD info banner ---------------- */
+  #osd{position:absolute;left:0;right:0;bottom:0;z-index:30;padding:22px;transition:transform .35s ease,opacity .35s;pointer-events:none}
+  #osd.hide{transform:translateY(120%);opacity:0}
+  .osd-card{max-width:760px;background:var(--panel);backdrop-filter:blur(12px);border:1px solid var(--line);
+    border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px;display:flex;gap:16px;align-items:center}
+  .osd-num{font-family:Menlo,Consolas,monospace;font-size:34px;font-weight:800;color:var(--accent);min-width:62px;text-align:center;
+    line-height:1;letter-spacing:1px}
+  .osd-logo{width:74px;height:52px;border-radius:8px;background:#0a0f1a;display:grid;place-items:center;overflow:hidden;flex:0 0 auto;border:1px solid var(--line)}
+  .osd-logo img{max-width:100%;max-height:100%;object-fit:contain}
+  .osd-logo .ph{font-weight:800;color:var(--muted);font-size:20px}
+  .osd-main{flex:1;min-width:0}
+  .osd-name{font-size:22px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .osd-sub{color:var(--muted);font-size:13px;margin-top:3px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .live{display:inline-flex;align-items:center;gap:6px;color:var(--accent);font-weight:700;letter-spacing:1px}
+  .live b{width:8px;height:8px;border-radius:50%;background:var(--danger);box-shadow:0 0 8px var(--danger);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .osd-clock{font-variant-numeric:tabular-nums;font-weight:700;font-size:15px}
+
+  /* ---------------- top-right overlays ---------------- */
+  #topbar{position:absolute;top:16px;right:18px;z-index:31;display:flex;gap:10px;align-items:center;pointer-events:none}
+  .chip{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px;backdrop-filter:blur(10px);
+    font-variant-numeric:tabular-nums}
+  #numentry{font-family:Menlo,Consolas,monospace;font-size:26px;font-weight:800;color:var(--accent);letter-spacing:4px;
+    padding:8px 16px;display:none}
+  #volwrap{display:none;align-items:center;gap:8px}
+  #volbar{width:120px;height:8px;border-radius:20px;background:rgba(255,255,255,.12);overflow:hidden}
+  #volbar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+
+  /* ---------------- status / spinner ---------------- */
+  #status{position:absolute;inset:0;z-index:20;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;
+    background:radial-gradient(600px 400px at 50% 50%,rgba(10,16,28,.6),rgba(0,0,0,.85))}
+  .spinner{width:52px;height:52px;border-radius:50%;border:4px solid rgba(255,255,255,.14);border-top-color:var(--accent);animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  #status .msg{color:var(--muted);letter-spacing:1px}
+  #status .msg b{color:var(--txt)}
+  .nosignal{display:none;flex-direction:column;align-items:center;gap:10px}
+  .bars{display:flex;gap:6px;height:120px;align-items:flex-end}
+  .bars i{width:26px;border-radius:4px 4px 0 0;background:linear-gradient(#3aa0ff,#12d0b4)}
+  .bars i:nth-child(1){height:100%;background:#e7e7e7} .bars i:nth-child(2){height:100%;background:#ecec3a}
+  .bars i:nth-child(3){height:100%;background:#3ae7e7} .bars i:nth-child(4){height:100%;background:#3ae74a}
+  .bars i:nth-child(5){height:100%;background:#e73ae7} .bars i:nth-child(6){height:100%;background:#e73a3a}
+  .bars i:nth-child(7){height:100%;background:#3a4ae7}
+
+  /* ---------------- CHANNEL LIST ---------------- */
+  #guide{position:absolute;inset:0;z-index:40;display:none;background:linear-gradient(90deg,rgba(4,6,11,.96) 0%,rgba(4,6,11,.72) 60%,rgba(4,6,11,.25) 100%)}
+  #guide.show{display:flex}
+  .guide-wrap{display:flex;height:100%;width:min(880px,96vw)}
+  .cats{width:210px;flex:0 0 auto;border-right:1px solid var(--line);padding:18px 10px;overflow:auto}
+  .cats h3{margin:0 8px 12px;font-size:12px;letter-spacing:3px;color:var(--muted);text-transform:uppercase}
+  .cat{padding:10px 12px;border-radius:10px;cursor:pointer;font-size:14px;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+  .cat .n{opacity:.6;font-variant-numeric:tabular-nums}
+  .cat:hover{color:var(--txt)}
+  .cat.active{background:var(--sel);color:var(--txt);box-shadow:inset 0 0 0 1px var(--sel-line)}
+  .list{flex:1;overflow:auto;padding:18px 14px}
+  .list-head{display:flex;align-items:baseline;justify-content:space-between;margin:0 6px 10px}
+  .list-head h2{margin:0;font-size:18px;letter-spacing:1px}
+  .list-head span{color:var(--muted);font-size:12px}
+  .row{display:flex;align-items:center;gap:14px;padding:9px 12px;border-radius:12px;cursor:pointer;border:1px solid transparent}
+  .row:hover{background:rgba(255,255,255,.04)}
+  .row.cur{box-shadow:inset 0 0 0 1px rgba(58,160,255,.5)}
+  .row.sel{background:var(--sel);border-color:var(--sel-line)}
+  .row .rnum{font-family:Menlo,Consolas,monospace;color:var(--accent);font-weight:700;min-width:44px;text-align:right;font-variant-numeric:tabular-nums}
+  .row .rlogo{width:52px;height:34px;border-radius:6px;background:#0a0f1a;display:grid;place-items:center;overflow:hidden;flex:0 0 auto;border:1px solid var(--line)}
+  .row .rlogo img{max-width:100%;max-height:100%;object-fit:contain}
+  .row .rlogo .ph{font-size:13px;font-weight:800;color:var(--muted)}
+  .row .rname{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:15px}
+  .row .rfav{color:var(--warn);opacity:0;font-size:14px}
+  .row.fav .rfav{opacity:1}
+  .guide-foot{position:absolute;bottom:0;left:0;right:0;padding:12px 20px;background:linear-gradient(0deg,rgba(4,6,11,.9),transparent);
+    font-size:12px;color:var(--muted);display:flex;gap:18px;flex-wrap:wrap;pointer-events:none}
+  .key{display:inline-flex;align-items:center;gap:6px}
+  .kbd{border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 7px;font-size:11px;background:rgba(255,255,255,.05);color:var(--txt);font-family:Menlo,Consolas,monospace}
+
+  /* ---------------- REMOTE ---------------- */
+  #remoteBtn{position:absolute;bottom:16px;right:16px;z-index:33;width:46px;height:46px;border-radius:12px;border:1px solid var(--line);
+    background:var(--panel);color:var(--txt);cursor:pointer;font-size:20px;backdrop-filter:blur(10px)}
+  #remote{position:absolute;top:0;right:0;bottom:0;z-index:50;width:236px;background:var(--panel-solid);border-left:1px solid var(--line);
+    transform:translateX(100%);transition:transform .3s ease;padding:16px 16px 22px;overflow:auto;box-shadow:var(--shadow)}
+  #remote.show{transform:none}
+  .rc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .rc-top b{letter-spacing:3px;font-size:12px;color:var(--muted)}
+  .rc-x{cursor:pointer;color:var(--muted);border:0;background:none;font-size:18px}
+  .rc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .rc{border:1px solid var(--line);background:#121828;color:var(--txt);border-radius:10px;padding:10px 0;font-size:13px;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:2px;transition:background .12s,transform .06s}
+  .rc:hover{background:#182034}
+  .rc:active{transform:translateY(1px);background:var(--sel)}
+  .rc small{color:var(--muted);font-size:9px;letter-spacing:1px}
+  .rc.pow{grid-column:span 3;background:linear-gradient(90deg,#2a1420,#3a1420);border-color:rgba(255,90,106,.4)}
+  .rc.ok{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#04121c;font-weight:800}
+  .rc.big{grid-column:span 3}
+  .rc-sec{margin:14px 0 8px;font-size:10px;letter-spacing:2px;color:var(--muted)}
+  .num3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+
+  .hint{position:absolute;left:18px;bottom:16px;z-index:31;color:var(--muted);font-size:12px;letter-spacing:.4px;background:var(--panel);
+    border:1px solid var(--line);border-radius:10px;padding:8px 12px;backdrop-filter:blur(10px);pointer-events:none;transition:opacity .4s}
+  .hint.hide{opacity:0}
+  @media (max-width:560px){
+    .cats{width:150px}.osd-name{font-size:18px}.brand h1{font-size:30px}
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <video id="video" playsinline></video>
+
+  <!-- status / spinner / no-signal -->
+  <div id="status">
+    <div class="spinner" id="spin"></div>
+    <div class="msg" id="statusMsg">Tuning…</div>
+    <div class="nosignal" id="nosignal">
+      <div class="bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="msg"><b>NO SIGNAL</b> — channel unavailable in browser</div>
+      <div class="msg" style="font-size:12px">Press <span class="kbd">CH ▲</span> to zap to the next channel</div>
+    </div>
+  </div>
+
+  <!-- OSD banner -->
+  <div id="osd" class="hide">
+    <div class="osd-card">
+      <div class="osd-num" id="osdNum">001</div>
+      <div class="osd-logo" id="osdLogo"><span class="ph">TV</span></div>
+      <div class="osd-main">
+        <div class="osd-name" id="osdName">—</div>
+        <div class="osd-sub">
+          <span id="osdGroup" class="">General</span>
+          <span class="live"><b></b> LIVE</span>
+          <span class="osd-clock" id="osdClock">--:--</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- top-right chips -->
+  <div id="topbar">
+    <div class="chip" id="volwrap"><span>🔊</span><div id="volbar"><i style="width:80%"></i></div></div>
+    <div class="chip" id="numentry"></div>
+    <div class="chip" id="clockChip">--:--</div>
+  </div>
+
+  <!-- channel list / guide -->
+  <div id="guide">
+    <div class="guide-wrap">
+      <div class="cats" id="cats"><h3>Categories</h3></div>
+      <div class="list" id="listWrap">
+        <div class="list-head"><h2 id="listTitle">All Channels</h2><span id="listCount"></span></div>
+        <div id="rows"></div>
+      </div>
+    </div>
+    <div class="guide-foot">
+      <span class="key"><span class="kbd">▲</span><span class="kbd">▼</span> Navigate</span>
+      <span class="key"><span class="kbd">◀</span><span class="kbd">▶</span> Category</span>
+      <span class="key"><span class="kbd">OK</span> Watch</span>
+      <span class="key"><span class="kbd">F</span> Favourite</span>
+      <span class="key"><span class="kbd">BACK</span> Close</span>
+    </div>
+  </div>
+
+  <!-- on-screen remote -->
+  <button id="remoteBtn" title="Remote (R)">🎛️</button>
+  <div id="remote">
+    <div class="rc-top"><b>NOVA REMOTE</b><button class="rc-x" data-x>✕</button></div>
+    <div class="rc-grid">
+      <button class="rc pow" data-k="power">⏻ POWER</button>
+    </div>
+    <div class="rc-sec">NAVIGATION</div>
+    <div class="rc-grid">
+      <button class="rc" data-k="guide">☰<small>GUIDE</small></button>
+      <button class="rc" data-k="up">▲<small>UP</small></button>
+      <button class="rc" data-k="info">ℹ<small>INFO</small></button>
+      <button class="rc" data-k="left">◀<small>VOL−</small></button>
+      <button class="rc ok" data-k="ok">OK</button>
+      <button class="rc" data-k="right">▶<small>VOL+</small></button>
+      <button class="rc" data-k="back">⤺<small>BACK</small></button>
+      <button class="rc" data-k="down">▼<small>DOWN</small></button>
+      <button class="rc" data-k="fav">★<small>FAV</small></button>
+    </div>
+    <div class="rc-sec">CHANNEL</div>
+    <div class="rc-grid">
+      <button class="rc" data-k="chup">CH ▲</button>
+      <button class="rc" data-k="mute">🔇<small>MUTE</small></button>
+      <button class="rc" data-k="chdn">CH ▼</button>
+    </div>
+    <div class="rc-sec">KEYPAD</div>
+    <div class="num3" id="numpad"></div>
+    <div class="rc-sec">MEDIA</div>
+    <div class="rc-grid">
+      <button class="rc big" data-k="full">⛶ FULLSCREEN</button>
+    </div>
+  </div>
+
+  <!-- boot -->
+  <div id="boot">
+    <div class="brand">
+      <div class="mark">◈</div>
+      <div><h1>NOVA<span>·</span>STB</h1><small>WEB SET-TOP BOX</small></div>
+    </div>
+    <div class="bootbox">
+      <div class="bar"><i id="bootbar"></i></div>
+      <div id="bootmsg">System ready</div>
+      <button id="powerBtn">⏻ POWER ON</button>
+      <div class="power-hint">click POWER (or press any key) to boot</div>
+    </div>
+    <div class="firm">MODEL NVX-4K · FIRMWARE 2.6.1 · HbbTV</div>
+  </div>
+
+  <div class="hint" id="hint">CH ▲▼ zap · <b>OK</b> channel list · <b>0–9</b> jump · <b>i</b> info · <b>R</b> remote</div>
+</div>
+
+<script src="channels.js"></script>
+<script>
+/* ---------- HLS loader (from CDN; falls back to native Safari HLS) ---------- */
+(function(){
+  var s=document.createElement('script');
+  s.src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js";
+  s.onload=function(){window.__hlsReady=true;};
+  s.onerror=function(){window.__hlsReady=false;};
+  document.head.appendChild(s);
+})();
+
+/* ---------- State ---------- */
+var DATA = window.STB_DATA || {channels:[]};
+var CH = DATA.channels;
+var favs = new Set(JSON.parse(localStorage.getItem('stb_favs')||'[]'));
+var idx = 0;                 // current index into visibleList
+var curNum = null;
+var hls = null;
+var video = document.getElementById('video');
+var osdTimer=null, tuneTimer=null, numTimer=null, volTimer=null, hintTimer=null;
+var guideOpen=false, poweredOn=false;
+var catFilter='ALL';
+var visibleList = CH.slice();   // list currently shown in guide
+var guideSel = 0;               // highlighted row in guide
+
+/* ---------- helpers ---------- */
+function pad(n){return String(n).padStart(3,'0');}
+function esc(s){return (s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function logoHTML(c,cls){
+  var initials=(c.name||'?').replace(/\(.*?\)/g,'').trim().slice(0,2).toUpperCase();
+  if(c.logo) return '<img loading="lazy" src="'+esc(c.logo)+'" onerror="this.replaceWith(Object.assign(document.createElement(\'span\'),{className:\'ph\',textContent:\''+initials+'\'}))">';
+  return '<span class="ph">'+initials+'</span>';
+}
+function now(){var d=new Date();return d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});}
+function tickClock(){var t=now();document.getElementById('clockChip').textContent=t;document.getElementById('osdClock').textContent=t;}
+setInterval(tickClock,1000*20); tickClock();
+
+/* ---------- categories ---------- */
+function buildCats(){
+  var counts={}; CH.forEach(function(c){counts[c.group]=(counts[c.group]||0)+1;});
+  var order=Object.keys(counts).sort(function(a,b){return counts[b]-counts[a];});
+  var cats=document.getElementById('cats');
+  cats.innerHTML='<h3>Categories</h3>';
+  function add(key,label,n){
+    var d=document.createElement('div'); d.className='cat'+(key===catFilter?' active':'');
+    d.dataset.cat=key; d.innerHTML='<span>'+esc(label)+'</span><span class="n">'+n+'</span>';
+    d.onclick=function(){setCat(key);}; cats.appendChild(d);
+  }
+  add('ALL','All Channels',CH.length);
+  add('FAV','★ Favourites',favs.size);
+  order.forEach(function(g){add(g,g,counts[g]);});
+}
+function setCat(key){
+  catFilter=key; guideSel=0;
+  document.querySelectorAll('.cat').forEach(function(el){el.classList.toggle('active',el.dataset.cat===key);});
+  renderList();
+}
+
+/* ---------- channel list ---------- */
+function computeVisible(){
+  if(catFilter==='ALL') return CH.slice();
+  if(catFilter==='FAV') return CH.filter(function(c){return favs.has(c.num);});
+  return CH.filter(function(c){return c.group===catFilter;});
+}
+function renderList(){
+  visibleList=computeVisible();
+  var rows=document.getElementById('rows'); rows.innerHTML='';
+  document.getElementById('listTitle').textContent = catFilter==='ALL'?'All Channels':(catFilter==='FAV'?'★ Favourites':catFilter);
+  document.getElementById('listCount').textContent = visibleList.length+' channels';
+  visibleList.forEach(function(c,i){
+    var r=document.createElement('div');
+    r.className='row'+(c.num===curNum?' cur':'')+(i===guideSel?' sel':'')+(favs.has(c.num)?' fav':'');
+    r.innerHTML='<div class="rnum">'+c.num+'</div><div class="rlogo">'+logoHTML(c)+'</div>'+
+                '<div class="rname">'+esc(c.name)+'</div><div class="rfav">★</div>';
+    r.onclick=function(){guideSel=i;highlight();tuneTo(c.num);closeGuide();};
+    rows.appendChild(r);
+  });
+  highlight();
+}
+function highlight(){
+  var rs=document.querySelectorAll('#rows .row');
+  rs.forEach(function(el,i){el.classList.toggle('sel',i===guideSel);});
+  if(rs[guideSel]) rs[guideSel].scrollIntoView({block:'nearest'});
+}
+
+/* ---------- guide open/close ---------- */
+function openGuide(){
+  guideOpen=true; document.getElementById('guide').classList.add('show');
+  // start selection at current channel if present
+  var pos=visibleList.findIndex(function(c){return c.num===curNum;});
+  guideSel=pos>=0?pos:0; highlight();
+}
+function closeGuide(){guideOpen=false;document.getElementById('guide').classList.remove('show');}
+
+/* ---------- OSD ---------- */
+function showOSD(persist){
+  var c=byNum(curNum); if(!c)return;
+  document.getElementById('osdNum').textContent=pad(c.num);
+  document.getElementById('osdName').textContent=c.name;
+  document.getElementById('osdGroup').textContent=c.group;
+  var lg=document.getElementById('osdLogo'); lg.innerHTML=logoHTML(c);
+  tickClock();
+  document.getElementById('osd').classList.remove('hide');
+  clearTimeout(osdTimer);
+  if(!persist) osdTimer=setTimeout(function(){document.getElementById('osd').classList.add('hide');},4500);
+}
+function hideOSD(){document.getElementById('osd').classList.add('hide');}
+
+/* ---------- status ---------- */
+function setStatus(mode,msg){ // mode: 'tuning' | 'nosignal' | 'off'
+  var s=document.getElementById('status');
+  var spin=document.getElementById('spin'), ns=document.getElementById('nosignal');
+  if(mode==='off'){s.style.display='none';return;}
+  s.style.display='flex';
+  if(mode==='tuning'){spin.style.display='block';ns.style.display='none';
+    document.getElementById('statusMsg').style.display='block';
+    document.getElementById('statusMsg').innerHTML=msg||'Tuning…';}
+  else if(mode==='nosignal'){spin.style.display='none';
+    document.getElementById('statusMsg').style.display='none';ns.style.display='flex';}
+}
+
+/* ---------- tuning ---------- */
+function byNum(n){for(var i=0;i<CH.length;i++)if(CH[i].num===n)return CH[i];return null;}
+function destroyHls(){ if(hls){try{hls.destroy();}catch(e){} hls=null;} video.removeAttribute('src'); try{video.load();}catch(e){} }
+
+function tuneTo(n){
+  var c=byNum(n); if(!c)return;
+  curNum=n; localStorage.setItem('stb_last',n);
+  showOSD(false);
+  setStatus('tuning','Tuning <b>'+esc(c.name)+'</b>…');
+  destroyHls();
+  clearTimeout(tuneTimer);
+  var settled=false;
+  function ok(){ if(settled)return; settled=true; clearTimeout(tuneTimer); setStatus('off'); video.play().catch(function(){}); }
+  function fail(){ if(settled)return; settled=true; clearTimeout(tuneTimer); setStatus('nosignal'); }
+  tuneTimer=setTimeout(fail,13000);
+
+  var url=c.url;
+  var canNative=video.canPlayType('application/vnd.apple.mpegurl');
+  if(window.Hls && window.Hls.isSupported()){
+    hls=new window.Hls({maxBufferLength:12,manifestLoadingTimeOut:12000,manifestLoadingMaxRetry:1,levelLoadingMaxRetry:1});
+    hls.loadSource(url); hls.attachMedia(video);
+    hls.on(window.Hls.Events.MANIFEST_PARSED,ok);
+    hls.on(window.Hls.Events.FRAG_BUFFERED,ok);
+    hls.on(window.Hls.Events.ERROR,function(ev,d){ if(d && d.fatal) fail(); });
+  } else if(canNative){
+    video.src=url;
+    video.addEventListener('loadeddata',ok,{once:true});
+    video.addEventListener('error',fail,{once:true});
+    video.play().catch(function(){});
+  } else { setStatus('nosignal'); }
+}
+
+function zap(delta){
+  // zap through numeric order of ALL channels
+  var pos=CH.findIndex(function(c){return c.num===curNum;});
+  if(pos<0)pos=0;
+  pos=(pos+delta+CH.length)%CH.length;
+  tuneTo(CH[pos].num);
+}
+
+/* ---------- number entry ---------- */
+var numBuf='';
+function pushDigit(d){
+  numBuf+=d; if(numBuf.length>4)numBuf=numBuf.slice(-4);
+  var el=document.getElementById('numentry'); el.style.display='block'; el.textContent=numBuf;
+  clearTimeout(numTimer); numTimer=setTimeout(commitNum,1600);
+}
+function commitNum(){
+  var el=document.getElementById('numentry'); el.style.display='none';
+  var n=parseInt(numBuf,10); numBuf='';
+  if(n && byNum(n)) tuneTo(n);
+  else if(n){ showOSD(false); }
+}
+
+/* ---------- volume ---------- */
+function setVol(delta){
+  video.muted=false;
+  var v=Math.min(1,Math.max(0,(video.volume||0)+delta));
+  video.volume=v;
+  document.querySelector('#volbar > i').style.width=Math.round(v*100)+'%';
+  var w=document.getElementById('volwrap'); w.style.display='flex';
+  w.querySelector('span').textContent = v===0?'🔈':(v<.5?'🔉':'🔊');
+  clearTimeout(volTimer); volTimer=setTimeout(function(){w.style.display='none';},1800);
+}
+function toggleMute(){
+  video.muted=!video.muted;
+  var w=document.getElementById('volwrap'); w.style.display='flex';
+  w.querySelector('span').textContent=video.muted?'🔇':'🔊';
+  clearTimeout(volTimer); volTimer=setTimeout(function(){w.style.display='none';},1500);
+}
+
+/* ---------- favourites ---------- */
+function toggleFav(n){
+  if(favs.has(n))favs.delete(n); else favs.add(n);
+  localStorage.setItem('stb_favs',JSON.stringify([...favs]));
+  buildCats();
+  if(guideOpen)renderList();
+}
+
+/* ---------- fullscreen ---------- */
+function toggleFull(){
+  var el=document.documentElement;
+  if(!document.fullscreenElement){ (el.requestFullscreen||el.webkitRequestFullscreen).call(el); }
+  else { (document.exitFullscreen||document.webkitExitFullscreen).call(document); }
+}
+
+/* ---------- remote actions ---------- */
+function action(k){
+  if(!poweredOn && k!=='power') return;
+  switch(k){
+    case 'power': poweredOn?powerOff():bootStart(); break;
+    case 'guide': case 'ok':
+      if(guideOpen){ if(k==='ok'){var c=visibleList[guideSel]; if(c){tuneTo(c.num);closeGuide();}} else closeGuide(); }
+      else openGuide(); break;
+    case 'back': if(guideOpen)closeGuide(); else hideOSD(); break;
+    case 'up': if(guideOpen){guideSel=Math.max(0,guideSel-1);highlight();} else zap(1); break;
+    case 'down': if(guideOpen){guideSel=Math.min(visibleList.length-1,guideSel+1);highlight();} else zap(-1); break;
+    case 'left': if(guideOpen)cycleCat(-1); else setVol(-0.1); break;
+    case 'right': if(guideOpen)cycleCat(1); else setVol(0.1); break;
+    case 'chup': zap(1); break;
+    case 'chdn': zap(-1); break;
+    case 'info': var o=document.getElementById('osd'); o.classList.contains('hide')?showOSD(true):hideOSD(); break;
+    case 'fav': if(guideOpen){var cc=visibleList[guideSel]; if(cc)toggleFav(cc.num);} else if(curNum)toggleFav(curNum); break;
+    case 'mute': toggleMute(); break;
+    case 'full': toggleFull(); break;
+  }
+}
+function cycleCat(dir){
+  var cats=[...document.querySelectorAll('.cat')].map(function(el){return el.dataset.cat;});
+  var i=cats.indexOf(catFilter); i=(i+dir+cats.length)%cats.length; setCat(cats[i]);
+}
+
+/* ---------- input: keyboard ---------- */
+document.addEventListener('keydown',function(e){
+  if(!poweredOn){ bootStart(); e.preventDefault(); return; }
+  if(e.key>='0'&&e.key<='9'){ pushDigit(e.key); return; }
+  var map={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',
+    Enter:'ok',Escape:'back',Backspace:'back',
+    ' ':'info',i:'info',I:'info',r:'toggleremote',R:'toggleremote',
+    g:'guide',G:'guide',f:'fav',F:'fav',m:'mute',M:'mute'};
+  var k=map[e.key];
+  if(k==='toggleremote'){toggleRemote();e.preventDefault();return;}
+  if(k){ action(k); e.preventDefault(); }
+});
+
+/* ---------- input: remote clicks ---------- */
+document.getElementById('remote').addEventListener('click',function(e){
+  var b=e.target.closest('[data-k]'); if(b){action(b.dataset.k);return;}
+  if(e.target.closest('[data-x]'))toggleRemote();
+});
+function toggleRemote(){document.getElementById('remote').classList.toggle('show');}
+document.getElementById('remoteBtn').onclick=toggleRemote;
+
+/* keypad build */
+(function(){
+  var np=document.getElementById('numpad');
+  [1,2,3,4,5,6,7,8,9,0].forEach(function(d,i){
+    var b=document.createElement('button'); b.className='rc'; if(d===0)b.style.gridColumn='2';
+    b.textContent=d; b.onclick=function(){pushDigit(String(d));}; np.appendChild(b);
+  });
+})();
+
+/* ---------- boot sequence ---------- */
+var bootSteps=[
+  [8,'Initialising NVX-4K SoC…'],
+  [20,'Mounting firmware 2.6.1…'],
+  [34,'Starting HbbTV middleware…'],
+  [48,'Connecting to network…'],
+  [60,'Loading channel database…'],
+  [78,'Scanning channels — found '+CH.length+' services'],
+  [92,'Loading electronic programme guide…'],
+  [100,'Ready']
+];
+function bootStart(){
+  if(poweredOn) return;
+  document.getElementById('powerBtn').style.display='none';
+  document.querySelector('.power-hint').style.display='none';
+  var i=0, bar=document.getElementById('bootbar'), msg=document.getElementById('bootmsg');
+  (function step(){
+    if(i>=bootSteps.length){ finishBoot(); return; }
+    var s=bootSteps[i++]; bar.style.width=s[0]+'%'; msg.textContent=s[1];
+    setTimeout(step, 360+Math.random()*340);
+  })();
+}
+function finishBoot(){
+  poweredOn=true;
+  document.getElementById('boot').classList.add('hide');
+  buildCats(); renderList();
+  var last=parseInt(localStorage.getItem('stb_last')||'',10);
+  var start=(last && byNum(last))?last:CH[0].num;
+  // wait for hls.js if still loading
+  var t0=Date.now();
+  (function waitHls(){
+    if(window.__hlsReady!==undefined || Date.now()-t0>4000){ tuneTo(start); return; }
+    setTimeout(waitHls,120);
+  })();
+  clearTimeout(hintTimer);
+  hintTimer=setTimeout(function(){document.getElementById('hint').classList.add('hide');},8000);
+}
+function powerOff(){
+  poweredOn=false; destroyHls(); setStatus('off'); hideOSD(); closeGuide();
+  var b=document.getElementById('boot'); b.classList.remove('hide');
+  document.getElementById('powerBtn').style.display='';
+  document.querySelector('.power-hint').style.display='';
+  document.getElementById('bootbar').style.width='0%';
+  document.getElementById('bootmsg').textContent='Standby';
+}
+document.getElementById('powerBtn').onclick=bootStart;
+
+/* guard: no channels */
+if(!CH.length){
+  document.getElementById('bootmsg').textContent='No channels found (channels.js missing).';
+  document.getElementById('powerBtn').style.display='none';
+}
+</script>
+</body>
+</html>

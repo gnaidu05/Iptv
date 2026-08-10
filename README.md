@@ -28,6 +28,20 @@ Telugu, Bengali & Malayalam free-to-air collections, deduplicated by URL. See
 [`playlists/CHECK_REPORT.md`](playlists/CHECK_REPORT.md) for the full
 active / dead / unverifiable breakdown and notes on geo-blocking.
 
+## 🖥️ Web set-top box
+
+A browser set-top box that boots, scans the channel list, and plays the
+selected channel via HLS — see [`webstb/`](webstb). Enable GitHub Pages
+(Settings → Pages → *Deploy from a branch* → `main` / root) and it goes live at
+`https://gnaidu05.github.io/Iptv/webstb/`, or run it locally:
+
+```bash
+cd webstb && python -m http.server 8080   # then open http://localhost:8080
+```
+
+Boot → live TV with OSD banner → EPG-style channel list → on-screen remote.
+Full controls and playback notes in [`webstb/README.md`](webstb/README.md).
+
 ## Tool: `m3u`
 
 A small, dependency-free Python library + CLI for parsing, writing, and
