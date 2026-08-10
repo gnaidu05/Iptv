@@ -83,6 +83,7 @@
   .live-bar > i{position:absolute;top:0;left:-40%;width:40%;height:100%;border-radius:20px;background:var(--grad);
     animation:slide 2.2s ease-in-out infinite}
   @keyframes slide{0%{left:-42%}100%{left:100%}}
+  .live-bar > i.det{animation:none;left:0;width:0}
   .live-meta{display:flex;justify-content:space-between;margin-top:8px;color:var(--muted);font-size:12.5px;letter-spacing:1px}
   .badges{display:flex;gap:10px;margin-top:18px}
   .badge{border:1px solid var(--line2);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--txt);
@@ -248,8 +249,8 @@
             </div>
           </div>
           <div class="live-wrap">
-            <div class="live-bar"><i></i></div>
-            <div class="live-meta"><span>● ON AIR</span><span id="heroClock">--:--</span></div>
+            <div class="live-bar"><i id="liveFill"></i></div>
+            <div class="live-meta"><span>● LIVE</span><span id="heroMeta">--:--</span></div>
           </div>
           <div class="badges" id="heroBadges"></div>
           <button class="watch" id="watchBtn">▶ Watch now</button>
@@ -257,7 +258,7 @@
         </div>
 
         <aside class="upnext">
-          <h4>RECENTLY WATCHED</h4>
+          <h4 id="panelTitle">RECENTLY WATCHED</h4>
           <div id="recent"><div class="un-empty">Channels you watch will appear here.</div></div>
         </aside>
       </div>
@@ -352,9 +353,30 @@ function logoImg(c,cls){var i=initials(c);
   return '<span class="ph">'+i+'</span>'}
 function nowClock(){return new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}
 function fmtDate(){return new Date().toLocaleDateString([], {weekday:'short',day:'2-digit',month:'short',year:'numeric'})}
-function tick(){var t=nowClock();railTime.textContent=t;heroClock.textContent=t;railDate.textContent=fmtDate()}
-var railTime=document.getElementById('railTime'),railDate=document.getElementById('railDate'),heroClock=document.getElementById('heroClock');
+function tick(){railTime.textContent=nowClock();railDate.textContent=fmtDate()}
+var railTime=document.getElementById('railTime'),railDate=document.getElementById('railDate');
 setInterval(tick,15000);
+
+/* ---------- EPG (now / next) ---------- */
+var EPG={channels:{}}, EPG_READY=false;
+function nowSec(){return Math.floor(Date.now()/1000)}
+function fmtHM(sec){return new Date(sec*1000).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}
+function progsFor(n){return EPG.channels[String(n)]||null}
+function epgState(n){var r=progsFor(n); if(!r)return null;
+  var t=nowSec(), cur=null, ci=-1;
+  for(var i=0;i<r.length;i++){ if(r[i][0]<=t && t<r[i][1]){cur=r[i];ci=i;break} }
+  var next=[]; var from=(ci>=0)?ci+1:0;
+  for(var j=from;j<r.length && next.length<4;j++){ if(r[j][1]>t) next.push(r[j]) }
+  return {cur:cur,next:next};
+}
+function loadEPG(){
+  fetch('epg.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(d){
+    if(!d||!d.channels)return; EPG=d; EPG_READY=true;
+    render(); updateHeroEpg();
+  }).catch(function(){});
+}
+// program title for a channel right now (for grid cards), or null
+function cardProg(c){ if(!EPG_READY)return null; var st=epgState(c.num); return st&&st.cur?st.cur[2]:null }
 
 /* ---------- categories / tabs ---------- */
 function groupCounts(){var m={};CH.forEach(function(c){var g=catOf(c);m[g]=(m[g]||0)+1});return m}
@@ -404,7 +426,7 @@ function render(){
       '<svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9A5 5 0 0112 5a5 5 0 019.5 7c-2.5 4.5-9.5 9-9.5 9z"/></svg></button></div>'+
       '<div class="c-logo">'+logoImg(c)+'</div>'+
       '<div class="c-name">'+esc(c.name.replace(/\s*\(.*?\)\s*/,' ').trim())+'</div>'+
-      '<div class="c-sub"><span class="dot"></span><span class="nm">'+esc(catOf(c))+'</span></div>'+
+      '<div class="c-sub"><span class="dot"></span><span class="nm">'+esc(cardProg(c)||catOf(c))+'</span></div>'+
       (isHD(c)?'<div class="c-hd">HD</div>':'');
     d.onclick=function(e){ if(e.target.closest('[data-fav]'))return; focusIndex=i; syncSel(); playChannel(c.num); };
     g.appendChild(d);
@@ -428,7 +450,49 @@ function setHero(n){
   var b=document.getElementById('heroBadges'); b.innerHTML='';
   if(isHD(c))b.innerHTML+='<div class="badge"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/></svg>HD</div>';
   b.innerHTML+='<div class="badge"><svg viewBox="0 0 24 24"><path d="M3 10v4h4l5 5V5L7 10H3z"/><path d="M16 8a5 5 0 010 8"/></svg>Live Audio</div>';
-  tick();
+  tick(); updateHeroEpg();
+}
+
+/* live now/next in the hero + side panel */
+function updateHeroEpg(){
+  var c=byNum(currentNum); if(!c)return;
+  var liveEl=document.getElementById('heroLive'), catEl=document.getElementById('heroCat');
+  var fill=document.getElementById('liveFill'), meta=document.getElementById('heroMeta');
+  var st=EPG_READY?epgState(currentNum):null;
+  if(st&&st.cur){
+    var s=st.cur[0],e=st.cur[1],title=st.cur[2]||'Live Programme';
+    liveEl.textContent=title;
+    catEl.textContent=' · '+fmtHM(s)+' – '+fmtHM(e);
+    var pct=Math.max(0,Math.min(100,(nowSec()-s)/Math.max(1,e-s)*100));
+    fill.className='det'; fill.style.width=pct+'%';
+    var left=Math.max(0,Math.round((e-nowSec())/60));
+    meta.textContent=left+' min left';
+  }else{
+    liveEl.textContent='Live';
+    catEl.textContent=' · '+catOf(c);
+    fill.className=''; fill.style.width='';
+    meta.textContent=nowClock();
+  }
+  renderPanel();
+}
+
+/* side panel: real UP NEXT when the hero channel has EPG, else recently watched */
+function renderPanel(){
+  var title=document.getElementById('panelTitle'), box=document.getElementById('recent');
+  var st=EPG_READY?epgState(currentNum):null;
+  if(st&&st.next&&st.next.length){
+    title.textContent='UP NEXT';
+    box.innerHTML='';
+    st.next.forEach(function(p){
+      var r=document.createElement('div'); r.className='un-row'; r.style.cursor='default';
+      r.innerHTML='<div class="un-main"><div class="un-name">'+esc(p[2]||'Programme')+'</div>'+
+        '<div class="un-sub">'+fmtHM(p[0])+' – '+fmtHM(p[1])+'</div></div>';
+      box.appendChild(r);
+    });
+  }else{
+    title.textContent='RECENTLY WATCHED';
+    renderRecent();
+  }
 }
 
 /* ---------- recently watched ---------- */
@@ -603,6 +667,17 @@ function finish(){
   var last=parseInt(localStorage.getItem('stb_last')||'',10);
   currentNum=(last&&byNum(last))?last:CH[0].num;
   setHero(currentNum); renderDots(); tick();
+  loadEPG();
+  // advance now/next + progress every 30s; refresh the guide every 30 min
+  setInterval(function(){ if(EPG_READY){updateHeroEpg(); updateCardProgs()} },30000);
+  setInterval(loadEPG,30*60000);
+}
+function updateCardProgs(){
+  if(!EPG_READY)return;
+  document.querySelectorAll('#grid .cardc').forEach(function(el,i){
+    var c=visible[i]; if(!c)return; var nm=el.querySelector('.c-sub .nm');
+    if(nm)nm.textContent=cardProg(c)||catOf(c);
+  });
 }
 document.getElementById('powerBtn').onclick=bootStart;
 // remember last played

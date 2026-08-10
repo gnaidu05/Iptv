@@ -35,17 +35,17 @@ for the current counts and notes on geo-blocking.
 
 ## 🖥️ Web set-top box
 
-A browser set-top box that boots, scans the channel list, and plays the
-selected channel via HLS — see [`webstb/`](webstb). Enable GitHub Pages
-(Settings → Pages → *Deploy from a branch* → `main` / root) and it goes live at
-`https://gnaidu05.github.io/Iptv/webstb/`, or run it locally:
+A smart-TV–style browser set-top box — boots, scans the lineup, shows a grid
+launcher with a NOW PLAYING hero, real **now / next EPG**, and plays the
+selected channel via HLS. Live at:
 
-```bash
-cd webstb && python -m http.server 8080   # then open http://localhost:8080
+```
+https://gnaidu05.github.io/Iptv/webstb/
 ```
 
-Boot → live TV with OSD banner → EPG-style channel list → on-screen remote.
-Full controls and playback notes in [`webstb/README.md`](webstb/README.md).
+Or run locally: `cd webstb && python -m http.server 8080`. Now/next comes from
+the Tata Play + JioTV guides (rebuilt every 6h into `webstb/epg.json`). Full
+controls and playback notes in [`webstb/README.md`](webstb/README.md).
 
 ## Tool: `m3u`
 

@@ -1,8 +1,8 @@
-name: Weekly channel refresh
+name: Refresh EPG (now/next)
 
 on:
   schedule:
-    - cron: "0 5 * * 1"      # Mondays 05:00 UTC
+    - cron: "0 */6 * * *"     # every 6 hours
   workflow_dispatch:
 
 permissions:
@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  refresh:
+  epg:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -32,21 +32,18 @@ jobs:
       - name: Install dependencies
         run: pip install requests
 
-      - name: Re-check streams and prune dead channels
-        run: python scripts/refresh.py
-
-      - name: Rebuild EPG database (keep channel numbering in sync)
+      - name: Rebuild EPG database
         run: python scripts/build_epg.py
 
-      - name: Commit refreshed playlists
+      - name: Commit updated EPG
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add playlists webstb/channels.js webstb/epg.json
+          git add webstb/epg.json
           if git diff --cached --quiet; then
-            echo "No channel changes this week."
+            echo "No EPG changes."
           else
-            git commit -m "chore: weekly channel refresh (auto-pruned dead streams)"
+            git commit -m "chore: refresh EPG now/next data"
             git push
           fi
 
