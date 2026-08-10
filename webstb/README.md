@@ -39,12 +39,16 @@ colour-coded action bar, and the player controls.
 
 ## Now / next EPG
 
-Real programme data comes from `epg.json`, a compact guide built from the
-community-maintained **Tata Play** and **JioTV** XMLTV feeds
-([mitthu786/tvepg](https://github.com/mitthu786/tvepg)), matched to our
-channels by name (~300 of the lineup covered; the rest show a live indicator).
-The STB computes now/next client-side from absolute timestamps, so the guide
-stays correct between refreshes. Rebuild locally with:
+Real programme data comes from `epg.json`, a compact guide built from three
+community-maintained Indian XMLTV feeds — **Tata Play** + **JioTV**
+([mitthu786/tvepg](https://github.com/mitthu786/tvepg)) and the broader
+**epgshare01** India guide — matched to our channels by name. Matching is exact
+first, then a **guarded fuzzy** fallback that absorbs spelling and word-order
+variants (e.g. "Andhra Jyoti" ↔ "Andhra Jyothi") while refusing near-miss brand
+collisions and sibling channels (Odisha/Disha, Goldmines/Goldmines 2). ~350 of
+the lineup are covered; the rest show a live indicator. The STB computes
+now/next client-side from absolute timestamps, so the guide stays correct
+between refreshes. Rebuild locally with:
 
 ```bash
 python scripts/build_epg.py

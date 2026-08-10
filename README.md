@@ -44,8 +44,9 @@ https://gnaidu05.github.io/Iptv/webstb/
 ```
 
 Or run locally: `cd webstb && python -m http.server 8080`. Now/next comes from
-the Tata Play + JioTV guides (rebuilt every 6h into `webstb/epg.json`). Full
-controls and playback notes in [`webstb/README.md`](webstb/README.md).
+the Tata Play + JioTV + epgshare01 guides (~350 channels, rebuilt every 6h into
+`webstb/epg.json`). Full controls and playback notes in
+[`webstb/README.md`](webstb/README.md).
 
 ## Tool: `m3u`
 
