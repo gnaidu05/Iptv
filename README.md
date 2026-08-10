@@ -3,8 +3,9 @@
 Curated IPTV playlists with a small tool to keep them healthy.
 
 Every stream in the **active** playlist has been fetched and verified to return
-a valid HLS (`#EXTM3U`) manifest. Live streams flap, so treat each list as a
-point-in-time snapshot and re-run the checker to refresh.
+a valid HLS (`#EXTM3U`) manifest. A [weekly GitHub Action](.github/workflows/refresh.yml)
+re-runs the health check, prunes dead streams, pulls in new ones, and
+redeploys the web set-top box — so the lists stay fresh automatically.
 
 ## 📺 Live playlist links
 
@@ -16,17 +17,21 @@ Paste into VLC (**File → Open Network Stream**) or any IPTV player:
 https://raw.githubusercontent.com/gnaidu05/iptv/main/playlists/india-active.m3u
 ```
 
-| Playlist | Channels | File |
-|----------|----------|------|
-| India — active (verified live, HTTPS) | 536 | [`playlists/india-active.m3u`](playlists/india-active.m3u) |
-| India — full source list | 893 | [`playlists/india.m3u`](playlists/india.m3u) |
-| India — `http://` streams (test locally) | 196 | [`playlists/india-unverifiable-http.m3u`](playlists/india-unverifiable-http.m3u) |
+| Playlist | File |
+|----------|------|
+| India — active, **HTTPS** (browser + player safe) | [`playlists/india-active.m3u`](playlists/india-active.m3u) |
+| India — active, **HTTP** (native players like VLC) | [`playlists/india-active-http.m3u`](playlists/india-active-http.m3u) |
+| India — full source list | [`playlists/india.m3u`](playlists/india.m3u) |
 
 Channels are aggregated from a hand-curated list plus the
 [iptv-org](https://github.com/iptv-org/iptv) India (`in`) and Hindi, Tamil,
-Telugu, Bengali & Malayalam free-to-air collections, deduplicated by URL. See
-[`playlists/CHECK_REPORT.md`](playlists/CHECK_REPORT.md) for the full
-active / dead / unverifiable breakdown and notes on geo-blocking.
+Telugu, Bengali & Malayalam free-to-air collections, deduplicated by URL, and
+re-verified weekly. See [`playlists/CHECK_REPORT.md`](playlists/CHECK_REPORT.md)
+for the current counts and notes on geo-blocking.
+
+> `india-active.m3u` is HTTPS-only so it plays from the `https://` web STB;
+> `http://` streams can't (mixed content), so verified-working ones live in
+> `india-active-http.m3u` for native players.
 
 ## 🖥️ Web set-top box
 

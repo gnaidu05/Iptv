@@ -60,7 +60,15 @@ https://gnaidu05.github.io/Iptv/webstb/
   and play; some origin servers don't and will show **No Signal** — that's the
   server, not the box. Zap to the next channel.
 - `http://` streams won't play on an `https://` page (mixed content); the
-  active playlist is HTTPS-only so this is a non-issue here.
+  STB's playlist (`india-active.m3u`) is HTTPS-only so this is a non-issue here.
+  Verified-working `http://` channels live in `../playlists/india-active-http.m3u`
+  for native players.
+
+## Auto-refresh
+
+A [weekly GitHub Action](../.github/workflows/refresh.yml) re-checks every
+stream, prunes dead ones, regenerates `channels.js`, and redeploys this page —
+so the box stays current without manual work.
 
 ## Refresh the channel list
 
