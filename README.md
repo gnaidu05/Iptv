@@ -18,11 +18,14 @@ https://raw.githubusercontent.com/gnaidu05/iptv/main/playlists/india-active.m3u
 
 | Playlist | Channels | File |
 |----------|----------|------|
-| India — active (verified live, HTTPS) | 101 | [`playlists/india-active.m3u`](playlists/india-active.m3u) |
-| India — full source list | 151 | [`playlists/india.m3u`](playlists/india.m3u) |
-| India — `http://` streams (test locally) | 24 | [`playlists/india-unverifiable-http.m3u`](playlists/india-unverifiable-http.m3u) |
+| India — active (verified live, HTTPS) | 512 | [`playlists/india-active.m3u`](playlists/india-active.m3u) |
+| India — full source list | 805 | [`playlists/india.m3u`](playlists/india.m3u) |
+| India — `http://` streams (test locally) | 189 | [`playlists/india-unverifiable-http.m3u`](playlists/india-unverifiable-http.m3u) |
 
-See [`playlists/CHECK_REPORT.md`](playlists/CHECK_REPORT.md) for the full
+Channels are aggregated from a hand-curated list plus the
+[iptv-org](https://github.com/iptv-org/iptv) India and Hindi free-to-air
+collections, deduplicated by URL. See
+[`playlists/CHECK_REPORT.md`](playlists/CHECK_REPORT.md) for the full
 active / dead / unverifiable breakdown and notes on geo-blocking.
 
 ## Tool: `m3u`
