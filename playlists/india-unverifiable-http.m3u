@@ -1,0 +1,52 @@
+#EXTM3U x-tvg-url="https://raw.githubusercontent.com/StrangeDrVN/epg/public/guide.xml.gz"
+#EXTINF:-1 tvg-id="Andflix.in@HD",&flix HD (1080p)
+http://103.72.101.252:8080/live/1322.m3u8
+#EXTINF:-1 tvg-id="Andpictures.in@HD",&pictures HD (1080p)
+http://103.72.101.252:8080/live/185.m3u8
+#EXTINF:-1 tvg-id="AndxplorHD.in@HD",&xplor HD (1080p)
+http://149.71.34.166:8000/play/a001/index.m3u8
+#EXTINF:-1 tvg-id="AajTak.in@SD",Aaj Tak (1080p)
+http://103.213.31.109:90/AajtakHD/playlist.m3u8
+#EXTINF:-1 tvg-id="Aastha.in@SD",Aastha (720p)
+http://103.213.31.109:90/AasthaSD/playlist.m3u8
+#EXTINF:-1 tvg-id="AathavanTV.uk@SD",Aathavan TV (720p) [Not 24/7]
+http://45.77.66.224:1935/athavantv/live/playlist.m3u8
+#EXTINF:-1 tvg-id="ABPNews.in@SD",ABP News (720p)
+http://103.213.31.109:90/ABPNews/playlist.m3u8
+#EXTINF:-1 tvg-id="AnmolCinema.in@SD",Anmol Cinema (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+http://103.175.73.12:8080/live/271/271_0.m3u8
+#EXTINF:-1 tvg-id="AnmolCinema2.in@SD",Anmol Cinema 2 (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+http://103.175.73.12:8080/live/257/257_0.m3u8
+#EXTINF:-1 tvg-id="AnmolTV.in@SD",Anmol TV (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+http://103.175.73.12:8080/live/256/256_0.m3u8
+#EXTINF:-1 tvg-id="AsianetMovies.in@HD",Asianet Movies HD (1080p)
+http://149.71.34.166:8000/play/a06e/index.m3u8
+#EXTINF:-1 tvg-id="B4UBhojpuri.in@SD",B4U Bhojpuri (720p)
+http://103.213.31.109:90/B4UBhojpuri/playlist.m3u8
+#EXTINF:-1 tvg-id="B4UHitz.in@SD",B4U Hitz (576p)
+http://115.42.65.142:9981/stream/channelid/1099703605
+#EXTINF:-1 tvg-id="B4UKadak.in@SD",B4U Kadak (720p)
+http://103.213.31.109:90/B4UKadak/playlist.m3u8
+#EXTINF:-1 tvg-id="BhojpuriCinema.in@SD",Bhojpuri Cinema (720p)
+http://103.213.31.109:90/BhojpuriCinema/playlist.m3u8
+#EXTINF:-1 tvg-id="ChannelY.ca@SD",Channel Y (720p) [Not 24/7]
+http://cdn19.live247stream.com/channely/tv/playlist.m3u8
+#EXTINF:-1 tvg-id="ColorsBanglaCinema.in@SD",Colors Bangla Cinema (576p)
+http://103.72.101.252:8080/live/1657.m3u8
+#EXTINF:-1 tvg-id="ColorsBangla.in@HD",Colors Bangla HD (1080p)
+http://103.72.101.252:8080/live/756.m3u8
+#EXTINF:-1 tvg-id="ColorsBangla.in@HD",Colors Bangla HD (1080p)
+http://103.229.254.25:7001/play/a0ds/index.m3u8
+#EXTINF:-1 tvg-id="ColorsCineplex.in@SD",Colors Cineplex (576p)
+http://103.122.249.134:8000/play/a058
+#EXTINF:-1 tvg-id="ColorsCineplexBollywood.in@SD",Colors Cineplex Bollywood (576p)
+http://103.72.101.252:8080/live/1763.m3u8
+#EXTINF:-1 tvg-id="ColorsCineplexBollywood.in@SD",Colors Cineplex Bollywood (564p)
+http://103.213.31.109:90/CineplxBollywood/playlist.m3u8
+#EXTINF:-1 tvg-id="ColorsCineplex.in@HD",Colors Cineplex HD (1080p)
+http://149.71.34.166:8000/play/a00b/index.m3u8
+#EXTINF:-1 tvg-id="ColorsCineplexSuperhits.in@SD",Colors Cineplex Superhits (576p)
+http://103.72.101.252:8080/live/1450.m3u8
