@@ -13,7 +13,11 @@ endpoints, verified to return HTTP 200 with a valid `#EXTM3U` manifest.
 | Original hand-curated list | 151 | 151 |
 | [iptv-org](https://github.com/iptv-org/iptv) — India (`countries/in`) | 715 | 629 |
 | [iptv-org](https://github.com/iptv-org/iptv) — Hindi (`languages/hin`) | 324 | 25 |
-| **Combined unique** | | **805** |
+| [iptv-org](https://github.com/iptv-org/iptv) — Tamil (`languages/tam`) | 113 | 15 |
+| [iptv-org](https://github.com/iptv-org/iptv) — Telugu (`languages/tel`) | 64 | 1 |
+| [iptv-org](https://github.com/iptv-org/iptv) — Bengali (`languages/ben`) | 107 | 59 |
+| [iptv-org](https://github.com/iptv-org/iptv) — Malayalam (`languages/mal`) | 72 | 13 |
+| **Combined unique** | | **893** |
 
 Deduplicated by URL (scheme + host + path, ignoring query strings).
 
@@ -21,9 +25,9 @@ Deduplicated by URL (scheme + host + path, ignoring query strings).
 
 | Bucket | Count | File |
 |--------|-------|------|
-| ✅ Active (verified live, HTTPS) | **512** | `india-active.m3u` |
-| ⚠️ Unverifiable (`http://`, see note) | 189 | `india-unverifiable-http.m3u` |
-| ❌ Dead / blocked (HTTPS, 4xx / errors) | 104 | — |
+| ✅ Active (verified live, HTTPS) | **536** | `india-active.m3u` |
+| ⚠️ Unverifiable (`http://`, see note) | 196 | `india-unverifiable-http.m3u` |
+| ❌ Dead / blocked (HTTPS, 4xx / errors) | 161 | — |
 
 `india-active.m3u` is the **active-only** playlist. The `#EXTM3U x-tvg-url="…"`
 EPG header is preserved.
