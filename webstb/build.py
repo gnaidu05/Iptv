@@ -12,6 +12,7 @@ loads at boot.
 
 import json
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -23,22 +24,51 @@ import m3u  # noqa: E402
 PLAYLIST = os.path.join(ROOT, "playlists", "india-active.m3u")
 OUT = os.path.join(HERE, "channels.js")
 
+# DD Free Dish bouquet membership. All Doordarshan channels plus the private
+# free-to-air channels carried on DD Free Dish. The private lineup shifts with
+# quarterly auctions, so this keyword list is best-effort and easy to edit.
+FREE_DISH_KEYWORDS = [
+    "sansad",
+    # movies
+    "goldmines", "dangal", "enterr", "manoranjan", "bhojpuri cinema",
+    "b4u kadak", "b4u bhojpuri", "wow cinema", "maha movie", "nazara",
+    "dhinchaak", "dabangg", "filamchi", "abzy", "cinema tv", "shemaroo",
+    "sony pal", "ishara",
+    # music
+    "b4u music", "wow music", "mastiii", "9x jhakaas", "9xm", "dhoom",
+    # devotional
+    "aastha", "sanskar", "shubh", "ishwar", "paras tv", "sadhna", "satsang",
+    "shraddha", "channel divya", "arihant", "peace of mind", "sanatan",
+    # free-to-air news carried on Free Dish
+    "news24", "news 24", "news nation", "bharat24", "bharat 24",
+    "republic bharat", "good news today",
+]
+
+
+def is_free_dish(name: str) -> bool:
+    n = re.sub(r"\s*\(.*?\)\s*", " ", name or "").strip().lower()
+    if n.startswith("dd ") or n == "dd":
+        return True
+    return any(kw in n for kw in FREE_DISH_KEYWORDS)
+
 
 def main() -> int:
     pl = m3u.parse_file(PLAYLIST)
     channels = []
     for i, track in enumerate(pl, start=1):
         attrs = track.attributes
-        channels.append(
-            {
-                "num": i,
-                "name": track.title or attrs.get("tvg-name") or f"Channel {i}",
-                "url": track.path,
-                "logo": attrs.get("tvg-logo", ""),
-                "group": attrs.get("group-title", "") or "General",
-                "tvgId": attrs.get("tvg-id", ""),
-            }
-        )
+        name = track.title or attrs.get("tvg-name") or f"Channel {i}"
+        ch = {
+            "num": i,
+            "name": name,
+            "url": track.path,
+            "logo": attrs.get("tvg-logo", ""),
+            "group": attrs.get("group-title", "") or "General",
+            "tvgId": attrs.get("tvg-id", ""),
+        }
+        if is_free_dish(name):
+            ch["fd"] = 1
+        channels.append(ch)
 
     data = {"epg": pl.attributes.get("x-tvg-url", ""), "channels": channels}
     with open(OUT, "w", encoding="utf-8") as handle:
@@ -48,7 +78,11 @@ def main() -> int:
         handle.write(";\n")
 
     with_logo = sum(1 for c in channels if c["logo"])
+    fd = [c["name"] for c in channels if c.get("fd")]
     print(f"Wrote {len(channels)} channels ({with_logo} with logos) to {OUT}")
+    print(f"DD Free Dish bouquet: {len(fd)} channels")
+    for name in fd:
+        print(f"   • {name}")
     return 0
 
 

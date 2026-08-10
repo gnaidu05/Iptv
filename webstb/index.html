@@ -392,6 +392,7 @@ function buildTabs(){
     b.className='tab'+((key===catFilter&&!favView)?' active':''); b.textContent=label; b.dataset.key=key;
     b.onclick=function(){favView=false;setNav('live');catFilter=key;render()}; tabs.appendChild(b)}
   add('ALL','All Channels');
+  if(CH.some(function(c){return c.fd})) add('FD','DD Free Dish');
   order.forEach(function(g){add(g,g)});
 }
 
@@ -399,7 +400,8 @@ function buildTabs(){
 function computeVisible(){
   var list=CH.filter(function(c){
     if(favView&&!favs.has(c.num))return false;
-    if(!favView&&catFilter!=='ALL'&&catOf(c)!==catFilter)return false;
+    if(!favView&&catFilter==='FD'&&!c.fd)return false;
+    if(!favView&&catFilter!=='ALL'&&catFilter!=='FD'&&catOf(c)!==catFilter)return false;
     if(hdOnly&&!isHD(c))return false;
     if(query){var q=query.toLowerCase();if((c.name||'').toLowerCase().indexOf(q)<0)return false}
     return true;
@@ -414,7 +416,7 @@ function computeVisible(){
 /* ---------- grid ---------- */
 function render(){
   visible=computeVisible();
-  document.getElementById('gridTitle').textContent=favView?'Favourites':(catFilter==='ALL'?'All Channels':catFilter);
+  document.getElementById('gridTitle').textContent=favView?'Favourites':(catFilter==='ALL'?'All Channels':catFilter==='FD'?'DD Free Dish':catFilter);
   document.getElementById('gridCount').textContent=visible.length+' Channels';
   document.querySelectorAll('.tab').forEach(function(t){t.classList.toggle('active',!favView&&t.dataset.key===catFilter)});
   var g=document.getElementById('grid'); g.innerHTML='';
