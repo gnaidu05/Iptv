@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>STB — Web Set-Top Box</title>
+<title>Pravaah — Live TV</title>
 <style>
   :root{
     --bg:#05070e; --bg2:#080b14; --rail:#070912; --card:#0e1322; --card2:#0b0f1b;
@@ -27,7 +27,7 @@
   /* ---------------- LEFT RAIL ---------------- */
   #rail{width:96px;flex:0 0 96px;background:var(--rail);border-right:1px solid var(--line);
     display:flex;flex-direction:column;align-items:center;padding:22px 0 18px;gap:8px;z-index:5}
-  .logo{font-weight:900;font-size:22px;letter-spacing:1px;background:var(--grad);-webkit-background-clip:text;
+  .logo{font-weight:900;font-size:15px;letter-spacing:.3px;background:var(--grad);-webkit-background-clip:text;
     background-clip:text;color:transparent;margin-bottom:22px}
   .nav{width:56px;height:56px;border-radius:16px;border:1px solid transparent;background:none;color:var(--muted);
     display:grid;place-items:center;cursor:pointer;transition:.15s}
@@ -123,11 +123,16 @@
   /* ---------------- GRID ---------------- */
   #gridhead{display:flex;align-items:baseline;justify-content:space-between;padding:20px 40px 12px}
   #gridhead h2{margin:0;font-size:20px;font-weight:700}
-  .gh-right{display:flex;align-items:center;gap:14px;color:var(--p2);font-size:13px}
-  .gh-right .filt{width:34px;height:34px;border-radius:9px;border:1px solid var(--line2);display:grid;place-items:center;cursor:pointer;color:var(--muted)}
-  .gh-right .filt svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
-  .gh-right .filt.on{color:#fff;border-color:var(--p2);background:rgba(77,124,255,.18)}
-  #grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;padding:0 40px 110px}
+  .gh-right{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;flex-wrap:wrap;justify-content:flex-end}
+  #gridCount{margin-right:4px}
+  .ghbtn{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 14px;border-radius:10px;border:1px solid var(--line2);
+    background:rgba(255,255,255,.03);color:var(--txt);cursor:pointer;font-size:13px;font-weight:600;-webkit-tap-highlight-color:transparent}
+  .ghbtn:hover{background:rgba(255,255,255,.08)}
+  .ghbtn:active{transform:translateY(1px)}
+  .ghbtn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+  .ghbtn.on{color:#fff;border-color:var(--p2);background:rgba(77,124,255,.18)}
+  .ghbtn .lbl{white-space:nowrap}
+  #grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;padding:0 40px 48px}
   .cardc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:var(--radius);
     padding:14px;cursor:pointer;position:relative;transition:.14s;overflow:hidden}
   .cardc:hover{border-color:var(--line2);transform:translateY(-2px)}
@@ -149,13 +154,19 @@
   .c-sub .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .c-hd{position:absolute;right:14px;bottom:14px;border:1px solid var(--line2);border-radius:6px;padding:2px 7px;font-size:10.5px;color:var(--muted)}
 
-  /* ---------------- ACTION LEGEND ---------------- */
-  #legend{position:fixed;bottom:16px;right:34px;display:flex;gap:22px;z-index:6}
-  .leg{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;cursor:pointer;background:rgba(5,7,14,.7);
-    padding:6px 4px;border-radius:8px}
-  .leg:hover{color:var(--txt)}
-  .leg b{width:11px;height:11px;border-radius:50%}
-  .lr{background:var(--danger)}.lg{background:var(--live)}.ly{background:var(--warn)}.lb{background:var(--info)}
+  /* ---------------- HELP / ABOUT ---------------- */
+  #help{position:fixed;inset:0;z-index:47;display:none;align-items:center;justify-content:center;
+    background:rgba(5,7,14,.8);backdrop-filter:blur(6px);padding:24px}
+  #help.show{display:flex}
+  .help-card{width:min(460px,94vw);background:var(--panel-solid,#0d1220);border:1px solid var(--line2);border-radius:18px;
+    padding:26px 26px 22px;box-shadow:var(--shadow)}
+  .help-card h3{margin:0 0 4px;font-size:20px}
+  .help-card .tag{color:var(--muted);font-size:13px;margin-bottom:18px}
+  .help-row{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line);font-size:14px}
+  .help-row:first-of-type{border-top:0}
+  .help-row .ic{width:26px;flex:0 0 auto;text-align:center}
+  .help-row b{color:var(--txt)}.help-row span{color:var(--muted)}
+  .help-close{margin-top:18px;width:100%;border:0;border-radius:12px;padding:12px;font-weight:800;color:#fff;background:var(--grad);cursor:pointer}
 
   /* ---------------- PLAYER (fullscreen) ---------------- */
   #player{position:fixed;inset:0;z-index:40;background:#000;display:none}
@@ -203,14 +214,26 @@
   .firm{position:absolute;bottom:22px;color:var(--muted);font-size:11px;letter-spacing:2px}
 
   @media (max-width:1100px){.upnext{display:none}.hero-name{font-size:32px}}
-  @media (max-width:760px){#rail{width:70px;flex-basis:70px}#hero{padding:24px}#tabs,#gridhead,#grid{padding-left:22px;padding-right:22px}}
+  @media (max-width:760px){
+    #rail{width:64px;flex-basis:64px;padding-top:16px}
+    .nav{width:48px;height:48px}
+    #hero{padding:20px 22px;min-height:auto}
+    #tabs,#gridhead,#grid{padding-left:18px;padding-right:18px}
+    #topctl{top:16px;right:16px}
+    .fav-pill .lbl,.fav-pill{font-size:12px}
+    .ghbtn{height:40px;padding:0 12px}   /* comfortable tap targets */
+    .ghbtn .lbl{display:none}            /* icon-only to keep the row tidy */
+    #gridhead h2{font-size:18px}
+    #grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+    .hero-name{font-size:26px}.hero-logo{width:64px;height:48px}
+  }
 </style>
 </head>
 <body>
 <div id="app">
   <!-- LEFT RAIL -->
   <nav id="rail">
-    <div class="logo">STB</div>
+    <div class="logo">Pravaah</div>
     <button class="nav active" data-view="live" title="Live TV">
       <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M8 3l4 4 4-4"/></svg></button>
     <button class="nav" data-view="fav" title="Favourites">
@@ -219,7 +242,7 @@
       <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></button>
     <button class="nav" data-view="search" title="Search">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></button>
-    <button class="nav" data-view="settings" title="Settings">
+    <button class="nav" data-view="settings" title="Help &amp; about">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1l2-1.5-2-3.5-2.4 1a7 7 0 00-1.7-1L14.5 3h-5l-.3 2.5a7 7 0 00-1.7 1l-2.4-1-2 3.5L3 11a7 7 0 000 2l-2 1.5 2 3.5 2.4-1a7 7 0 001.7 1l.3 2.5h5l.3-2.5a7 7 0 001.7-1l2.4 1 2-3.5-2-1.5a7 7 0 00.1-1z"/></svg></button>
     <div class="rail-sp"></div>
     <div class="rail-time" id="railTime">--:--</div>
@@ -272,19 +295,27 @@
       <h2 id="gridTitle">All Channels</h2>
       <div class="gh-right">
         <span id="gridCount">0 Channels</span>
-        <div class="filt" id="filtBtn" title="HD only"><svg viewBox="0 0 24 24"><path d="M3 5h18M6 12h12M10 19h4"/></svg></div>
+        <button class="ghbtn" id="searchBtn" title="Search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><span class="lbl">Search</span></button>
+        <button class="ghbtn" id="sortBtn" title="Sort"><svg viewBox="0 0 24 24"><path d="M7 4v16M7 20l-3-3M7 4l3 3M17 20V4M17 4l3 3M17 20l-3-3"/></svg><span class="lbl">Sort</span></button>
+        <button class="ghbtn" id="filtBtn" title="HD only"><svg viewBox="0 0 24 24"><path d="M3 5h18M6 12h12M10 19h4"/></svg><span class="lbl">HD only</span></button>
       </div>
     </div>
     <div id="grid"></div>
   </main>
 </div>
 
-<!-- ACTION LEGEND -->
-<div id="legend">
-  <div class="leg" data-act="search"><b class="lr"></b>Search</div>
-  <div class="leg" data-act="fav"><b class="lg"></b>Add to Favourites</div>
-  <div class="leg" data-act="sort"><b class="ly"></b>Sort</div>
-  <div class="leg" data-act="filter"><b class="lb"></b>Filter</div>
+<!-- HELP / ABOUT -->
+<div id="help">
+  <div class="help-card">
+    <h3>Pravaah</h3>
+    <div class="tag">Live Indian TV in your browser</div>
+    <div class="help-row"><span class="ic">👆</span><div><b>Tap a channel</b> <span>to watch it full-screen. Tap the screen for the back button.</span></div></div>
+    <div class="help-row"><span class="ic">📺</span><div><b>Live TV</b> <span>(sidebar) shows the channel grid; use the tabs to filter by category or the DD Free Dish bouquet.</span></div></div>
+    <div class="help-row"><span class="ic">🔍</span><div><b>Search</b> <span>finds a channel by name.</span></div></div>
+    <div class="help-row"><span class="ic">❤️</span><div><b>Favourites</b> <span>— tap the heart on any channel, then open the Favourites tab.</span></div></div>
+    <div class="help-row"><span class="ic">⌨️</span><div><b>Keyboard</b> <span>: arrows to move, Enter to watch, / to search, F favourite.</span></div></div>
+    <button class="help-close" id="helpClose">Got it</button>
+  </div>
 </div>
 
 <!-- PLAYER -->
@@ -317,12 +348,12 @@
 
 <!-- BOOT -->
 <div id="boot">
-  <div class="boot-logo">STB</div>
-  <div class="boot-sub">WEB SET-TOP BOX</div>
+  <div class="boot-logo">Pravaah</div>
+  <div class="boot-sub">LIVE INDIAN TV</div>
   <div class="bbar"><i id="bootbar"></i></div>
   <div id="bootmsg">System ready</div>
-  <button id="powerBtn">⏻ POWER ON</button>
-  <div class="firm">MODEL NVX-4K · FIRMWARE 3.0 · HbbTV</div>
+  <button id="powerBtn">▶ Start watching</button>
+  <div class="firm">LIVE INDIAN TV · IN YOUR BROWSER</div>
 </div>
 
 <script src="channels.js"></script>
@@ -588,7 +619,7 @@ document.getElementById('rail').addEventListener('click',function(e){
   else if(v==='fav'){openFav()}
   else if(v==='guide'){favView=false;catFilter='ALL';setNav('live');render();document.getElementById('gridhead').scrollIntoView({behavior:'smooth'})}
   else if(v==='search'){openSearch()}
-  else if(v==='settings'){setNav('settings')}
+  else if(v==='settings'){openHelp()}
 });
 function openFav(){favView=true;focusIndex=0;setNav('fav');document.getElementById('favPill').classList.add('on');render();
   document.getElementById('gridhead').scrollIntoView({behavior:'smooth'})}
@@ -609,15 +640,22 @@ function searchRender(q){
 }
 document.getElementById('sInput').addEventListener('input',function(){searchRender(this.value)});
 
-/* ---------- action legend ---------- */
-document.getElementById('legend').addEventListener('click',function(e){var b=e.target.closest('[data-act]');if(b)doAct(b.dataset.act)});
+/* ---------- header actions ---------- */
+var SORT_LABEL={number:'Channel number',name:'Name (A–Z)',favourites:'Favourites first'};
 function doAct(a){
   if(a==='search')openSearch();
   else if(a==='fav'){var c=visible[focusIndex];if(c)toggleFav(c.num)}
-  else if(a==='sort'){sortMode=(sortMode+1)%SORTS.length;render();toast('Sort: '+SORTS[sortMode])}
-  else if(a==='filter'){hdOnly=!hdOnly;document.getElementById('filtBtn').classList.toggle('on',hdOnly);render();toast(hdOnly?'HD only':'All qualities')}
+  else if(a==='sort'){sortMode=(sortMode+1)%SORTS.length;render();toast('Sorted by: '+SORT_LABEL[SORTS[sortMode]])}
+  else if(a==='filter'){hdOnly=!hdOnly;document.getElementById('filtBtn').classList.toggle('on',hdOnly);render();toast(hdOnly?'Showing HD only':'Showing all qualities')}
 }
+document.getElementById('searchBtn').onclick=function(){openSearch()};
+document.getElementById('sortBtn').onclick=function(){doAct('sort')};
 document.getElementById('filtBtn').onclick=function(){doAct('filter')};
+/* help / about */
+function openHelp(){document.getElementById('help').classList.add('show')}
+function closeHelp(){document.getElementById('help').classList.remove('show');setNav('live')}
+document.getElementById('helpClose').onclick=closeHelp;
+document.getElementById('help').addEventListener('click',function(e){if(e.target.id==='help')closeHelp()});
 var toastEl=null;
 function toast(t){ if(!toastEl){toastEl=document.createElement('div');toastEl.style.cssText='position:fixed;bottom:64px;right:34px;background:rgba(10,14,24,.95);border:1px solid var(--line2);padding:10px 16px;border-radius:10px;font-size:13px;z-index:8;transition:opacity .3s';document.body.appendChild(toastEl)}
   toastEl.textContent=t;toastEl.style.opacity='1';clearTimeout(toastEl._t);toastEl._t=setTimeout(function(){toastEl.style.opacity='0'},1400)}
@@ -656,8 +694,8 @@ function numJump(d){numBuf=(numBuf+d).slice(-4);clearTimeout(numT);toast('Channe
   numT=setTimeout(function(){var n=parseInt(numBuf,10);numBuf='';if(byNum(n))playChannel(n)},1200)}
 
 /* ---------- boot ---------- */
-var steps=[[10,'Initialising NVX-4K SoC…'],[26,'Starting HbbTV middleware…'],[44,'Connecting to network…'],
-  [62,'Loading channel database…'],[80,'Scanning — '+CH.length+' services found'],[92,'Loading guide…'],[100,'Ready']];
+var steps=[[14,'Starting Pravaah…'],[34,'Connecting…'],[58,'Loading channels…'],
+  [80,'Found '+CH.length+' live channels'],[92,'Loading TV guide…'],[100,'Ready']];
 function bootStart(){ if(poweredOn)return; document.getElementById('powerBtn').style.display='none';
   var i=0,bar=document.getElementById('bootbar'),msg=document.getElementById('bootmsg');
   (function step(){ if(i>=steps.length){finish();return}
