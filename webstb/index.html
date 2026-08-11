@@ -192,10 +192,42 @@
   #pbar{position:absolute;top:0;left:0;right:0;padding:22px 28px;z-index:2;display:flex;align-items:center;gap:16px;
     background:linear-gradient(180deg,rgba(0,0,0,.75),transparent);transition:opacity .35s}
   #pbar.hide{opacity:0}
-  .pback{width:44px;height:44px;border-radius:12px;border:1px solid var(--line2);background:rgba(0,0,0,.4);color:#fff;cursor:pointer;font-size:20px}
-  .pb-num{font-family:Menlo,Consolas,monospace;font-size:26px;font-weight:800;color:var(--p2)}
-  .pb-name{font-size:22px;font-weight:700}.pb-cat{color:var(--muted);font-size:13px}
-  .pb-live{margin-left:auto;display:flex;align-items:center;gap:8px;color:var(--live);font-weight:700;letter-spacing:1px}
+  .pback{width:44px;height:44px;border-radius:12px;border:1px solid var(--line2);background:rgba(0,0,0,.4);color:#fff;cursor:pointer;font-size:20px;flex:0 0 auto}
+  .pb-num{font-family:Menlo,Consolas,monospace;font-size:26px;font-weight:800;color:var(--p2);flex:0 0 auto}
+  .pb-meta{min-width:0}
+  .pb-name{font-size:22px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pb-cat{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pbtn{margin-left:auto;display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:11px;
+    border:1px solid var(--line2);background:rgba(0,0,0,.4);color:#fff;cursor:pointer;font-size:14px;font-weight:600;flex:0 0 auto}
+  .pbtn:hover{background:rgba(255,255,255,.1)}.pbtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2}
+  .pb-live{display:flex;align-items:center;gap:8px;color:var(--live);font-weight:700;letter-spacing:1px;flex:0 0 auto}
+
+  /* in-player EPG / channel surf */
+  #pguide{position:absolute;left:0;right:0;bottom:0;z-index:3;max-height:62%;display:flex;flex-direction:column;
+    transform:translateY(101%);transition:transform .3s ease;
+    background:linear-gradient(0deg,rgba(5,7,14,.97),rgba(5,7,14,.82));backdrop-filter:blur(10px);border-top:1px solid var(--line2)}
+  #pguide.show{transform:none}
+  .pg-head{display:flex;align-items:flex-start;gap:16px;padding:18px 22px 12px}
+  .pg-now{display:flex;gap:14px;align-items:center;flex:1;min-width:0}
+  .pg-logo{width:74px;height:52px;border-radius:9px;background:#0a0f1c;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;flex:0 0 auto}
+  .pg-logo img{max-width:84%;max-height:80%;object-fit:contain}.pg-logo .ph{font-weight:800;color:var(--muted)}
+  .pg-nowtxt{min-width:0}
+  .pg-ch{font-size:20px;font-weight:700}.pg-ch b{color:var(--p2);font-family:Menlo,Consolas,monospace;margin-right:6px}
+  .pg-prog{display:flex;align-items:center;gap:8px;margin-top:4px;font-size:15px}
+  .pg-time{color:var(--muted);font-size:13px}
+  .pg-next{color:var(--muted);font-size:13px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pg-close{width:38px;height:38px;border-radius:10px;border:1px solid var(--line2);background:rgba(255,255,255,.05);color:#fff;cursor:pointer;font-size:16px;flex:0 0 auto}
+  .pg-list{overflow-y:auto;padding:4px 12px 6px}
+  .pg-row{display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:11px;cursor:pointer;border:1px solid transparent}
+  .pg-row:hover{background:rgba(255,255,255,.05)}
+  .pg-row.cur{box-shadow:inset 0 0 0 1px rgba(56,224,123,.5)}
+  .pg-row.sel{background:var(--sel,rgba(77,124,255,.18));border-color:var(--p2)}
+  .pg-row .rn{font-family:Menlo,Consolas,monospace;color:var(--p2);font-weight:700;min-width:42px;text-align:right}
+  .pg-row .rl{width:46px;height:32px;border-radius:6px;background:#0a0f1c;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;flex:0 0 auto}
+  .pg-row .rl img{max-width:84%;max-height:80%;object-fit:contain}.pg-row .rl .ph{font-size:11px;font-weight:800;color:var(--muted)}
+  .pg-row .rname{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pg-row .rprog{color:var(--muted);font-size:12.5px;margin-left:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:45%}
+  .pg-hint{padding:8px 22px 12px;color:var(--muted);font-size:12px}.pg-hint b{color:var(--txt)}
 
   /* ---------------- SEARCH ---------------- */
   #search{position:fixed;inset:0;z-index:45;display:none;background:rgba(5,7,14,.9);backdrop-filter:blur(6px);padding:80px 40px}
@@ -371,9 +403,28 @@
   <div id="pbar">
     <button class="pback" id="pback">‹</button>
     <div class="pb-num" id="pbNum">001</div>
-    <div><div class="pb-name" id="pbName">—</div><div class="pb-cat" id="pbCat"></div></div>
+    <div class="pb-meta"><div class="pb-name" id="pbName">—</div><div class="pb-cat" id="pbCat"></div></div>
+    <button class="pbtn" id="pGuideBtn" title="TV guide (▲)"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><span>Guide</span></button>
     <div class="pb-live"><span class="dot"></span>LIVE</div>
   </div>
+
+  <!-- in-player EPG / channel surf -->
+  <div id="pguide">
+    <div class="pg-head">
+      <div class="pg-now">
+        <div class="pg-logo" id="pgLogo"><span class="ph">TV</span></div>
+        <div class="pg-nowtxt">
+          <div class="pg-ch"><b id="pgNum">1</b> <span id="pgName">—</span></div>
+          <div class="pg-prog"><span class="dot"></span><span id="pgNow">Live</span><span id="pgTime" class="pg-time"></span></div>
+          <div class="pg-next" id="pgNext"></div>
+        </div>
+      </div>
+      <button class="pg-close" id="pgClose">✕</button>
+    </div>
+    <div class="pg-list" id="pgList"></div>
+    <div class="pg-hint">▲▼ or swipe to browse · <b>tap / OK</b> to switch · <b>Back</b> to close</div>
+  </div>
+
   <div id="pstatus">
     <div class="spinner" id="pspin"></div>
     <div class="msg" id="pmsg">Tuning…</div>
@@ -637,7 +688,7 @@ function playChannel(n){
   inPlayer=true; document.getElementById('player').classList.add('show');
   document.getElementById('pbNum').textContent=String(n).padStart(3,'0');
   document.getElementById('pbName').textContent=c.name.replace(/\s*\(.*?\)\s*/,' ').trim();
-  document.getElementById('pbCat').textContent=catOf(c);
+  updatePbarProg(n);
   var v=document.getElementById('video'); v.muted=false;
   pStatus('tuning','Tuning <b>'+esc(c.name)+'</b>…');
   var settled=false; clearTimeout(tuneTimer);
@@ -648,16 +699,65 @@ function playChannel(n){
   showPbar();
 }
 function closePlayer(){
-  inPlayer=false; document.getElementById('player').classList.remove('show');
+  inPlayer=false; closePGuide(); document.getElementById('player').classList.remove('show');
   var v=document.getElementById('video'); destroyHls(v); pStatus('off');
   renderDots();
 }
 var pbarTimer=null;
-function showPbar(){var b=document.getElementById('pbar');b.classList.remove('hide');clearTimeout(pbarTimer);pbarTimer=setTimeout(function(){b.classList.add('hide')},4000)}
+function showPbar(){var b=document.getElementById('pbar');b.classList.remove('hide');clearTimeout(pbarTimer);
+  pbarTimer=setTimeout(function(){if(!pgOpen)b.classList.add('hide')},4500)}
 document.getElementById('player').addEventListener('mousemove',showPbar);
-document.getElementById('player').addEventListener('click',function(e){if(!e.target.closest('#pbar'))showPbar()});
+document.getElementById('player').addEventListener('click',function(e){if(!e.target.closest('#pbar')&&!e.target.closest('#pguide'))showPbar()});
 document.getElementById('pback').onclick=function(e){e.stopPropagation();closePlayer()};
 document.getElementById('watchBtn').onclick=function(){playChannel(currentNum||(visible[focusIndex]||CH[0]).num)};
+
+/* ---------- in-player EPG / channel surf ---------- */
+var pgOpen=false, pgList=[], pgSel=0;
+function progLine(n){
+  if(EPG_READY){var st=epgState(n); if(st&&st.cur)return st.cur[2]||'Live programme';}
+  var c=byNum(n); return c?catOf(c):'';
+}
+function updatePbarProg(n){var el=document.getElementById('pbCat'); if(el)el.textContent=progLine(n)}
+function openPGuide(){
+  if(!inPlayer)return;
+  pgOpen=true;
+  pgList=(visible&&visible.length?visible:CH).slice();
+  var pos=pgList.findIndex(function(c){return c.num===currentNum}); pgSel=pos>=0?pos:0;
+  document.getElementById('pguide').classList.add('show'); showPbar(); renderPGuide();
+  var rows=document.querySelectorAll('#pgList .pg-row'); if(rows[pgSel])rows[pgSel].scrollIntoView({block:'center'});
+}
+function closePGuide(){pgOpen=false;document.getElementById('pguide').classList.remove('show')}
+function togglePGuide(){pgOpen?closePGuide():openPGuide()}
+function renderPGuide(){
+  var c=byNum(currentNum);
+  if(c){
+    document.getElementById('pgLogo').innerHTML=logoImg(c);
+    document.getElementById('pgNum').textContent=c.num;
+    document.getElementById('pgName').textContent=c.name.replace(/\s*\(.*?\)\s*/,' ').trim();
+    var st=EPG_READY?epgState(currentNum):null;
+    document.getElementById('pgNow').textContent=(st&&st.cur)?(st.cur[2]||'Live programme'):'Live';
+    document.getElementById('pgTime').textContent=(st&&st.cur)?('· '+fmtHM(st.cur[0])+' – '+fmtHM(st.cur[1])):'';
+    document.getElementById('pgNext').textContent=(st&&st.next&&st.next[0])?('Next: '+(st.next[0][2]||'Programme')+' · '+fmtHM(st.next[0][0])):'';
+  }
+  var box=document.getElementById('pgList'); box.innerHTML='';
+  pgList.forEach(function(ch,i){
+    var st=EPG_READY?epgState(ch.num):null, prog=(st&&st.cur)?st.cur[2]:catOf(ch);
+    var r=document.createElement('div'); r.className='pg-row'+(ch.num===currentNum?' cur':'')+(i===pgSel?' sel':'');
+    r.innerHTML='<div class="rn">'+ch.num+'</div><div class="rl">'+logoImg(ch)+'</div>'+
+      '<div class="rname">'+esc(ch.name.replace(/\s*\(.*?\)\s*/,' ').trim())+'</div>'+
+      '<div class="rprog">'+esc(prog||'')+'</div>';
+    r.onclick=function(){pgSel=i;pgSwitch()};
+    box.appendChild(r);
+  });
+}
+function pgHighlight(){var rows=document.querySelectorAll('#pgList .pg-row');
+  rows.forEach(function(el,i){el.classList.toggle('sel',i===pgSel)});
+  if(rows[pgSel])rows[pgSel].scrollIntoView({block:'nearest'})}
+function pgMove(d){pgSel=Math.max(0,Math.min(pgList.length-1,pgSel+d));pgHighlight()}
+function pgSwitch(){var ch=pgList[pgSel]; if(ch){playChannel(ch.num);renderPGuide();
+  var rows=document.querySelectorAll('#pgList .pg-row'); if(rows[pgSel])rows[pgSel].scrollIntoView({block:'nearest'})}}
+document.getElementById('pGuideBtn').onclick=function(e){e.stopPropagation();togglePGuide()};
+document.getElementById('pgClose').onclick=function(e){e.stopPropagation();closePGuide()};
 
 /* ---------- nav rail / views ---------- */
 function setNav(view){document.querySelectorAll('.nav').forEach(function(n){n.classList.toggle('active',n.dataset.view===view)})}
@@ -716,9 +816,22 @@ document.addEventListener('keydown',function(e){
     else if(e.key==='Enter'){var f=document.querySelector('#sResults .cardc');if(f)f.click()}
     return;
   }
-  if(inPlayer){ if(e.key==='Escape'||e.key==='Backspace'){closePlayer();e.preventDefault()}
-    else if(e.key==='ArrowRight'){zap(1);e.preventDefault()} else if(e.key==='ArrowLeft'){zap(-1);e.preventDefault()}
-    return; }
+  if(inPlayer){
+    if(pgOpen){
+      if(e.key==='Escape'||e.key==='Backspace'){closePGuide()}
+      else if(e.key==='ArrowUp'){pgMove(-1)} else if(e.key==='ArrowDown'){pgMove(1)}
+      else if(e.key==='Enter'){pgSwitch()}
+      else if(e.key==='g'||e.key==='G'){closePGuide()}
+      else if(e.key>='0'&&e.key<='9'){numJump(e.key)}
+      e.preventDefault(); return;
+    }
+    if(e.key==='Escape'||e.key==='Backspace'){closePlayer()}
+    else if(e.key==='ArrowUp'||e.key==='Enter'||e.key==='g'||e.key==='G'){openPGuide()}
+    else if(e.key==='ArrowRight'){zap(1)} else if(e.key==='ArrowLeft'){zap(-1)}
+    else if(e.key>='0'&&e.key<='9'){numJump(e.key)}
+    else return;
+    e.preventDefault(); return;
+  }
   switch(e.key){
     case 'ArrowRight':moveFocus(1);e.preventDefault();break;
     case 'ArrowLeft':moveFocus(-1);e.preventDefault();break;
@@ -757,7 +870,8 @@ function finish(){
   setHero(currentNum); renderDots(); tick();
   loadEPG();
   // advance now/next + progress every 30s; refresh the guide every 30 min
-  setInterval(function(){ if(EPG_READY){updateHeroEpg(); updateCardProgs()} },30000);
+  setInterval(function(){ if(EPG_READY){updateHeroEpg(); updateCardProgs();
+    if(inPlayer)updatePbarProg(currentNum); if(pgOpen)renderPGuide()} },30000);
   setInterval(loadEPG,30*60000);
 }
 function updateCardProgs(){
