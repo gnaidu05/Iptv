@@ -22,6 +22,7 @@ https://raw.githubusercontent.com/gnaidu05/iptv/main/playlists/india-active.m3u
 | India — active, **HTTPS** (browser + player safe) | [`playlists/india-active.m3u`](playlists/india-active.m3u) |
 | India — active, **HTTP** (native players like VLC) | [`playlists/india-active-http.m3u`](playlists/india-active-http.m3u) |
 | India — full source list | [`playlists/india.m3u`](playlists/india.m3u) |
+| Samsung TV Plus — India (⚠️ India-only) | [`playlists/samsung-india.m3u`](playlists/samsung-india.m3u) |
 
 Channels are aggregated from a hand-curated list plus the
 [iptv-org](https://github.com/iptv-org/iptv) India (`in`) and Hindi, Tamil,
@@ -32,6 +33,12 @@ for the current counts and notes on geo-blocking.
 > `india-active.m3u` is HTTPS-only so it plays from the `https://` web STB;
 > `http://` streams can't (mixed content), so verified-working ones live in
 > `india-active-http.m3u` for native players.
+>
+> `samsung-india.m3u` is a **separate, unverified** list of Samsung TV Plus'
+> 200 free India channels. These streams are **geo-locked to India** and
+> ad-session based — they won't play in the hosted web STB and are kept out of
+> the health-check pipeline. Load it in a native player (VLC / TV app) from
+> India. Regenerate with `python scripts/build_samsung_india.py`.
 
 ## 🖥️ Web set-top box
 
