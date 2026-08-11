@@ -293,8 +293,12 @@
     <stop offset="100%" stop-color="#a06bff" stop-opacity="0"/>
   </radialGradient>
   <symbol id="bloom" viewBox="0 0 64 64">
-    <circle cx="32" cy="32" r="31" fill="url(#bloomAura)"/>
+    <circle cx="32" cy="32" r="31" fill="url(#bloomAura)">
+      <animate attributeName="r" values="30;32;30" dur="3.8s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.75;1;0.75" dur="3.8s" repeatCount="indefinite"/>
+    </circle>
     <g fill="url(#bloomPetal2)" opacity=".85">
+      <animateTransform attributeName="transform" type="rotate" from="360 32 32" to="0 32 32" dur="18s" repeatCount="indefinite"/>
       <path d="M32 32C29.5 25 29.5 19 32 14C34.5 19 34.5 25 32 32Z" transform="rotate(22.5 32 32)"/>
       <path d="M32 32C29.5 25 29.5 19 32 14C34.5 19 34.5 25 32 32Z" transform="rotate(67.5 32 32)"/>
       <path d="M32 32C29.5 25 29.5 19 32 14C34.5 19 34.5 25 32 32Z" transform="rotate(112.5 32 32)"/>
@@ -305,6 +309,7 @@
       <path d="M32 32C29.5 25 29.5 19 32 14C34.5 19 34.5 25 32 32Z" transform="rotate(337.5 32 32)"/>
     </g>
     <g fill="url(#bloomPetal)">
+      <animateTransform attributeName="transform" type="rotate" from="0 32 32" to="360 32 32" dur="30s" repeatCount="indefinite"/>
       <path d="M32 32C27 21 27 12 32 5C37 12 37 21 32 32Z" transform="rotate(0 32 32)"/>
       <path d="M32 32C27 21 27 12 32 5C37 12 37 21 32 32Z" transform="rotate(45 32 32)"/>
       <path d="M32 32C27 21 27 12 32 5C37 12 37 21 32 32Z" transform="rotate(90 32 32)"/>
@@ -314,7 +319,9 @@
       <path d="M32 32C27 21 27 12 32 5C37 12 37 21 32 32Z" transform="rotate(270 32 32)"/>
       <path d="M32 32C27 21 27 12 32 5C37 12 37 21 32 32Z" transform="rotate(315 32 32)"/>
     </g>
-    <circle cx="32" cy="32" r="6.4" fill="url(#bloomCore)"/>
+    <circle cx="32" cy="32" r="6.4" fill="url(#bloomCore)">
+      <animate attributeName="r" values="5.8;7.6;5.8" dur="2.6s" repeatCount="indefinite"/>
+    </circle>
   </symbol>
 </defs></svg>
 <div id="app">
