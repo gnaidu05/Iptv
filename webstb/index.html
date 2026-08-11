@@ -326,18 +326,13 @@
 </div>
 
 <script src="channels.js"></script>
-<script src="samsung.js"></script>
 <script>
 (function(){var s=document.createElement('script');
   s.src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js";
   s.onload=function(){window.__hlsReady=true};s.onerror=function(){window.__hlsReady=false};
   document.head.appendChild(s);})();
 
-var DATA=window.STB_DATA||{channels:[]}, CH=DATA.channels.slice();
-// Samsung TV Plus India — a separate, India-only section (kept out of the
-// verified lineup; only browsable via its own tab).
-var SAMSUNG=(window.SAMSUNG_DATA&&window.SAMSUNG_DATA.channels)||[];
-CH=CH.concat(SAMSUNG);
+var DATA=window.STB_DATA||{channels:[]}, CH=DATA.channels;
 var favs=new Set(JSON.parse(localStorage.getItem('stb_favs')||'[]'));
 var watchHist=JSON.parse(localStorage.getItem('stb_hist')||'[]');
 var catFilter='ALL', favView=false, hdOnly=false, sortMode=0, query='';
@@ -384,7 +379,7 @@ function loadEPG(){
 function cardProg(c){ if(!EPG_READY)return null; var st=epgState(c.num); return st&&st.cur?st.cur[2]:null }
 
 /* ---------- categories / tabs ---------- */
-function groupCounts(){var m={};CH.forEach(function(c){if(c.sam)return;var g=catOf(c);m[g]=(m[g]||0)+1});return m}
+function groupCounts(){var m={};CH.forEach(function(c){var g=catOf(c);m[g]=(m[g]||0)+1});return m}
 function buildTabs(){
   var counts=groupCounts();
   var order=Object.keys(counts).sort(function(a,b){return counts[b]-counts[a]});
@@ -399,15 +394,12 @@ function buildTabs(){
   add('ALL','All Channels');
   if(CH.some(function(c){return c.fd})) add('FD','DD Free Dish');
   order.forEach(function(g){add(g,g)});
-  if(CH.some(function(c){return c.sam})) add('SAM','Samsung TV Plus');
 }
 
 /* ---------- filtering / sorting ---------- */
 function computeVisible(){
   var list=CH.filter(function(c){
     if(favView)return favs.has(c.num);
-    if(catFilter==='SAM')return !!c.sam;
-    if(c.sam)return false;                 // Samsung channels only show in their own tab
     if(catFilter==='FD'&&!c.fd)return false;
     if(catFilter!=='ALL'&&catFilter!=='FD'&&catOf(c)!==catFilter)return false;
     if(hdOnly&&!isHD(c))return false;
@@ -424,10 +416,8 @@ function computeVisible(){
 /* ---------- grid ---------- */
 function render(){
   visible=computeVisible();
-  document.getElementById('gridTitle').textContent=favView?'Favourites':(catFilter==='ALL'?'All Channels':catFilter==='FD'?'DD Free Dish':catFilter==='SAM'?'Samsung TV Plus':catFilter);
-  document.getElementById('gridCount').innerHTML=(catFilter==='SAM'&&!favView)
-    ? visible.length+' Channels &nbsp;·&nbsp; <span style="color:var(--warn)">⚠ India-only, may not play here</span>'
-    : visible.length+' Channels';
+  document.getElementById('gridTitle').textContent=favView?'Favourites':(catFilter==='ALL'?'All Channels':catFilter==='FD'?'DD Free Dish':catFilter);
+  document.getElementById('gridCount').textContent=visible.length+' Channels';
   document.querySelectorAll('.tab').forEach(function(t){t.classList.toggle('active',!favView&&t.dataset.key===catFilter)});
   var g=document.getElementById('grid'); g.innerHTML='';
   visible.forEach(function(c,i){
