@@ -191,15 +191,15 @@
   .bars i:nth-child(7){height:100%;background:#3a4ae7}
   #pProgress{position:absolute;top:0;left:0;right:0;height:3px;z-index:4;background:rgba(255,255,255,.14);display:none}
   #pProgress > i{display:block;height:100%;width:0;background:var(--grad);transition:width 1s linear}
-  #pbar{position:absolute;top:0;left:0;right:0;padding:22px 28px;z-index:2;display:flex;align-items:center;gap:16px;
-    background:linear-gradient(180deg,rgba(0,0,0,.75),transparent);transition:opacity .35s}
+  #pbar{position:absolute;top:0;left:0;right:0;padding:18px 24px 26px;z-index:2;display:flex;flex-direction:column;
+    background:linear-gradient(180deg,rgba(0,0,0,.85),rgba(0,0,0,.4) 70%,transparent);transition:opacity .35s}
   #pbar.hide{opacity:0}
+  .pbar-top{display:flex;align-items:center;gap:16px}
   .pback{width:44px;height:44px;border-radius:12px;border:1px solid var(--line2);background:rgba(0,0,0,.4);color:#fff;cursor:pointer;font-size:20px;flex:0 0 auto}
   .pb-num{font-family:Menlo,Consolas,monospace;font-size:26px;font-weight:800;color:var(--p2);flex:0 0 auto}
-  .pb-meta{min-width:0}
-  .pb-name{font-size:22px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .pb-cat{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .pbtn{margin-left:auto;display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:11px;
+  .pb-name{font-size:22px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+  .pb-prog{color:#e7ecf5;font-size:15px;margin-top:6px;padding-left:60px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pbtn{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:11px;
     border:1px solid var(--line2);background:rgba(0,0,0,.4);color:#fff;cursor:pointer;font-size:14px;font-weight:600;flex:0 0 auto}
   .pbtn:hover{background:rgba(255,255,255,.1)}.pbtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2}
   .pb-live{display:flex;align-items:center;gap:8px;color:var(--live);font-weight:700;letter-spacing:1px;flex:0 0 auto}
@@ -265,6 +265,12 @@
     #gridhead h2{font-size:18px}
     #grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
     .hero-name{font-size:26px}.hero-logo{width:64px;height:48px}
+    /* player OSD */
+    .pbar-top{gap:10px}
+    .pback{width:38px;height:38px;font-size:18px}
+    .pb-num{font-size:20px}.pb-name{font-size:17px}
+    .pbtn{height:36px;padding:0 11px}.pbtn .lbl{display:none}
+    .pb-prog{padding-left:0;font-size:13.5px;white-space:normal;line-height:1.35;margin-top:8px}
   }
 </style>
 </head>
@@ -404,11 +410,14 @@
   <video id="video" playsinline></video>
   <div id="pProgress"><i></i></div>
   <div id="pbar">
-    <button class="pback" id="pback">‹</button>
-    <div class="pb-num" id="pbNum">001</div>
-    <div class="pb-meta"><div class="pb-name" id="pbName">—</div><div class="pb-cat" id="pbCat"></div></div>
-    <button class="pbtn" id="pGuideBtn" title="TV guide (▲)"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><span>Guide</span></button>
-    <div class="pb-live"><span class="dot"></span>LIVE</div>
+    <div class="pbar-top">
+      <button class="pback" id="pback">‹</button>
+      <div class="pb-num" id="pbNum">001</div>
+      <div class="pb-name" id="pbName">—</div>
+      <button class="pbtn" id="pGuideBtn" title="TV guide (▲)"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><span class="lbl">Guide</span></button>
+      <div class="pb-live"><span class="dot"></span>LIVE</div>
+    </div>
+    <div class="pb-prog" id="pbCat"></div>
   </div>
 
   <!-- in-player EPG / channel surf -->
@@ -699,18 +708,21 @@ function playChannel(n){
   function fail(){if(settled)return;settled=true;clearTimeout(tuneTimer);pStatus('nosignal')}
   tuneTimer=setTimeout(fail,13000);
   tune(v,c.url,c.vlc,ok,fail);
-  showPbar();
+  showPbar(true);   // keep the OSD (programme + time left) visible after selecting
 }
 function closePlayer(){
-  inPlayer=false; closePGuide(); document.getElementById('player').classList.remove('show');
+  inPlayer=false; pbarPinned=false; closePGuide(); document.getElementById('player').classList.remove('show');
   var v=document.getElementById('video'); destroyHls(v); pStatus('off');
   renderDots();
 }
-var pbarTimer=null;
-function showPbar(){var b=document.getElementById('pbar');b.classList.remove('hide');clearTimeout(pbarTimer);
-  pbarTimer=setTimeout(function(){if(!pgOpen)b.classList.add('hide')},4500)}
-document.getElementById('player').addEventListener('mousemove',showPbar);
-document.getElementById('player').addEventListener('click',function(e){if(!e.target.closest('#pbar')&&!e.target.closest('#pguide'))showPbar()});
+var pbarTimer=null, pbarPinned=false;
+function showPbar(pin){var b=document.getElementById('pbar');b.classList.remove('hide');clearTimeout(pbarTimer);
+  if(pin)pbarPinned=true;
+  else if(!pbarPinned)pbarTimer=setTimeout(function(){if(!pgOpen)b.classList.add('hide')},6000);}
+function hidePbar(){pbarPinned=false;clearTimeout(pbarTimer);document.getElementById('pbar').classList.add('hide')}
+function togglePbar(){document.getElementById('pbar').classList.contains('hide')?showPbar(true):hidePbar()}
+document.getElementById('player').addEventListener('mousemove',function(){showPbar(false)});
+document.getElementById('player').addEventListener('click',function(e){if(!e.target.closest('#pbar')&&!e.target.closest('#pguide'))togglePbar()});
 document.getElementById('pback').onclick=function(e){e.stopPropagation();closePlayer()};
 document.getElementById('watchBtn').onclick=function(){playChannel(currentNum||(visible[focusIndex]||CH[0]).num)};
 
