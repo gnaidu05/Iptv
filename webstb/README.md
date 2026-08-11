@@ -1,7 +1,7 @@
-# STB — a set-top box in the browser
+# Aura — live Indian TV in your browser
 
-A smart-TV–style set-top box that boots, scans the channel database, shows a
-grid launcher with a **NOW PLAYING** hero and real **now / next** EPG, and
+A smart-TV–style live-TV web app that boots, scans the channel database, shows
+a grid launcher with a **NOW PLAYING** hero and real **now / next** EPG, and
 **plays the selected channel** via HLS — driven by
 `playlists/india-active.m3u`.
 

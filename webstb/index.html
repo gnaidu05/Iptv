@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Pravaah — Live TV</title>
+<title>Aura — Live TV</title>
 <style>
   :root{
     --bg:#05070e; --bg2:#080b14; --rail:#070912; --card:#0e1322; --card2:#0b0f1b;
@@ -27,7 +27,7 @@
   /* ---------------- LEFT RAIL ---------------- */
   #rail{width:96px;flex:0 0 96px;background:var(--rail);border-right:1px solid var(--line);
     display:flex;flex-direction:column;align-items:center;padding:22px 0 18px;gap:8px;z-index:5}
-  .logo{font-weight:900;font-size:15px;letter-spacing:.3px;background:var(--grad);-webkit-background-clip:text;
+  .logo{font-weight:900;font-size:21px;letter-spacing:1px;background:var(--grad);-webkit-background-clip:text;
     background-clip:text;color:transparent;margin-bottom:22px}
   .nav{width:56px;height:56px;border-radius:16px;border:1px solid transparent;background:none;color:var(--muted);
     display:grid;place-items:center;cursor:pointer;transition:.15s}
@@ -233,7 +233,7 @@
 <div id="app">
   <!-- LEFT RAIL -->
   <nav id="rail">
-    <div class="logo">Pravaah</div>
+    <div class="logo">Aura</div>
     <button class="nav active" data-view="live" title="Live TV">
       <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M8 3l4 4 4-4"/></svg></button>
     <button class="nav" data-view="fav" title="Favourites">
@@ -307,7 +307,7 @@
 <!-- HELP / ABOUT -->
 <div id="help">
   <div class="help-card">
-    <h3>Pravaah</h3>
+    <h3>Aura</h3>
     <div class="tag">Live Indian TV in your browser</div>
     <div class="help-row"><span class="ic">👆</span><div><b>Tap a channel</b> <span>to watch it full-screen. Tap the screen for the back button.</span></div></div>
     <div class="help-row"><span class="ic">📺</span><div><b>Live TV</b> <span>(sidebar) shows the channel grid; use the tabs to filter by category or the DD Free Dish bouquet.</span></div></div>
@@ -348,7 +348,7 @@
 
 <!-- BOOT -->
 <div id="boot">
-  <div class="boot-logo">Pravaah</div>
+  <div class="boot-logo">Aura</div>
   <div class="boot-sub">LIVE INDIAN TV</div>
   <div class="bbar"><i id="bootbar"></i></div>
   <div id="bootmsg">System ready</div>
@@ -694,7 +694,7 @@ function numJump(d){numBuf=(numBuf+d).slice(-4);clearTimeout(numT);toast('Channe
   numT=setTimeout(function(){var n=parseInt(numBuf,10);numBuf='';if(byNum(n))playChannel(n)},1200)}
 
 /* ---------- boot ---------- */
-var steps=[[14,'Starting Pravaah…'],[34,'Connecting…'],[58,'Loading channels…'],
+var steps=[[14,'Starting Aura…'],[34,'Connecting…'],[58,'Loading channels…'],
   [80,'Found '+CH.length+' live channels'],[92,'Loading TV guide…'],[100,'Ready']];
 function bootStart(){ if(poweredOn)return; document.getElementById('powerBtn').style.display='none';
   var i=0,bar=document.getElementById('bootbar'),msg=document.getElementById('bootmsg');

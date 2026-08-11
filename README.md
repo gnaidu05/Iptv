@@ -40,9 +40,9 @@ for the current counts and notes on geo-blocking.
 > the health-check pipeline. Load it in a native player (VLC / TV app) from
 > India. Regenerate with `python scripts/build_samsung_india.py`.
 
-## 🖥️ Web set-top box
+## 🖥️ Aura — web TV app
 
-A smart-TV–style browser set-top box — boots, scans the lineup, shows a grid
+A smart-TV–style browser live-TV app — boots, scans the lineup, shows a grid
 launcher with a NOW PLAYING hero, real **now / next EPG**, and plays the
 selected channel via HLS. Live at:
 
