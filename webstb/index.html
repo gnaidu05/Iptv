@@ -202,6 +202,7 @@
   .pbtn{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:11px;
     border:1px solid var(--line2);background:rgba(0,0,0,.4);color:#fff;cursor:pointer;font-size:14px;font-weight:600;flex:0 0 auto}
   .pbtn:hover{background:rgba(255,255,255,.1)}.pbtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2}
+  .pico{padding:0 12px}
   .pb-live{display:flex;align-items:center;gap:8px;color:var(--live);font-weight:700;letter-spacing:1px;flex:0 0 auto}
 
   /* in-player EPG / channel surf */
@@ -407,7 +408,8 @@
     <div class="help-row"><span class="ic">📺</span><div><b>Live TV</b> <span>(sidebar) shows the channel grid; use the tabs to filter by category or the DD Free Dish bouquet.</span></div></div>
     <div class="help-row"><span class="ic">🔍</span><div><b>Search</b> <span>finds a channel by name.</span></div></div>
     <div class="help-row"><span class="ic">❤️</span><div><b>Favourites</b> <span>— tap the heart on any channel, then open the Favourites tab.</span></div></div>
-    <div class="help-row"><span class="ic">⌨️</span><div><b>Keyboard</b> <span>: arrows to move, Enter to watch, / to search, F favourite.</span></div></div>
+    <div class="help-row"><span class="ic">⛶</span><div><b>Fullscreen</b> <span>— while watching, tap the ⛶ button (or press F) for true device fullscreen.</span></div></div>
+    <div class="help-row"><span class="ic">⌨️</span><div><b>Keyboard</b> <span>: arrows to move, Enter to watch, / to search, F fullscreen.</span></div></div>
     <button class="help-close" id="helpClose">Got it</button>
   </div>
 </div>
@@ -421,6 +423,7 @@
       <button class="pback" id="pback">‹</button>
       <div class="pb-num" id="pbNum">001</div>
       <div class="pb-name" id="pbName">—</div>
+      <button class="pbtn pico" id="pFsBtn" title="Fullscreen (F)"><svg id="pFsIcon" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
       <button class="pbtn" id="pGuideBtn" title="TV guide (▲)"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><span class="lbl">Guide</span></button>
       <div class="pb-live"><span class="dot"></span>LIVE</div>
     </div>
@@ -795,6 +798,30 @@ function pgSwitch(){var ch=pgList[pgSel]; if(ch){playChannel(ch.num);renderPGuid
 document.getElementById('pGuideBtn').onclick=function(e){e.stopPropagation();togglePGuide()};
 document.getElementById('pgClose').onclick=function(e){e.stopPropagation();closePGuide()};
 
+/* ---------- device fullscreen ---------- */
+function fsElement(){return document.fullscreenElement||document.webkitFullscreenElement}
+function lockLandscape(){try{if(screen.orientation&&screen.orientation.lock)screen.orientation.lock('landscape').catch(function(){})}catch(e){}}
+function toggleFullscreen(){
+  var el=document.getElementById('player'), v=document.getElementById('video');
+  if(fsElement()){
+    var exit=document.exitFullscreen||document.webkitExitFullscreen; if(exit)exit.call(document);
+    try{if(screen.orientation&&screen.orientation.unlock)screen.orientation.unlock()}catch(e){}
+    return;
+  }
+  var req=el.requestFullscreen||el.webkitRequestFullscreen;
+  if(req){ var p=req.call(el); if(p&&p.then)p.then(lockLandscape).catch(function(){}); else lockLandscape(); }
+  else if(v.webkitEnterFullscreen){ v.webkitEnterFullscreen(); }  // iOS Safari: native video fullscreen
+}
+function syncFsIcon(){
+  var on=!!fsElement(), ic=document.getElementById('pFsIcon');
+  ic.innerHTML=on
+    ? '<path d="M8 3v3a2 2 0 0 1-2 2H3M21 8h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3M16 21v-3a2 2 0 0 1 2-2h3"/>'
+    : '<path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/>';
+}
+document.addEventListener('fullscreenchange',syncFsIcon);
+document.addEventListener('webkitfullscreenchange',syncFsIcon);
+document.getElementById('pFsBtn').onclick=function(e){e.stopPropagation();toggleFullscreen()};
+
 /* ---------- nav rail / views ---------- */
 function setNav(view){document.querySelectorAll('.nav').forEach(function(n){n.classList.toggle('active',n.dataset.view===view)})}
 document.getElementById('rail').addEventListener('click',function(e){
@@ -863,6 +890,7 @@ document.addEventListener('keydown',function(e){
     }
     if(e.key==='Escape'||e.key==='Backspace'){closePlayer()}
     else if(e.key==='ArrowUp'||e.key==='Enter'||e.key==='g'||e.key==='G'){openPGuide()}
+    else if(e.key==='f'||e.key==='F'){toggleFullscreen()}
     else if(e.key==='ArrowRight'){zap(1)} else if(e.key==='ArrowLeft'){zap(-1)}
     else if(e.key>='0'&&e.key<='9'){numJump(e.key)}
     else return;
