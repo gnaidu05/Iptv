@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Aura — Live TV</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#05070e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Aura">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cdefs%3E%3CradialGradient%20id%3D%22p%22%20cx%3D%2250%25%22%20cy%3D%2258%25%22%20r%3D%2258%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23ffe0a0%22/%3E%3Cstop%20offset%3D%2242%25%22%20stop-color%3D%22%23ff9f5c%22/%3E%3Cstop%20offset%3D%2278%25%22%20stop-color%3D%22%23ff5ca8%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23a06bff%22/%3E%3C/radialGradient%3E%3CradialGradient%20id%3D%22c%22%20cx%3D%2250%25%22%20cy%3D%2245%25%22%20r%3D%2255%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fff%22/%3E%3Cstop%20offset%3D%2255%25%22%20stop-color%3D%22%23ffe6a0%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23ffb14e%22/%3E%3C/radialGradient%3E%3C/defs%3E%3Cg%20fill%3D%22url%28%23p%29%22%3E%3Cpath%20d%3D%22M32%2032C27%2021%2027%2012%2032%205C37%2012%2037%2021%2032%2032Z%22%20transform%3D%22rotate%280%2032%2032%29%22/%3E%3Cpath%20d%3D%22M32%2032C27%2021%2027%2012%2032%205C37%2012%2037%2021%2032%2032Z%22%20transform%3D%22rotate%2845%2032%2032%29%22/%3E%3Cpath%20d%3D%22M32%2032C27%2021%2027%2012%2032%205C37%2012%2037%2021%2032%2032Z%22%20transform%3D%22rotate%2890%2032%2032%29%22/%3E%3Cpath%20d%3D%22M32%2032C27%2021%2027%2012%2032%205C37%2012%2037%2021%2032%2032Z%22%20transform%3D%22rotate%28135%2032%2032%29%22/%3E%3Cpath%20d%3D%22M32%2032C27%2021%2027%2012%2032%205C37%2012%2037%2021%2032%2032Z%22%20transform%3D%22rotate%28180%2032%2032%29%22/%3E%3Cpath%20d%3D%22M32%2032C27%2021%2027%2012%2032%205C37%2012%2037%2021%2032%2032Z%22%20transform%3D%22rotate%28225%2032%2032%29%22/%3E%3Cpath%20d%3D%22M32%2032C27%2021%2027%2012%2032%205C37%2012%2037%2021%2032%2032Z%22%20transform%3D%22rotate%28270%2032%2032%29%22/%3E%3Cpath%20d%3D%22M32%2032C27%2021%2027%2012%2032%205C37%2012%2037%2021%2032%2032Z%22%20transform%3D%22rotate%28315%2032%2032%29%22/%3E%3C/g%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%226.4%22%20fill%3D%22url%28%23c%29%22/%3E%3C/svg%3E">
 <style>
   :root{
@@ -801,16 +808,25 @@ document.getElementById('pgClose').onclick=function(e){e.stopPropagation();close
 /* ---------- device fullscreen ---------- */
 function fsElement(){return document.fullscreenElement||document.webkitFullscreenElement}
 function lockLandscape(){try{if(screen.orientation&&screen.orientation.lock)screen.orientation.lock('landscape').catch(function(){})}catch(e){}}
+function reqFsOn(node){
+  var req=node&&(node.requestFullscreen||node.webkitRequestFullscreen||node.webkitRequestFullScreen||node.msRequestFullscreen);
+  if(!req)return false;
+  try{ var p=req.call(node); if(p&&p.then)p.then(lockLandscape).catch(function(){}); else lockLandscape(); return true; }
+  catch(e){ return false; }
+}
 function toggleFullscreen(){
   var el=document.getElementById('player'), v=document.getElementById('video');
-  if(fsElement()){
-    var exit=document.exitFullscreen||document.webkitExitFullscreen; if(exit)exit.call(document);
+  if(fsElement()||(v&&v.webkitDisplayingFullscreen)){
+    var exit=document.exitFullscreen||document.webkitExitFullscreen; if(exit)try{exit.call(document)}catch(e){}
+    if(v&&v.webkitExitFullscreen)try{v.webkitExitFullscreen()}catch(e){}
     try{if(screen.orientation&&screen.orientation.unlock)screen.orientation.unlock()}catch(e){}
     return;
   }
-  var req=el.requestFullscreen||el.webkitRequestFullscreen;
-  if(req){ var p=req.call(el); if(p&&p.then)p.then(lockLandscape).catch(function(){}); else lockLandscape(); }
-  else if(v.webkitEnterFullscreen){ v.webkitEnterFullscreen(); }  // iOS Safari: native video fullscreen
+  // try the whole player (keeps OSD/guide), then the video element, then iOS native video
+  if(reqFsOn(el))return;
+  if(reqFsOn(v))return;
+  if(v&&v.webkitEnterFullscreen){try{v.webkitEnterFullscreen();return}catch(e){}}
+  toast('Fullscreen is blocked here — open in Chrome/Safari, or "Add to Home screen"');
 }
 function syncFsIcon(){
   var on=!!fsElement(), ic=document.getElementById('pFsIcon');
