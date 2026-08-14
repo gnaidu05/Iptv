@@ -248,6 +248,42 @@
   .s-hint{width:min(720px,90%);margin:10px auto;color:var(--muted);font-size:13px}
   #sResults{width:min(720px,90%);margin:22px auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;max-height:60vh;overflow:auto}
 
+  /* ---------------- EPG GRID (TV guide) ---------------- */
+  #epg{position:fixed;inset:0;z-index:46;display:none;flex-direction:column;background:var(--bg)}
+  #epg.show{display:flex}
+  .epg-head{display:flex;align-items:center;gap:12px;padding:14px 16px 8px}
+  .epg-days{display:flex;gap:8px;overflow-x:auto;flex:1;scrollbar-width:none}.epg-days::-webkit-scrollbar{display:none}
+  .epg-day{flex:0 0 auto;padding:8px 16px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid var(--line);
+    color:var(--muted);cursor:pointer;text-align:center;line-height:1.2}
+  .epg-day b{display:block;color:var(--txt);font-size:14px}.epg-day span{font-size:11px}
+  .epg-day.on{background:var(--grad);border-color:transparent;color:#fff}.epg-day.on b,.epg-day.on span{color:#fff}
+  .epg-x{width:40px;height:40px;flex:0 0 auto;border-radius:11px;border:1px solid var(--line2);background:rgba(255,255,255,.05);color:#fff;cursor:pointer;font-size:16px}
+  .epg-sub{display:flex;justify-content:space-between;padding:0 18px 8px;color:var(--muted);font-size:12px}
+  #epgWrap{position:relative;flex:1;min-height:0}
+  #epgScroll{position:absolute;top:var(--headH);left:var(--leftW);right:0;bottom:0;overflow:auto;-webkit-overflow-scrolling:touch}
+  #epgBody{position:relative}
+  #epgTimeHead{position:absolute;top:0;left:var(--leftW);right:0;height:var(--headH);overflow:hidden;border-bottom:1px solid var(--line);background:var(--bg2);z-index:3}
+  #epgTimeInner{position:absolute;top:0;left:0;height:100%;will-change:transform}
+  .epg-tick{position:absolute;top:0;height:100%;display:flex;align-items:center;color:var(--muted);font-size:12px;
+    padding-left:8px;border-left:1px solid var(--line)}
+  #epgChanCol{position:absolute;top:var(--headH);left:0;width:var(--leftW);bottom:0;overflow:hidden;background:var(--bg2);border-right:1px solid var(--line2);z-index:3}
+  #epgChanInner{position:absolute;top:0;left:0;width:100%;will-change:transform}
+  .epg-chan{position:absolute;left:0;width:100%;display:flex;align-items:center;gap:8px;padding:0 8px;box-sizing:border-box;
+    border-bottom:1px solid var(--line);cursor:pointer}
+  .epg-chan:hover{background:rgba(255,255,255,.04)}
+  .epg-clogo{width:40px;height:30px;flex:0 0 auto;border-radius:6px;background:#0a0f1c;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden}
+  .epg-clogo img{max-width:86%;max-height:82%;object-fit:contain}.epg-clogo .ph{font-size:10px;font-weight:800;color:var(--muted)}
+  .epg-cname{font-size:12.5px;font-weight:600;line-height:1.15;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .epg-corner{position:absolute;top:0;left:0;width:var(--leftW);height:var(--headH);background:var(--bg2);border-right:1px solid var(--line2);border-bottom:1px solid var(--line);z-index:4;display:flex;align-items:center;padding:0 10px;color:var(--muted);font-size:12px}
+  .epg-prog{position:absolute;box-sizing:border-box;border:1px solid var(--line);border-left:2px solid var(--p2);border-radius:8px;
+    background:linear-gradient(180deg,rgba(30,38,60,.6),rgba(18,24,40,.6));padding:7px 9px;overflow:hidden;cursor:pointer}
+  .epg-prog:hover{background:rgba(77,124,255,.16)}
+  .epg-prog.cur{border-color:var(--p2);background:rgba(77,124,255,.14)}
+  .epg-pt{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .epg-ptime{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #epgNow{position:absolute;top:0;width:2px;background:var(--p1);z-index:2;box-shadow:0 0 8px var(--p1)}
+  #epgNow::before{content:"";position:absolute;top:-1px;left:-4px;width:10px;height:10px;border-radius:50%;background:var(--p1)}
+
   /* ---------------- BOOT ---------------- */
   #boot{position:fixed;inset:0;z-index:60;background:radial-gradient(1000px 600px at 50% 40%,#0d1426,#04060c 70%);
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;transition:opacity .6s}
@@ -340,7 +376,7 @@
       <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M8 3l4 4 4-4"/></svg></button>
     <button class="nav" data-view="fav" title="Favourites">
       <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9A5 5 0 0112 5a5 5 0 019.5 7c-2.5 4.5-9.5 9-9.5 9z"/></svg></button>
-    <button class="nav" data-view="guide" title="Channel list">
+    <button class="nav" data-view="guide" title="TV guide (EPG)">
       <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></button>
     <button class="nav" data-view="search" title="Search">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></button>
@@ -462,6 +498,21 @@
       <div class="msg"><b>NO SIGNAL</b> — channel unavailable in browser</div>
       <div class="msg" style="font-size:12px">Press <b>‹ Back</b> and try another channel</div>
     </div>
+  </div>
+</div>
+
+<!-- EPG GRID (TV guide) -->
+<div id="epg">
+  <div class="epg-head">
+    <div class="epg-days" id="epgDays"></div>
+    <button class="epg-x" id="epgClose">✕</button>
+  </div>
+  <div class="epg-sub"><span id="epgCount">—</span><span id="epgUpdated"></span></div>
+  <div id="epgWrap">
+    <div class="epg-corner">Channel</div>
+    <div id="epgTimeHead"><div id="epgTimeInner"></div></div>
+    <div id="epgChanCol"><div id="epgChanInner"></div></div>
+    <div id="epgScroll"><div id="epgBody"><div id="epgNow"></div></div></div>
   </div>
 </div>
 
@@ -844,7 +895,7 @@ document.getElementById('rail').addEventListener('click',function(e){
   var b=e.target.closest('.nav'); if(!b)return; var v=b.dataset.view;
   if(v==='live'){favView=false;catFilter='ALL';setNav('live');render();document.getElementById('main').scrollTo({top:0,behavior:'smooth'})}
   else if(v==='fav'){openFav()}
-  else if(v==='guide'){favView=false;catFilter='ALL';setNav('live');render();document.getElementById('gridhead').scrollIntoView({behavior:'smooth'})}
+  else if(v==='guide'){openEPG()}
   else if(v==='search'){openSearch()}
   else if(v==='settings'){openHelp()}
 });
@@ -890,6 +941,7 @@ function toast(t){ if(!toastEl){toastEl=document.createElement('div');toastEl.st
 /* ---------- keyboard ---------- */
 document.addEventListener('keydown',function(e){
   if(!poweredOn){bootStart();return}
+  if(epgOpen){ if(e.key==='Escape'||e.key==='Backspace'){closeEPG();e.preventDefault()} return; }
   if(document.getElementById('search').classList.contains('show')){
     if(e.key==='Escape')closeSearch();
     else if(e.key==='Enter'){var f=document.querySelector('#sResults .cardc');if(f)f.click()}
@@ -933,6 +985,104 @@ function zap(delta){var pos=CH.findIndex(function(c){return c.num===currentNum})
 var numBuf='',numT=null;
 function numJump(d){numBuf=(numBuf+d).slice(-4);clearTimeout(numT);toast('Channel '+numBuf);
   numT=setTimeout(function(){var n=parseInt(numBuf,10);numBuf='';if(byNum(n))playChannel(n)},1200)}
+
+/* ---------- EPG grid (TV guide) ---------- */
+var EPG_LEFTW=118, EPG_ROWH=62, EPG_HEADH=38, EPG_PXMIN=4.6;
+var epgOpen=false, epgChans=[], epgTlStart=0, epgTlEnd=0, epgW=0, epgNowTimer=null, epgRAF=0;
+function xForTime(t){return (t-epgTlStart)/60*EPG_PXMIN}
+function openEPG(){
+  if(!EPG_READY){toast('TV guide is still loading…');return}
+  epgChans=CH.filter(function(c){return EPG.channels[String(c.num)]});
+  if(!epgChans.length){toast('No guide data available');return}
+  var lo=EPG.window?EPG.window[0]:nowSec()-3600, hi=EPG.window?EPG.window[1]:nowSec()+86400;
+  epgTlStart=Math.floor(lo/3600)*3600; epgTlEnd=Math.ceil(hi/3600)*3600;
+  epgW=xForTime(epgTlEnd);
+  setNav('guide'); document.getElementById('epg').classList.add('show'); epgOpen=true;
+  document.documentElement.style.setProperty('--leftW',EPG_LEFTW+'px');
+  document.documentElement.style.setProperty('--headH',EPG_HEADH+'px');
+  document.getElementById('epgCount').textContent=epgChans.length+' channels with EPG';
+  if(EPG.generated)document.getElementById('epgUpdated').textContent='Updated '+agoStr(EPG.generated);
+  buildEpgStatic(); buildEpgDays();
+  var scroll=document.getElementById('epgScroll');
+  scroll.scrollLeft=Math.max(0,xForTime(nowSec())-70); scroll.scrollTop=0;
+  epgRender();
+  clearInterval(epgNowTimer); epgNowTimer=setInterval(epgMoveNow,30000);
+}
+function closeEPG(){epgOpen=false;document.getElementById('epg').classList.remove('show');clearInterval(epgNowTimer);setNav('live')}
+function agoStr(iso){var s=Math.max(0,Math.round((Date.now()-Date.parse(iso))/1000));
+  if(s<90)return s+'s ago'; var m=Math.round(s/60); if(m<90)return m+' min ago'; return Math.round(m/60)+'h ago'}
+function buildEpgStatic(){
+  document.getElementById('epgBody').style.width=epgW+'px';
+  document.getElementById('epgBody').style.height=(epgChans.length*EPG_ROWH)+'px';
+  // time ticks every 30 min
+  var ti=document.getElementById('epgTimeInner'); ti.style.width=epgW+'px'; ti.innerHTML='';
+  for(var t=epgTlStart;t<epgTlEnd;t+=1800){
+    var d=document.createElement('div'); d.className='epg-tick'; d.style.left=xForTime(t)+'px';
+    d.textContent=fmtHM(t); ti.appendChild(d);
+  }
+  epgMoveNow();
+}
+function epgMoveNow(){var n=document.getElementById('epgNow'); if(!n)return;
+  n.style.left=xForTime(nowSec())+'px'; n.style.height=(epgChans.length*EPG_ROWH)+'px';
+  if(epgOpen)epgRenderVisible(true)}
+function buildEpgDays(){
+  var days=document.getElementById('epgDays'); days.innerHTML='';
+  var d0=new Date(epgTlStart*1000); d0.setHours(0,0,0,0);
+  var todayMid=new Date(); todayMid.setHours(0,0,0,0); todayMid=todayMid.getTime()/1000;
+  var scroll=document.getElementById('epgScroll');
+  var wk=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var todayStartClamped=Math.max(epgTlStart,nowSec());
+  for(var ms=d0.getTime()/1000; ms<epgTlEnd; ms+=86400){
+    var dt=new Date(ms*1000), diff=Math.round((ms-todayMid)/86400);
+    var lab=diff===0?'Today':diff===1?'Tomorrow':diff===-1?'Yesterday':wk[dt.getDay()];
+    var sub=dt.getDate()+' '+mo[dt.getMonth()];
+    var el=document.createElement('div'); el.className='epg-day'+(diff===0?' on':'');
+    el.innerHTML='<b>'+lab+'</b><span>'+sub+'</span>';
+    (function(ms,diff){el.onclick=function(){
+      document.querySelectorAll('.epg-day').forEach(function(x){x.classList.remove('on')}); el.classList.add('on');
+      var target=diff===0?Math.max(0,xForTime(nowSec())-70):Math.max(0,xForTime(ms));
+      scroll.scrollLeft=target;
+    }})(ms,diff);
+    days.appendChild(el);
+  }
+}
+function epgRender(){ buildEpgCols(); epgRenderVisible(true); }
+function buildEpgCols(){/* placeholder; channel labels are virtualized in epgRenderVisible */}
+var epgLastRange='';
+function epgRenderVisible(force){
+  var scroll=document.getElementById('epgScroll'), st=scroll.scrollTop, sl=scroll.scrollLeft, vh=scroll.clientHeight;
+  document.getElementById('epgTimeInner').style.transform='translateX('+(-sl)+'px)';
+  document.getElementById('epgChanInner').style.transform='translateY('+(-st)+'px)';
+  var first=Math.max(0,Math.floor(st/EPG_ROWH)-2), last=Math.min(epgChans.length-1,Math.ceil((st+vh)/EPG_ROWH)+2);
+  var key=first+'-'+last;
+  if(!force && key===epgLastRange)return; epgLastRange=key;
+  var now=nowSec();
+  var col=document.getElementById('epgChanInner'), body=document.getElementById('epgBody');
+  col.innerHTML='';
+  // clear old program rows (keep #epgNow)
+  [].slice.call(body.querySelectorAll('.epg-prog')).forEach(function(el){el.remove()});
+  for(var i=first;i<=last;i++){
+    var c=epgChans[i], y=i*EPG_ROWH;
+    var ch=document.createElement('div'); ch.className='epg-chan'; ch.style.top=y+'px'; ch.style.height=EPG_ROWH+'px';
+    ch.innerHTML='<div class="epg-clogo">'+logoImg(c)+'</div><div class="epg-cname">'+esc(c.name.replace(/\s*\(.*?\)\s*/,' ').trim())+'</div>';
+    (function(num){ch.onclick=function(){closeEPG();playChannel(num)}})(c.num);
+    col.appendChild(ch);
+    var progs=EPG.channels[String(c.num)]||[];
+    for(var j=0;j<progs.length;j++){
+      var s=progs[j][0], e=progs[j][1]; if(e<=epgTlStart||s>=epgTlEnd)continue;
+      var left=xForTime(Math.max(s,epgTlStart)), w=xForTime(Math.min(e,epgTlEnd))-left; if(w<2)continue;
+      var p=document.createElement('div'); p.className='epg-prog'+((s<=now&&now<e)?' cur':'');
+      p.style.left=left+'px'; p.style.width=(w-3)+'px'; p.style.top=(y+4)+'px'; p.style.height=(EPG_ROWH-9)+'px';
+      p.innerHTML='<div class="epg-pt">'+esc(progs[j][2]||'Programme')+'</div>'+(w>70?'<div class="epg-ptime">'+fmtHM(s)+' – '+fmtHM(e)+'</div>':'');
+      (function(num){p.onclick=function(){closeEPG();playChannel(num)}})(c.num);
+      body.appendChild(p);
+    }
+  }
+}
+(function(){var sc=document.getElementById('epgScroll');
+  sc.addEventListener('scroll',function(){ if(epgRAF)return; epgRAF=requestAnimationFrame(function(){epgRAF=0;epgRenderVisible(false)}) });
+})();
+document.getElementById('epgClose').onclick=closeEPG;
 
 /* ---------- boot ---------- */
 var steps=[[14,'Starting Aura…'],[34,'Connecting…'],[58,'Loading channels…'],
