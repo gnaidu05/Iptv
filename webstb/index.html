@@ -165,6 +165,10 @@
   .c-sub{display:flex;align-items:center;gap:7px;margin-top:6px;color:var(--muted);font-size:12.5px;min-width:0}
   .c-sub .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .c-hd{position:absolute;right:14px;bottom:14px;border:1px solid var(--line2);border-radius:6px;padding:2px 7px;font-size:10.5px;color:var(--muted)}
+  .cardc.playing{box-shadow:0 0 0 2px var(--live),0 0 22px rgba(56,224,123,.32)}
+  .cardc.playing::before{content:none}
+  .c-watching{position:absolute;left:12px;bottom:12px;background:var(--live);color:#04121c;font-size:10.5px;font-weight:800;
+    padding:3px 8px;border-radius:20px;letter-spacing:.3px;z-index:2}
 
   /* ---------------- HELP / ABOUT ---------------- */
   #help{position:fixed;inset:0;z-index:47;display:none;align-items:center;justify-content:center;
@@ -210,6 +214,12 @@
     border:1px solid var(--line2);background:rgba(0,0,0,.4);color:#fff;cursor:pointer;font-size:14px;font-weight:600;flex:0 0 auto}
   .pbtn:hover{background:rgba(255,255,255,.1)}.pbtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2}
   .pico{padding:0 12px}
+  .pvol{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+  .pvol-range{width:92px;height:4px;-webkit-appearance:none;appearance:none;background:rgba(255,255,255,.25);border-radius:20px;outline:none}
+  .pvol-range::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#fff;cursor:pointer}
+  .pvol-range::-moz-range-thumb{width:14px;height:14px;border:0;border-radius:50%;background:#fff;cursor:pointer}
+  .ns-actions{display:flex;gap:12px;margin-top:14px}
+  .ns-actions .pbtn{background:rgba(255,255,255,.06)}
   .pb-live{display:flex;align-items:center;gap:8px;color:var(--live);font-weight:700;letter-spacing:1px;flex:0 0 auto}
 
   /* in-player EPG / channel surf */
@@ -466,6 +476,10 @@
       <button class="pback" id="pback">‹</button>
       <div class="pb-num" id="pbNum">001</div>
       <div class="pb-name" id="pbName">—</div>
+      <div class="pvol">
+        <button class="pbtn pico" id="pMuteBtn" title="Mute (M)"><svg id="pMuteIcon" viewBox="0 0 24 24"><path d="M3 10v4h4l5 5V5L7 10H3z"/><path d="M16 8a5 5 0 0 1 0 8M19 5a9 9 0 0 1 0 14"/></svg></button>
+        <input type="range" id="pVol" class="pvol-range" min="0" max="1" step="0.05" value="1" title="Volume" aria-label="Volume">
+      </div>
       <button class="pbtn pico" id="pFsBtn" title="Fullscreen (F)"><svg id="pFsIcon" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
       <button class="pbtn" id="pGuideBtn" title="TV guide (▲)"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><span class="lbl">Guide</span></button>
       <div class="pb-live"><span class="dot"></span>LIVE</div>
@@ -496,7 +510,10 @@
     <div class="nosignal" id="pnosig">
       <div class="bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="msg"><b>NO SIGNAL</b> — channel unavailable in browser</div>
-      <div class="msg" style="font-size:12px">Press <b>‹ Back</b> and try another channel</div>
+      <div class="ns-actions">
+        <button class="pbtn" id="pRetryBtn"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7M21 4v4h-4"/></svg>Retry</button>
+        <button class="pbtn" id="pNextBtn"><svg viewBox="0 0 24 24"><path d="M6 4l12 8-12 8V4z"/></svg>Next channel</button>
+      </div>
     </div>
   </div>
 </div>
@@ -532,7 +549,7 @@
   <div class="bbar"><i id="bootbar"></i></div>
   <div id="bootmsg">System ready</div>
   <button id="powerBtn">▶ Start watching</button>
-  <div class="firm">LIVE INDIAN TV · BUILD 2026.08.14</div>
+  <div class="firm">LIVE INDIAN TV · BUILD 2026.08.15</div>
 </div>
 
 <script src="channels.js"></script>
@@ -631,11 +648,12 @@ function render(){
   document.querySelectorAll('.tab').forEach(function(t){t.classList.toggle('active',!favView&&t.dataset.key===catFilter)});
   var g=document.getElementById('grid'); g.innerHTML='';
   visible.forEach(function(c,i){
-    var d=document.createElement('div'); d.className='cardc'+(i===focusIndex?' sel':''); d.dataset.i=i;
+    var d=document.createElement('div'); d.className='cardc'+(i===focusIndex?' sel':'')+(c.num===currentNum?' playing':''); d.dataset.i=i;
     d.innerHTML=
       '<div class="c-top"><div class="c-num">'+c.num+'</div>'+
       '<button class="c-fav'+(favs.has(c.num)?' on':'')+'" data-fav="'+c.num+'">'+
       '<svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9A5 5 0 0112 5a5 5 0 019.5 7c-2.5 4.5-9.5 9-9.5 9z"/></svg></button></div>'+
+      (c.num===currentNum?'<div class="c-watching">▶ Watching</div>':'')+
       '<div class="c-logo">'+logoImg(c)+'</div>'+
       '<div class="c-name">'+esc(c.name.replace(/\s*\(.*?\)\s*/,' ').trim())+'</div>'+
       '<div class="c-sub"><span class="dot"></span><span class="nm">'+esc(cardProg(c)||catOf(c))+'</span></div>'+
@@ -769,7 +787,7 @@ function playChannel(n){
   document.getElementById('pbNum').textContent=String(n).padStart(3,'0');
   document.getElementById('pbName').textContent=c.name.replace(/\s*\(.*?\)\s*/,' ').trim();
   updatePbarProg(n);
-  var v=document.getElementById('video'); v.muted=false;
+  var v=document.getElementById('video'); applyVolume();
   pStatus('tuning','Tuning <b>'+esc(c.name)+'</b>…');
   var settled=false; clearTimeout(tuneTimer);
   function ok(){if(settled)return;settled=true;clearTimeout(tuneTimer);pStatus('off');v.play().catch(function(){})}
@@ -782,6 +800,12 @@ function closePlayer(){
   inPlayer=false; pbarPinned=false; closePGuide(); document.getElementById('player').classList.remove('show');
   var v=document.getElementById('video'); destroyHls(v); pStatus('off');
   renderDots();
+  // return to the channel you were watching: mark it and bring it into view
+  var pos=visible.findIndex(function(c){return c.num===currentNum});
+  if(pos>=0)focusIndex=pos;
+  render();
+  var card=document.querySelectorAll('#grid .cardc')[focusIndex];
+  if(card)card.scrollIntoView({block:'center'});
 }
 var pbarTimer=null, pbarPinned=false;
 function showPbar(pin){var b=document.getElementById('pbar');b.classList.remove('hide');clearTimeout(pbarTimer);
@@ -889,6 +913,25 @@ document.addEventListener('fullscreenchange',syncFsIcon);
 document.addEventListener('webkitfullscreenchange',syncFsIcon);
 document.getElementById('pFsBtn').onclick=function(e){e.stopPropagation();toggleFullscreen()};
 
+/* ---------- volume / mute + retry ---------- */
+var vol=parseFloat(localStorage.getItem('stb_vol')); if(isNaN(vol))vol=1;
+var muted=localStorage.getItem('stb_muted')==='1';
+function applyVolume(){
+  var v=document.getElementById('video'); v.volume=vol; v.muted=muted||vol===0;
+  var sl=document.getElementById('pVol'); if(sl)sl.value=muted?0:vol;
+  var ic=document.getElementById('pMuteIcon'); if(ic)ic.innerHTML=(muted||vol===0)
+    ? '<path d="M3 10v4h4l5 5V5L7 10H3z"/><path d="M17 9l6 6M23 9l-6 6"/>'
+    : '<path d="M3 10v4h4l5 5V5L7 10H3z"/><path d="M16 8a5 5 0 0 1 0 8M19 5a9 9 0 0 1 0 14"/>';
+}
+document.getElementById('pMuteBtn').onclick=function(e){e.stopPropagation();muted=!muted;
+  localStorage.setItem('stb_muted',muted?'1':'0'); applyVolume()};
+document.getElementById('pVol').addEventListener('input',function(){
+  vol=parseFloat(this.value); muted=vol===0; localStorage.setItem('stb_vol',vol);
+  localStorage.setItem('stb_muted',muted?'1':'0'); applyVolume()});
+document.getElementById('pVol').addEventListener('click',function(e){e.stopPropagation()});
+document.getElementById('pRetryBtn').onclick=function(e){e.stopPropagation();if(currentNum)playChannel(currentNum)};
+document.getElementById('pNextBtn').onclick=function(e){e.stopPropagation();zap(1)};
+
 /* ---------- nav rail / views ---------- */
 function setNav(view){document.querySelectorAll('.nav').forEach(function(n){n.classList.toggle('active',n.dataset.view===view)})}
 document.getElementById('rail').addEventListener('click',function(e){
@@ -959,6 +1002,7 @@ document.addEventListener('keydown',function(e){
     if(e.key==='Escape'||e.key==='Backspace'){closePlayer()}
     else if(e.key==='ArrowUp'||e.key==='Enter'||e.key==='g'||e.key==='G'){openPGuide()}
     else if(e.key==='f'||e.key==='F'){toggleFullscreen()}
+    else if(e.key==='m'||e.key==='M'){document.getElementById('pMuteBtn').click()}
     else if(e.key==='ArrowRight'){zap(1)} else if(e.key==='ArrowLeft'){zap(-1)}
     else if(e.key>='0'&&e.key<='9'){numJump(e.key)}
     else return;
