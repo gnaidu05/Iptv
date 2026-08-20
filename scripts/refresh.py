@@ -28,6 +28,9 @@ sys.path.insert(0, os.path.join(ROOT, "tools", "m3u"))
 import m3u  # noqa: E402
 from m3u.checker import check_playlist  # noqa: E402
 
+sys.path.insert(0, os.path.join(ROOT, "webstb"))
+from build import dedupe  # noqa: E402  (name-dedupe shared with the STB build)
+
 PLAYLISTS = os.path.join(ROOT, "playlists")
 SOURCE = os.path.join(PLAYLISTS, "india.m3u")
 
@@ -153,6 +156,12 @@ def main() -> int:
             geo.tracks.append(r.track)
         else:
             dead += 1
+
+    # Collapse HD/SD simulcasts and multi-source copies of the same channel, so
+    # players (and the STB) show one entry per channel. Prefers the HD variant.
+    active_https.tracks = dedupe(active_https.tracks)
+    active_http.tracks = dedupe(active_http.tracks)
+    geo.tracks = dedupe(geo.tracks)
 
     counts = {
         "https": len(active_https),

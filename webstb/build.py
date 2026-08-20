@@ -53,10 +53,44 @@ def is_free_dish(name: str) -> bool:
     return any(kw in n for kw in FREE_DISH_KEYWORDS)
 
 
+def norm_name(name: str) -> str:
+    """Collapse a channel name to a dedupe key: drop (720p)/quality/HD-SD tags
+    and punctuation, so 'Aaj Tak', 'Aaj Tak (720p)' and 'Aaj Tak HD (1080p)' all
+    map to the same key. Digits are kept, so 'Star Sports 1' and '2' stay apart."""
+    n = (name or "").lower()
+    n = re.sub(r"\(.*?\)", " ", n)                       # (720p), (Not 24/7)…
+    n = re.sub(r"\[.*?\]", " ", n)                       # [Geo-blocked]…
+    n = re.sub(r"\b(fhd|uhd|hd|sd|4k|hevc|h265|h264)\b", " ", n)
+    n = re.sub(r"[^a-z0-9]+", " ", n).strip()
+    return re.sub(r"\s+", " ", n)
+
+
+def _is_hd(name: str) -> bool:
+    return bool(re.search(r"\b(hd|fhd|uhd|4k|1080|1440|2160)\b", (name or "").lower()))
+
+
+def dedupe(tracks):
+    """Keep one track per normalised name. Prefer an HD variant, then one with a
+    logo, else the first seen. Order follows the kept track's first appearance."""
+    order, best = [], {}
+    for t in tracks:
+        key = norm_name(t.title or "") or ("__" + t.path)
+        if key not in best:
+            order.append(key)
+            best[key] = t
+        else:
+            cur = best[key]
+            cand = (_is_hd(t.title or ""), bool(t.attributes.get("tvg-logo")))
+            have = (_is_hd(cur.title or ""), bool(cur.attributes.get("tvg-logo")))
+            if cand > have:
+                best[key] = t
+    return [best[k] for k in order]
+
+
 def main() -> int:
     pl = m3u.parse_file(PLAYLIST)
     channels = []
-    for i, track in enumerate(pl, start=1):
+    for i, track in enumerate(dedupe(list(pl)), start=1):
         attrs = track.attributes
         name = track.title or attrs.get("tvg-name") or f"Channel {i}"
         ch = {
@@ -75,7 +109,7 @@ def main() -> int:
     # appended as a separate, flagged group so they surface in their own tab.
     geo_n = 0
     if os.path.exists(GEO_PLAYLIST):
-        geo = m3u.parse_file(GEO_PLAYLIST)
+        geo = dedupe(list(m3u.parse_file(GEO_PLAYLIST)))
         base = len(channels)
         for j, track in enumerate(geo):
             a = track.attributes
