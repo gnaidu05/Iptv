@@ -1962,3 +1962,31 @@ http://cdn27.live247stream.com/primecanada/247/primecanada/stream1/playlist.m3u8
 https://stream.ottlive.co.in/ptccanada/index.m3u8
 #EXTINF:-1 tvg-id="SikhSpiritualCentreRexdale.ca@SD" tvg-logo="https://i.imgur.com/YKXoIsr.png" group-title="Undefined",Sikh Spiritual Centre Rexdale (720p)
 https://cdn12.henico.net:8443/live/ssct/index.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/RQhorAG.png" group-title="Movies",Shubh Cinema TV
+https://d393sxaxig6bax.cloudfront.net/out/v1/589cf2cf44bf42bb941e817a2240d62e/index.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/h1ejU90.png" group-title="Movies",MovieSphere
+https://amg00353-lionsgatestudio-moviesphere-xumo-zh5u0.amagi.tv/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/H2hD4vT.png" group-title="Movies",Gravitas Movies
+https://d6dg3ebeih71x.cloudfront.net/Gravitas_Movies.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/8j2npVc.png" group-title="Movies",FilmRise Westerns
+https://dz05z8iljgvbe.cloudfront.net/master.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/yfOwmsP.png" group-title="Movies",The Film Detective
+https://cinedigm-entertainment-corp-thefilmdetective-1-us.ono.wurl.tv/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/wFqhK3p.png" group-title="Movies",Grjngo Western Movies
+https://amogonetworx-grjngo-3-dk.samsung.wurl.tv/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://images.fubo.tv/station_logos/maverick_black_cinema_c.png" group-title="Movies",Maverick Black Cinema
+https://maverick-maverick-black-cinema-3-us.roku.wurl.tv/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/CXjo8kn.png" group-title="Movies",Magnificent Movies Network
+https://mmn1-301f.kxcdn.com/hls/MMN-HLS.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/iSVnzR1.png" group-title="Movies",24 Hour Free Movies
+https://d1j2u714xk898n.cloudfront.net/scheduler/scheduleMaster/145.m3u8
+#EXTINF:-1 tvg-logo="https://babaktv.com/wp-content/uploads/2023/09/30A-Classi-Movies.jpeg" group-title="Movies",30A TV Classic Movies
+https://30a-tv.com/feeds/pzaz/30atvmovies.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/5pOZQB4.png" group-title="Movies",Artflix Movie Classics
+https://amogonetworx-artflix-1-nl.samsung.wurl.tv/playlist.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/8j2npVc.png" group-title="Classic TV",FilmRise Classic TV
+https://d2tv4k5moji5m7.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-lu4pzh9l4b57p/master.m3u8
+#EXTINF:-1 tvg-logo="" group-title="Classic TV",Classic TV
+https://clshls.wns.live/hls/stream.m3u8
+#EXTINF:-1 tvg-logo="https://i.imgur.com/iUTL0pm.png" group-title="Classic TV",Retro TV
+https://freecast-lukentvlive.vgcdn.net/out/v1/665e9f91614b43b0a0654e9317f1d9f3/index.m3u8
