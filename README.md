@@ -45,11 +45,13 @@ for the current counts and notes on geo-blocking.
 
 A smart-TV–style browser live-TV app — boots, scans the lineup, shows a grid
 launcher with a NOW PLAYING hero, real **now / next EPG**, and plays the
-selected channel via HLS. Alongside the Indian live channels it now carries a
-**🎬 Movies** row (Indian FTA cinema plus globally-available English movie FAST
-channels — FilmRise, MovieSphere, The Film Detective, Gravitas, westerns and
-more) and a **📺 Classic TV** row of vintage-TV / sitcom channels — all free,
-ad-supported, and reachable from India. Live at:
+selected channel via HLS. Alongside the Indian live channels it now carries **🎬 Movies**
+(Indian FTA cinema plus globally-available English movie FAST channels — FilmRise,
+MovieSphere, Dark Matter, Wu Tang Collection, The Asylum, westerns and more),
+**😂 Comedy** (Dry Bar, Just for Laughs Gags, Mr Bean, MST3K, SNL & NBC comedy
+vaults), **📺 Classic TV**, and animation under **Kids** (FilmRise Anime,
+Yu-Gi-Oh!, Teletubbies, PBS Kids, The LEGO Channel, Baby Shark and more) — all
+free, ad-supported, and reachable from India. Live at:
 
 ```
 https://gnaidu05.github.io/Iptv/webstb/
