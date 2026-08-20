@@ -23,7 +23,68 @@ import m3u  # noqa: E402
 
 PLAYLIST = os.path.join(ROOT, "playlists", "india-active.m3u")
 GEO_PLAYLIST = os.path.join(ROOT, "playlists", "india-geo.m3u")
+LANG_MAP = os.path.join(ROOT, "playlists", "lang-map.json")
 OUT = os.path.join(HERE, "channels.js")
+
+# URL (host+path) -> language, built from the iptv-org per-language feeds by
+# scripts/refresh.py. Authoritative when present.
+try:
+    with open(LANG_MAP, encoding="utf-8") as _h:
+        LANGMAP = json.load(_h)
+except (OSError, ValueError):
+    LANGMAP = {}
+
+# Native-script ranges: a channel name written in a script names its language.
+SCRIPTS = [
+    ("Tamil", "஀-௿"), ("Telugu", "ఀ-౿"),
+    ("Kannada", "ಀ-೿"), ("Malayalam", "ഀ-ൿ"),
+    ("Bengali", "ঀ-৿"), ("Gujarati", "઀-૿"),
+    ("Punjabi", "਀-੿"), ("Odia", "଀-୿"),
+]
+SCRIPT_RE = [(lang, re.compile("[" + rng + "]")) for lang, rng in SCRIPTS]
+
+# Brand / word cues for channels whose name has no native script and that are
+# not in the feed map (e.g. FAST additions).
+LANG_KEYWORDS = [
+    ("Malayalam", r"malayalam|asianet|manorama|mazhavil|kairali|amrita|surya tv|flowers|kaumudy|media ?one|24 ?news mal"),
+    ("Tamil", r"\btamil\b|polimer|kalaignar|adithya|jaya tv|vijay|sun music|sun tv|k tv|raj tv|raj digital"),
+    ("Telugu", r"\btelugu\b|etv|ntv|tv9 telugu|sakshi|abn|10tv|t news|bhakthi|zee thirai"),
+    ("Kannada", r"\bkannada\b|udaya|colors kannada|public tv"),
+    ("Bengali", r"\bbengali\b|\bbangla\b|aakaash|aamar|tara news|jalsha"),
+    ("Marathi", r"\bmarathi\b|marathibana"),
+    ("Punjabi", r"\bpunjabi\b|\bptc\b|chardikla|balle|5aab"),
+    ("Gujarati", r"\bgujarati\b"),
+    ("Odia", r"\bodia\b|odisha|kalinga"),
+    ("Bhojpuri", r"bhojpuri|filamchi|oscar movies bho"),
+    ("Hindi", r"\bhindi\b|aaj tak|abp|ndtv india|zee news|india tv|dd national|dd news|dd bharati|"
+              r"sansad|sansad tv|\b9x|b4u|aastha|sanskar|sadhna|sadhana|satsang|shraddha|shubh|"
+              r"paras|arihant|ganga|nazara|goldmines|dangal|enterr|manoranjan|maha movie|wow |"
+              r"mastiii|dhamaal|dhinchaak|dabangg|ishara|sony pal|big magic|naaptol|news24|"
+              r"news nation|bharat 24|bharat24|republic bharat|good news today|shemaroo|dd kisan|dd urdu"),
+]
+LANG_KW_RE = [(lang, re.compile(pat, re.I)) for lang, pat in LANG_KEYWORDS]
+# FAST channels we add are English-language unless clearly Indian.
+ENGLISH_GROUPS = {"Movies", "Comedy", "Classic TV"}
+
+
+def _urlkey(url: str) -> str:
+    m = re.match(r"https?://([^/]+)(/[^?\s]*)", url or "")
+    return f"{m.group(1).lower()}{m.group(2)}" if m else (url or "")
+
+
+def lang_of(name: str, url: str, group: str) -> str:
+    for lang, rx in SCRIPT_RE:            # native script is unambiguous
+        if rx.search(name or ""):
+            return lang
+    mapped = LANGMAP.get(_urlkey(url))    # iptv-org feed classification
+    if mapped:
+        return mapped
+    for lang, rx in LANG_KW_RE:           # brand / word cues
+        if rx.search(name or ""):
+            return lang
+    if group in ENGLISH_GROUPS:           # FAST movie/comedy/classic adds
+        return "English"
+    return "Other"
 
 # DD Free Dish bouquet membership. All Doordarshan channels plus the private
 # free-to-air channels carried on DD Free Dish. The private lineup shifts with
@@ -93,13 +154,15 @@ def main() -> int:
     for i, track in enumerate(dedupe(list(pl)), start=1):
         attrs = track.attributes
         name = track.title or attrs.get("tvg-name") or f"Channel {i}"
+        group = attrs.get("group-title", "") or "General"
         ch = {
             "num": i,
             "name": name,
             "url": track.path,
             "logo": attrs.get("tvg-logo", ""),
-            "group": attrs.get("group-title", "") or "General",
+            "group": group,
             "tvgId": attrs.get("tvg-id", ""),
+            "lang": lang_of(name, track.path, group),
         }
         if is_free_dish(name):
             ch["fd"] = 1
@@ -113,14 +176,17 @@ def main() -> int:
         base = len(channels)
         for j, track in enumerate(geo):
             a = track.attributes
+            gname = track.title or f"Channel {base + j + 1}"
+            ggroup = a.get("group-title", "") or "India"
             channels.append(
                 {
                     "num": base + j + 1,
-                    "name": track.title or f"Channel {base + j + 1}",
+                    "name": gname,
                     "url": track.path,
                     "logo": a.get("tvg-logo", ""),
-                    "group": a.get("group-title", "") or "India",
+                    "group": ggroup,
                     "tvgId": a.get("tvg-id", ""),
+                    "lang": lang_of(gname, track.path, ggroup),
                     "geo": 1,
                 }
             )

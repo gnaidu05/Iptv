@@ -143,6 +143,18 @@
   .ghbtn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
   .ghbtn.on{color:#fff;border-color:var(--p2);background:rgba(77,124,255,.18)}
   .ghbtn .lbl{white-space:nowrap}
+  .ghbtn .caret{width:12px;height:12px;opacity:.8}
+  .langwrap{position:relative}
+  #langMenu{position:absolute;top:44px;right:0;z-index:60;min-width:210px;max-height:62vh;overflow:auto;
+    background:var(--card);border:1px solid var(--line2);border-radius:12px;padding:6px;
+    box-shadow:0 24px 60px rgba(0,0,0,.55);display:none}
+  #langMenu.open{display:block}
+  .langopt{display:flex;justify-content:space-between;align-items:center;gap:14px;width:100%;
+    padding:9px 12px;border:0;background:none;color:var(--muted);font-size:14px;cursor:pointer;
+    border-radius:8px;text-align:left}
+  .langopt:hover{background:rgba(255,255,255,.07);color:var(--txt)}
+  .langopt.sel{color:#fff;background:var(--grad);font-weight:600}
+  .langopt .cnt{font-size:12px;opacity:.75;font-variant-numeric:tabular-nums}
   #grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;padding:0 40px 48px}
   .cardc{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:var(--radius);
     padding:14px;cursor:pointer;position:relative;transition:.14s;overflow:hidden}
@@ -444,6 +456,10 @@
         <span id="gridCount">0 Channels</span>
         <button class="ghbtn" id="searchBtn" title="Search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg><span class="lbl">Search</span></button>
         <button class="ghbtn" id="sortBtn" title="Sort"><svg viewBox="0 0 24 24"><path d="M7 4v16M7 20l-3-3M7 4l3 3M17 20V4M17 4l3 3M17 20l-3-3"/></svg><span class="lbl">Sort</span></button>
+        <div class="langwrap">
+          <button class="ghbtn" id="langBtn" title="Language" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18"/></svg><span class="lbl">Language</span><svg class="caret" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div id="langMenu" role="menu"></div>
+        </div>
         <button class="ghbtn" id="filtBtn" title="HD only"><svg viewBox="0 0 24 24"><path d="M3 5h18M6 12h12M10 19h4"/></svg><span class="lbl">HD only</span></button>
       </div>
     </div>
@@ -459,6 +475,7 @@
     <div class="help-row"><span class="ic">👆</span><div><b>Tap a channel</b> <span>to watch it full-screen. Tap the screen for the back button.</span></div></div>
     <div class="help-row"><span class="ic">📺</span><div><b>Live TV</b> <span>(sidebar) shows the channel grid; use the tabs to filter by category or the DD Free Dish bouquet.</span></div></div>
     <div class="help-row"><span class="ic">🔍</span><div><b>Search</b> <span>finds a channel by name.</span></div></div>
+    <div class="help-row"><span class="ic">🌐</span><div><b>Language</b> <span>— filter the grid by language (Hindi, Tamil, Telugu, Malayalam, Kannada, Bengali, English and more); works together with the category tabs.</span></div></div>
     <div class="help-row"><span class="ic">❤️</span><div><b>Favourites</b> <span>— tap the heart on any channel, then open the Favourites tab.</span></div></div>
     <div class="help-row"><span class="ic">⛶</span><div><b>Fullscreen</b> <span>— while watching, tap the ⛶ button (or press F) for true device fullscreen.</span></div></div>
     <div class="help-row"><span class="ic">⌨️</span><div><b>Keyboard</b> <span>: arrows to move, Enter to watch, / to search, F fullscreen.</span></div></div>
@@ -561,7 +578,7 @@
 var DATA=window.STB_DATA||{channels:[]}, CH=DATA.channels;
 var favs=new Set(JSON.parse(localStorage.getItem('stb_favs')||'[]'));
 var watchHist=JSON.parse(localStorage.getItem('stb_hist')||'[]');
-var catFilter='ALL', favView=false, hdOnly=false, sortMode=0, query='';
+var catFilter='ALL', favView=false, hdOnly=false, sortMode=0, query='', langFilter='ALL';
 var visible=[], focusIndex=0, currentNum=null, loadedNum=null, hls=null;
 var poweredOn=false, inPlayer=false, tuneTimer=null;
 
@@ -653,6 +670,7 @@ function computeVisible(){
     if(c.geo)return false;                 // geo channels only show in the India tab
     if(catFilter==='FD'&&!c.fd)return false;
     if(catFilter!=='ALL'&&catFilter!=='FD'&&catOf(c)!==catFilter)return false;
+    if(langFilter!=='ALL'&&(c.lang||'Other')!==langFilter)return false;
     if(hdOnly&&!isHD(c))return false;
     if(query){var q=query.toLowerCase();if((c.name||'').toLowerCase().indexOf(q)<0)return false}
     return true;
@@ -998,6 +1016,58 @@ function doAct(a){
 document.getElementById('searchBtn').onclick=function(){openSearch()};
 document.getElementById('sortBtn').onclick=function(){doAct('sort')};
 document.getElementById('filtBtn').onclick=function(){doAct('filter')};
+
+/* ---------- language filter ---------- */
+var LANG_ORDER=['Hindi','Tamil','Telugu','Malayalam','Kannada','Bengali','Marathi',
+  'Punjabi','Gujarati','Odia','Assamese','Bhojpuri','English','Other'];
+function langCounts(){
+  // count within the CURRENT category/fav view so numbers reflect what you'd see
+  var m={};
+  CH.forEach(function(c){
+    if(favView){ if(!favs.has(c.num))return; }
+    else if(catFilter==='GEO'){ if(!c.geo)return; }
+    else { if(c.geo)return;
+      if(catFilter==='FD'&&!c.fd)return;
+      if(catFilter!=='ALL'&&catFilter!=='FD'&&catOf(c)!==catFilter)return; }
+    var l=c.lang||'Other'; m[l]=(m[l]||0)+1;
+  });
+  return m;
+}
+function buildLangMenu(){
+  var counts=langCounts(), menu=document.getElementById('langMenu');
+  var keys=Object.keys(counts).sort(function(a,b){
+    var ia=LANG_ORDER.indexOf(a),ib=LANG_ORDER.indexOf(b);
+    return (ia<0?99:ia)-(ib<0?99:ib) || counts[b]-counts[a]; });
+  var total=0; keys.forEach(function(k){total+=counts[k]});
+  menu.innerHTML='';
+  function opt(key,label,cnt){
+    var b=document.createElement('button'); b.className='langopt'+(key===langFilter?' sel':'');
+    b.setAttribute('role','menuitemradio'); b.setAttribute('aria-checked',key===langFilter);
+    b.innerHTML='<span>'+esc(label)+'</span><span class="cnt">'+cnt+'</span>';
+    b.onclick=function(){ langFilter=key; closeLangMenu(); syncLangBtn(); render(); }; menu.appendChild(b);
+  }
+  opt('ALL','All languages',total);
+  keys.forEach(function(k){ if(counts[k]) opt(k,k,counts[k]); });
+}
+function syncLangBtn(){
+  var btn=document.getElementById('langBtn');
+  btn.classList.toggle('on',langFilter!=='ALL');
+  btn.querySelector('.lbl').textContent=(langFilter==='ALL')?'Language':langFilter;
+}
+function openLangMenu(){ buildLangMenu();
+  document.getElementById('langMenu').classList.add('open');
+  document.getElementById('langBtn').setAttribute('aria-expanded','true'); }
+function closeLangMenu(){
+  document.getElementById('langMenu').classList.remove('open');
+  document.getElementById('langBtn').setAttribute('aria-expanded','false'); }
+function toggleLangMenu(){
+  document.getElementById('langMenu').classList.contains('open')?closeLangMenu():openLangMenu(); }
+document.getElementById('langBtn').onclick=function(e){ e.stopPropagation(); toggleLangMenu(); };
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.langwrap')) closeLangMenu(); });
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'&&document.getElementById('langMenu').classList.contains('open')){
+    e.stopPropagation(); closeLangMenu(); } },true);
 /* help / about */
 function openHelp(){document.getElementById('help').classList.add('show')}
 function closeHelp(){document.getElementById('help').classList.remove('show');setNav('live')}

@@ -92,12 +92,32 @@ def build_source_pool() -> "m3u.Playlist":
                 added += 1
         return added
 
+    # URL (host+path) -> language, so the STB can offer a language filter.
+    # "India" is a country feed, not a language; every other source is labelled
+    # with its language. Regional feeds are pulled after Hindi so a channel that
+    # appears in both ends up tagged with its regional language.
+    import json as _json
+    import re as _re
+
+    langmap = {}
+
+    def _urlkey(u):
+        m = _re.match(r"https?://([^/]+)(/[^?\s]*)", u or "")
+        return f"{m.group(1).lower()}{m.group(2)}" if m else (u or "")
+
     print(f"Existing source pool: {add(base)} channels")
     for name, url in SOURCES:
         pl = fetch(url)
         if pl is not None:
             print(f"  + {name}: {len(pl)} fetched, {add(pl)} new")
+            if name != "India":
+                for t in pl:
+                    langmap[_urlkey(t.path)] = name
     print(f"Combined unique source: {len(pool)} channels")
+
+    with open(os.path.join(PLAYLISTS, "lang-map.json"), "w", encoding="utf-8") as fh:
+        _json.dump(langmap, fh, ensure_ascii=False, separators=(",", ":"))
+    print(f"Language map: {len(langmap)} URL→language entries")
     return pool
 
 
