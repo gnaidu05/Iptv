@@ -21,6 +21,7 @@ https://raw.githubusercontent.com/gnaidu05/iptv/main/playlists/india-active.m3u
 |----------|------|
 | India — active, **HTTPS** (browser + player safe) | [`playlists/india-active.m3u`](playlists/india-active.m3u) |
 | India — active, **HTTP** (native players like VLC) | [`playlists/india-active-http.m3u`](playlists/india-active-http.m3u) |
+| India — **geo-blocked** (work from an Indian connection) | [`playlists/india-geo.m3u`](playlists/india-geo.m3u) |
 | India — full source list | [`playlists/india.m3u`](playlists/india.m3u) |
 | Samsung TV Plus — India (⚠️ India-only) | [`playlists/samsung-india.m3u`](playlists/samsung-india.m3u) |
 

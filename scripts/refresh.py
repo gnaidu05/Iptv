@@ -39,7 +39,19 @@ SOURCES = [
     ("Telugu", f"{IPTV_ORG}/languages/tel.m3u"),
     ("Bengali", f"{IPTV_ORG}/languages/ben.m3u"),
     ("Malayalam", f"{IPTV_ORG}/languages/mal.m3u"),
+    ("Kannada", f"{IPTV_ORG}/languages/kan.m3u"),
+    ("Marathi", f"{IPTV_ORG}/languages/mar.m3u"),
+    ("Punjabi", f"{IPTV_ORG}/languages/pan.m3u"),
+    ("Gujarati", f"{IPTV_ORG}/languages/guj.m3u"),
+    ("Odia", f"{IPTV_ORG}/languages/ori.m3u"),
+    ("Assamese", f"{IPTV_ORG}/languages/asm.m3u"),
+    ("Bhojpuri", f"{IPTV_ORG}/languages/bho.m3u"),
 ]
+
+# Failures that mean "reachable server, our IP refused" — usually geo-blocking.
+# Such channels typically work from within India even though CI (US) can't reach
+# them, so we keep them in a separate india-geo list rather than discarding.
+GEO_REASONS = ("403", "401", "451")
 
 
 def norm(url: str):
@@ -106,16 +118,19 @@ def write_report(counts: dict, stamp: str) -> None:
             "|--------|-------|------|\n"
             f"| ✅ Active — HTTPS (browser + player safe) | {counts['https']} | `india-active.m3u` |\n"
             f"| ✅ Active — HTTP (native players only) | {counts['http']} | `india-active-http.m3u` |\n"
+            f"| 🇮🇳 Geo-blocked — likely works from India | {counts['geo']} | `india-geo.m3u` |\n"
             f"| ❌ Dead / unreachable | {counts['dead']} | — |\n"
             f"| Source pool (all) | {counts['total']} | `india.m3u` |\n\n"
             "`india-active.m3u` powers the web set-top box (HTTPS only, so it is "
             "safe to play from the `https://` GitHub Pages site). `http://` "
             "streams cannot play on the HTTPS page (mixed content) — use "
             "`india-active-http.m3u` in a native player like VLC.\n\n"
+            "`india-geo.m3u` holds channels that returned `403`/`401` from the "
+            "US-based CI runner — they reject non-India IPs, so they usually "
+            "**work from an Indian connection** even though they can't be verified "
+            "here.\n\n"
             "## Notes on dead links\n\n"
-            "Most failures are genuine `404`/`403`. Some `403`s are "
-            "**geo-blocking** — channels that reject non-India IPs — so they may "
-            "still play for you locally.\n"
+            "Most remaining failures are genuine `404`s or network errors.\n"
         )
 
 
@@ -129,26 +144,31 @@ def main() -> int:
 
     active_https = m3u.Playlist(attributes=header)
     active_http = m3u.Playlist(attributes=header)
+    geo = m3u.Playlist(attributes=header)
     dead = 0
     for r in results:
         if r.ok:
             (active_https if urlparse(r.track.path).scheme == "https" else active_http).tracks.append(r.track)
+        elif any(g in r.reason for g in GEO_REASONS):
+            geo.tracks.append(r.track)
         else:
             dead += 1
 
     counts = {
         "https": len(active_https),
         "http": len(active_http),
+        "geo": len(geo),
         "dead": dead,
         "total": len(pool),
     }
     print(f"\nActive HTTPS: {counts['https']}   Active HTTP: {counts['http']}   "
-          f"Dead: {counts['dead']}   Source: {counts['total']}")
+          f"Geo (India-only): {counts['geo']}   Dead: {counts['dead']}   Source: {counts['total']}")
 
     # write playlists
     pool.write_file(SOURCE)
     active_https.write_file(os.path.join(PLAYLISTS, "india-active.m3u"))
     active_http.write_file(os.path.join(PLAYLISTS, "india-active-http.m3u"))
+    geo.write_file(os.path.join(PLAYLISTS, "india-geo.m3u"))
     # remove the obsolete pre-CI bucket if present
     obsolete = os.path.join(PLAYLISTS, "india-unverifiable-http.m3u")
     if os.path.exists(obsolete):

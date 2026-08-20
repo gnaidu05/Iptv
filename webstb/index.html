@@ -606,7 +606,7 @@ function loadEPG(){
 function cardProg(c){ if(!EPG_READY)return null; var st=epgState(c.num); return st&&st.cur?st.cur[2]:null }
 
 /* ---------- categories / tabs ---------- */
-function groupCounts(){var m={};CH.forEach(function(c){var g=catOf(c);m[g]=(m[g]||0)+1});return m}
+function groupCounts(){var m={};CH.forEach(function(c){if(c.geo)return;var g=catOf(c);m[g]=(m[g]||0)+1});return m}
 function buildTabs(){
   var counts=groupCounts();
   var order=Object.keys(counts).sort(function(a,b){return counts[b]-counts[a]});
@@ -621,12 +621,15 @@ function buildTabs(){
   add('ALL','All Channels');
   if(CH.some(function(c){return c.fd})) add('FD','DD Free Dish');
   order.forEach(function(g){add(g,g)});
+  if(CH.some(function(c){return c.geo})) add('GEO','India ⭐');
 }
 
 /* ---------- filtering / sorting ---------- */
 function computeVisible(){
   var list=CH.filter(function(c){
     if(favView)return favs.has(c.num);
+    if(catFilter==='GEO')return !!c.geo;
+    if(c.geo)return false;                 // geo channels only show in the India tab
     if(catFilter==='FD'&&!c.fd)return false;
     if(catFilter!=='ALL'&&catFilter!=='FD'&&catOf(c)!==catFilter)return false;
     if(hdOnly&&!isHD(c))return false;
@@ -643,8 +646,10 @@ function computeVisible(){
 /* ---------- grid ---------- */
 function render(){
   visible=computeVisible();
-  document.getElementById('gridTitle').textContent=favView?'Favourites':(catFilter==='ALL'?'All Channels':catFilter==='FD'?'DD Free Dish':catFilter);
-  document.getElementById('gridCount').textContent=visible.length+' Channels';
+  document.getElementById('gridTitle').textContent=favView?'Favourites':(catFilter==='ALL'?'All Channels':catFilter==='FD'?'DD Free Dish':catFilter==='GEO'?'India ⭐':catFilter);
+  document.getElementById('gridCount').innerHTML=(catFilter==='GEO'&&!favView)
+    ? visible.length+' Channels &nbsp;·&nbsp; <span style="color:var(--warn)">🇮🇳 best on an Indian connection</span>'
+    : visible.length+' Channels';
   document.querySelectorAll('.tab').forEach(function(t){t.classList.toggle('active',!favView&&t.dataset.key===catFilter)});
   var g=document.getElementById('grid'); g.innerHTML='';
   visible.forEach(function(c,i){
