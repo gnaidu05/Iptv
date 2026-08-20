@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg">#FF05070E</color>
+    <color name="p1">#FF7C5CFF</color>
+    <color name="p2">#FF4D7CFF</color>
+    <color name="p3">#FFFF5CA8</color>
+    <color name="gold">#FFFFC24D</color>
+    <color name="ic_bg">#FF12172A</color>
+</resources>

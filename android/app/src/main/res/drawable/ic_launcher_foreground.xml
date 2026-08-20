@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Bloom petals: one ellipse rotated around the icon centre (54,54). -->
+    <group android:pivotX="54" android:pivotY="54" android:rotation="0">
+        <path android:fillColor="#FFFFFF" android:fillAlpha="0.9"
+            android:pathData="M54,20 C58.4,20 62,27.2 62,36 C62,44.8 58.4,52 54,52 C49.6,52 46,44.8 46,36 C46,27.2 49.6,20 54,20 Z" />
+    </group>
+    <group android:pivotX="54" android:pivotY="54" android:rotation="60">
+        <path android:fillColor="#FFFFFF" android:fillAlpha="0.9"
+            android:pathData="M54,20 C58.4,20 62,27.2 62,36 C62,44.8 58.4,52 54,52 C49.6,52 46,44.8 46,36 C46,27.2 49.6,20 54,20 Z" />
+    </group>
+    <group android:pivotX="54" android:pivotY="54" android:rotation="120">
+        <path android:fillColor="#FFFFFF" android:fillAlpha="0.9"
+            android:pathData="M54,20 C58.4,20 62,27.2 62,36 C62,44.8 58.4,52 54,52 C49.6,52 46,44.8 46,36 C46,27.2 49.6,20 54,20 Z" />
+    </group>
+    <group android:pivotX="54" android:pivotY="54" android:rotation="180">
+        <path android:fillColor="#FFFFFF" android:fillAlpha="0.9"
+            android:pathData="M54,20 C58.4,20 62,27.2 62,36 C62,44.8 58.4,52 54,52 C49.6,52 46,44.8 46,36 C46,27.2 49.6,20 54,20 Z" />
+    </group>
+    <group android:pivotX="54" android:pivotY="54" android:rotation="240">
+        <path android:fillColor="#FFFFFF" android:fillAlpha="0.9"
+            android:pathData="M54,20 C58.4,20 62,27.2 62,36 C62,44.8 58.4,52 54,52 C49.6,52 46,44.8 46,36 C46,27.2 49.6,20 54,20 Z" />
+    </group>
+    <group android:pivotX="54" android:pivotY="54" android:rotation="300">
+        <path android:fillColor="#FFFFFF" android:fillAlpha="0.9"
+            android:pathData="M54,20 C58.4,20 62,27.2 62,36 C62,44.8 58.4,52 54,52 C49.6,52 46,44.8 46,36 C46,27.2 49.6,20 54,20 Z" />
+    </group>
+
+    <!-- Golden core -->
+    <path android:fillColor="@color/gold"
+        android:pathData="M54,45 a9,9 0 1,0 0.1,0 z" />
+</vector>

@@ -1,0 +1,29 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'tv.aura.app'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "tv.aura.app"
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            // Debug-signed by default via assembleDebug; release build left
+            // unsigned unless a keystore is supplied. The CI ships assembleDebug.
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
