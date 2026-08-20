@@ -124,10 +124,9 @@
   .un-empty{color:var(--muted);font-size:13px;padding:10px 6px;line-height:1.5}
 
   /* ---------------- TABS ---------------- */
-  #tabs{display:flex;gap:6px;align-items:center;padding:6px 40px 0;overflow-x:auto;border-top:1px solid var(--line);
-    margin-top:4px;scrollbar-width:none}
-  #tabs::-webkit-scrollbar{display:none}
-  .tab{padding:13px 20px;border-radius:12px;border:0;background:none;color:var(--muted);font-size:15px;cursor:pointer;
+  #tabs{display:flex;gap:6px 4px;align-items:center;padding:8px 40px 4px;overflow:visible;flex-wrap:wrap;
+    border-top:1px solid var(--line);margin-top:4px}
+  .tab{padding:10px 16px;border-radius:11px;border:0;background:none;color:var(--muted);font-size:14.5px;cursor:pointer;
     white-space:nowrap;transition:.15s;position:relative}
   .tab:hover{color:var(--txt)}
   .tab.active{color:#fff;background:var(--grad);font-weight:700;box-shadow:0 10px 24px rgba(124,92,255,.3)}
@@ -567,14 +566,36 @@ var visible=[], focusIndex=0, currentNum=null, loadedNum=null, hls=null;
 var poweredOn=false, inPlayer=false, tuneTimer=null;
 
 var SORTS=['number','name','favourites'];
-var CAT_LABEL={Religious:'Devotional',Undefined:'General'};
+// Canonical categories, high→low priority. A channel's raw group-title may be a
+// compound like "Movies;News" or a tiny one-off ("Cooking") — catOf() folds each
+// into one of these so the tab bar stays a short, TV-style lineup.
+var CAT_ORDER=['Entertainment','Movies','Classic TV','News','Sports','Kids','Music',
+  'Devotional','Documentary','Culture','Lifestyle','General'];
+var CAT_MAP={
+  movies:'Movies',movie:'Movies',cinema:'Movies',film:'Movies',
+  'classic tv':'Classic TV',classic:'Classic TV',retro:'Classic TV',
+  news:'News',business:'News',legislative:'News',weather:'News',politics:'News',
+  sports:'Sports',sport:'Sports',
+  kids:'Kids',animation:'Kids',anime:'Kids',cartoon:'Kids',
+  music:'Music',
+  religious:'Devotional',devotional:'Devotional',spiritual:'Devotional',
+  documentary:'Documentary',science:'Documentary',education:'Documentary',
+  history:'Documentary',nature:'Documentary',outdoor:'Documentary',knowledge:'Documentary',
+  culture:'Culture',
+  lifestyle:'Lifestyle',cooking:'Lifestyle',food:'Lifestyle',travel:'Lifestyle',
+  shop:'Lifestyle',fashion:'Lifestyle',health:'Lifestyle',
+  entertainment:'Entertainment',comedy:'Entertainment',series:'Entertainment',
+  drama:'Entertainment',family:'Entertainment',general:'General',undefined:'General'};
 
 /* helpers */
 function esc(s){return(s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function byNum(n){for(var i=0;i<CH.length;i++)if(CH[i].num===n)return CH[i];return null}
 function initials(c){return(c.name||'?').replace(/\(.*?\)/g,'').trim().slice(0,2).toUpperCase()}
 function isHD(c){return /\b(hd|1080p|1080i|720p|4k|uhd)\b/i.test(c.name)}
-function catOf(c){return CAT_LABEL[c.group]||c.group||'General'}
+function catOf(c){var raw=c.group||'General',toks=raw.split(';'),best=null,rank=999;
+  for(var i=0;i<toks.length;i++){var canon=CAT_MAP[toks[i].trim().toLowerCase()];if(!canon)continue;
+    var r=CAT_ORDER.indexOf(canon); if(r>=0&&r<rank){rank=r;best=canon}}
+  return best||'General'}
 function logoImg(c,cls){var i=initials(c);
   if(c.logo)return '<img loading="lazy" src="'+esc(c.logo)+'" onerror="this.replaceWith(Object.assign(document.createElement(\'span\'),{className:\'ph\',textContent:\''+i+'\'}))">';
   return '<span class="ph">'+i+'</span>'}
@@ -611,8 +632,7 @@ function buildTabs(){
   var counts=groupCounts();
   var order=Object.keys(counts).sort(function(a,b){return counts[b]-counts[a]});
   // preferred ordering to resemble a TV lineup
-  var pref=['Entertainment','Movies','News','Sports','Kids','Music','Devotional'];
-  order.sort(function(a,b){var ia=pref.indexOf(a),ib=pref.indexOf(b);
+  order.sort(function(a,b){var ia=CAT_ORDER.indexOf(a),ib=CAT_ORDER.indexOf(b);
     ia=ia<0?99:ia; ib=ib<0?99:ib; return ia-ib || counts[b]-counts[a]});
   var tabs=document.getElementById('tabs'); tabs.innerHTML='';
   function add(key,label){var b=document.createElement('button');
