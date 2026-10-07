@@ -21,15 +21,25 @@ sys.path.insert(0, os.path.join(ROOT, "tools", "m3u"))
 
 import m3u  # noqa: E402
 
-# The STB loads the browser-playable subset (CORS-verified end to end) when it
-# exists, so channels that can't play in a browser don't show "NO SIGNAL". The
-# full HTTPS list (india-active.m3u) remains for native players like VLC.
+# The STB lists every reachable HTTPS channel, but flags the ones that aren't
+# CORS-playable with px:1. By default the app hides those (they'd show "NO
+# SIGNAL"); when a CORS proxy is configured (web) or the native Android shell is
+# running (?app=1), they are shown and routed so they play.
 _WEB = os.path.join(ROOT, "playlists", "india-web.m3u")
 _ACTIVE = os.path.join(ROOT, "playlists", "india-active.m3u")
-PLAYLIST = _WEB if os.path.exists(_WEB) else _ACTIVE
+PLAYLIST = _ACTIVE if os.path.exists(_ACTIVE) else _WEB
 GEO_PLAYLIST = os.path.join(ROOT, "playlists", "india-geo.m3u")
 LANG_MAP = os.path.join(ROOT, "playlists", "lang-map.json")
 OUT = os.path.join(HERE, "channels.js")
+
+
+def _web_urls():
+    """URLs confirmed CORS-playable (india-web.m3u); everything else is px:1."""
+    import re as _re
+    if not os.path.exists(_WEB):
+        return None  # no CORS data → treat all as playable
+    txt = open(_WEB, encoding="utf-8").read()
+    return set(_re.findall(r"https?://\S+", txt))
 
 # URL (host+path) -> language, built from the iptv-org per-language feeds by
 # scripts/refresh.py. Authoritative when present.
@@ -155,6 +165,7 @@ def dedupe(tracks):
 
 def main() -> int:
     pl = m3u.parse_file(PLAYLIST)
+    webset = _web_urls()
     channels = []
     for i, track in enumerate(dedupe(list(pl)), start=1):
         attrs = track.attributes
@@ -169,6 +180,8 @@ def main() -> int:
             "tvgId": attrs.get("tvg-id", ""),
             "lang": lang_of(name, track.path, group),
         }
+        if webset is not None and track.path not in webset:
+            ch["px"] = 1  # not CORS-playable: needs the proxy / native shell
         if is_free_dish(name):
             ch["fd"] = 1
         channels.append(ch)
@@ -206,9 +219,11 @@ def main() -> int:
 
     with_logo = sum(1 for c in channels if c["logo"])
     fd = [c["name"] for c in channels if c.get("fd")]
+    px = sum(1 for c in channels if c.get("px"))
     print(f"Wrote {len(channels)} channels ({with_logo} with logos) to {OUT}")
     print(f"DD Free Dish bouquet: {len(fd)} channels")
     print(f"India (geo-blocked) group: {geo_n} channels")
+    print(f"Non-CORS (px, need proxy/native): {px} channels")
     return 0
 
 

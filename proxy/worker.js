@@ -1,0 +1,137 @@
+/**
+ * Aura CORS/HLS proxy — Cloudflare Worker.
+ *
+ * Makes free IPTV streams that don't send CORS headers playable in a browser by
+ * re-serving them with `Access-Control-Allow-Origin: *`. For HLS it rewrites the
+ * manifest so the variant playlists and media segments are fetched through the
+ * proxy too (otherwise the browser would hit the origin CDN directly and be
+ * blocked again).
+ *
+ * Usage from the page:  <worker-url>/?url=<url-encoded stream URL>
+ *
+ * Deploy: see proxy/README.md  (npx wrangler deploy, free tier).
+ */
+
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET,HEAD,OPTIONS",
+  "Access-Control-Allow-Headers": "*",
+  "Access-Control-Expose-Headers": "*",
+};
+
+const UA =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
+  "(KHTML, like Gecko) Chrome/125.0 Safari/537.36";
+
+const M3U8_RE = /\.m3u8(\?|$)/i;
+
+export default {
+  async fetch(request) {
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: CORS });
+    }
+
+    const here = new URL(request.url);
+    const target = here.searchParams.get("url");
+    if (!target) {
+      return new Response("Aura proxy. Use /?url=<encoded stream url>", {
+        status: 400,
+        headers: { ...CORS, "Content-Type": "text/plain" },
+      });
+    }
+
+    let upstreamUrl;
+    try {
+      upstreamUrl = new URL(target);
+      if (!/^https?:$/.test(upstreamUrl.protocol)) throw new Error("scheme");
+    } catch {
+      return new Response("Bad url", { status: 400, headers: CORS });
+    }
+
+    const fwd = { "User-Agent": UA, Accept: "*/*" };
+    const range = request.headers.get("Range");
+    if (range) fwd["Range"] = range;
+    // A referer/origin matching the stream host helps some CDNs.
+    fwd["Referer"] = upstreamUrl.origin + "/";
+
+    let resp;
+    try {
+      resp = await fetch(upstreamUrl.toString(), {
+        headers: fwd,
+        redirect: "follow",
+        cf: { cacheTtl: 0 },
+      });
+    } catch (e) {
+      return new Response("Upstream fetch failed: " + e, {
+        status: 502,
+        headers: CORS,
+      });
+    }
+
+    const ct = resp.headers.get("Content-Type") || "";
+    const isManifest =
+      M3U8_RE.test(upstreamUrl.pathname) ||
+      /mpegurl/i.test(ct) ||
+      ct.includes("application/x-mpegURL");
+
+    // Base used to rewrite child URLs back through this proxy.
+    const self = here.origin;
+
+    if (isManifest) {
+      const text = await resp.text();
+      const out = rewriteManifest(text, upstreamUrl, self);
+      return new Response(out, {
+        status: 200,
+        headers: {
+          ...CORS,
+          "Content-Type": "application/vnd.apple.mpegurl",
+          "Cache-Control": "no-store",
+        },
+      });
+    }
+
+    // Segments / keys / anything else: stream straight through with CORS added.
+    const headers = new Headers(CORS);
+    for (const h of ["Content-Type", "Content-Length", "Accept-Ranges", "Content-Range"]) {
+      const v = resp.headers.get(h);
+      if (v) headers.set(h, v);
+    }
+    headers.set("Cache-Control", "no-store");
+    return new Response(resp.body, { status: resp.status, headers });
+  },
+};
+
+function proxied(absUrl, self) {
+  return self + "/?url=" + encodeURIComponent(absUrl);
+}
+
+function rewriteManifest(text, baseUrl, self) {
+  const lines = text.split(/\r?\n/);
+  const out = [];
+  for (let line of lines) {
+    const t = line.trim();
+    if (t === "") {
+      out.push(line);
+      continue;
+    }
+    if (t.startsWith("#")) {
+      // Rewrite URI="..." attributes (EXT-X-KEY, EXT-X-MAP, EXT-X-MEDIA, …).
+      line = line.replace(/URI="([^"]+)"/g, (m, uri) => {
+        try {
+          return 'URI="' + proxied(new URL(uri, baseUrl).toString(), self) + '"';
+        } catch {
+          return m;
+        }
+      });
+      out.push(line);
+      continue;
+    }
+    // A plain URI line: a variant playlist or a media segment.
+    try {
+      out.push(proxied(new URL(t, baseUrl).toString(), self));
+    } catch {
+      out.push(line);
+    }
+  }
+  return out.join("\n");
+}

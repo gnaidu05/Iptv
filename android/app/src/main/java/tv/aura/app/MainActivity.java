@@ -7,20 +7,36 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
+
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Aura — a thin WebView shell around the hosted web app
  * (https://gnaidu05.github.io/Iptv/webstb/). It keeps the live channel list and
  * weekly refreshes working, enables HLS playback, and supports HTML5 fullscreen
  * video so the in-app fullscreen button behaves like a native player.
+ *
+ * It loads the page with ?app=1 (so the web app surfaces the channels a plain
+ * browser can't play) and intercepts cross-origin requests to add CORS headers,
+ * so those non-CORS streams play natively — no proxy needed.
  */
 public class MainActivity extends Activity {
 
-    private static final String APP_URL = "https://gnaidu05.github.io/Iptv/webstb/";
+    private static final String APP_URL = "https://gnaidu05.github.io/Iptv/webstb/?app=1";
+    private static final String HOST = "gnaidu05.github.io";
+    private static final String UA =
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                    + "(KHTML, like Gecko) Chrome/125.0 Safari/537.36";
 
     private WebView web;
     private FrameLayout root;
@@ -63,6 +79,11 @@ public class MainActivity extends Activity {
                 view.loadUrl(url);
                 return true;
             }
+
+            @Override
+            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest req) {
+                return proxyIfNeeded(req);
+            }
         });
 
         web.setWebChromeClient(new FullscreenChromeClient());
@@ -75,6 +96,82 @@ public class MainActivity extends Activity {
         } else {
             web.restoreState(savedInstanceState);
         }
+    }
+
+    /**
+     * Re-fetch cross-origin requests natively and return them with CORS headers,
+     * so streams whose servers omit Access-Control-Allow-Origin still play. The
+     * app's own assets (same host) are left to the WebView. Returns null on any
+     * problem, falling back to default handling.
+     */
+    private WebResourceResponse proxyIfNeeded(WebResourceRequest req) {
+        try {
+            android.net.Uri u = req.getUrl();
+            String host = u.getHost();
+            String scheme = u.getScheme();
+            if (host == null || host.equalsIgnoreCase(HOST)) return null;   // app assets
+            if (scheme == null || !(scheme.equals("http") || scheme.equals("https"))) return null;
+
+            String method = req.getMethod();
+            if ("OPTIONS".equalsIgnoreCase(method)) {
+                return new WebResourceResponse(
+                        "text/plain", "utf-8", 204, "No Content", corsHeaders(),
+                        new java.io.ByteArrayInputStream(new byte[0]));
+            }
+            if (!"GET".equalsIgnoreCase(method)) return null;
+
+            HttpURLConnection c = (HttpURLConnection) new URL(u.toString()).openConnection();
+            c.setInstanceFollowRedirects(true);
+            c.setConnectTimeout(12000);
+            c.setReadTimeout(15000);
+            c.setRequestMethod("GET");
+            c.setRequestProperty("User-Agent", UA);
+            c.setRequestProperty("Accept", "*/*");
+            c.setRequestProperty("Referer", scheme + "://" + host + "/");
+            Map<String, String> rh = req.getRequestHeaders();
+            if (rh != null && rh.get("Range") != null) c.setRequestProperty("Range", rh.get("Range"));
+            c.connect();
+
+            int code = c.getResponseCode();
+            String reason = c.getResponseMessage();
+            if (reason == null || reason.isEmpty()) reason = "OK";
+
+            String ctype = c.getContentType();
+            String mime = "application/octet-stream";
+            String enc = null;
+            if (ctype != null) {
+                int sc = ctype.indexOf(';');
+                mime = (sc > 0 ? ctype.substring(0, sc) : ctype).trim();
+                int ci = ctype.toLowerCase().indexOf("charset=");
+                if (ci >= 0) enc = ctype.substring(ci + 8).trim();
+            }
+
+            Map<String, String> headers = corsHeaders();
+            copyHeader(c, headers, "Accept-Ranges");
+            copyHeader(c, headers, "Content-Range");
+            copyHeader(c, headers, "Content-Length");
+            headers.put("Cache-Control", "no-store");
+
+            InputStream body = (code >= 400) ? c.getErrorStream() : c.getInputStream();
+            if (body == null) body = new java.io.ByteArrayInputStream(new byte[0]);
+            return new WebResourceResponse(mime, enc, code, reason, headers, body);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static Map<String, String> corsHeaders() {
+        Map<String, String> h = new HashMap<>();
+        h.put("Access-Control-Allow-Origin", "*");
+        h.put("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS");
+        h.put("Access-Control-Allow-Headers", "*");
+        h.put("Access-Control-Expose-Headers", "*");
+        return h;
+    }
+
+    private static void copyHeader(HttpURLConnection c, Map<String, String> into, String name) {
+        String v = c.getHeaderField(name);
+        if (v != null) into.put(name, v);
     }
 
     /** Handle HTML5 fullscreen video by swapping the WebView for the video view. */
