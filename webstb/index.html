@@ -834,11 +834,26 @@ function destroyHls(v){ if(hls){try{hls.destroy()}catch(e){} hls=null} v.removeA
 function tune(v,url,vlc,onok,onfail){
   destroyHls(v);
   if(window.Hls&&window.Hls.isSupported()){
-    hls=new window.Hls({maxBufferLength:12,manifestLoadingTimeOut:12000,manifestLoadingMaxRetry:1,levelLoadingMaxRetry:1});
+    hls=new window.Hls({
+      maxBufferLength:18, maxMaxBufferLength:45,
+      liveSyncDurationCount:3, lowLatencyMode:false,
+      manifestLoadingTimeOut:14000, manifestLoadingMaxRetry:3, manifestLoadingRetryDelay:600,
+      levelLoadingTimeOut:14000, levelLoadingMaxRetry:5, levelLoadingRetryDelay:600,
+      fragLoadingMaxRetry:8, fragLoadingRetryDelay:500
+    });
+    var recov=0;   // budget for recovering fatal errors (e.g. a flappy CDN edge)
     hls.loadSource(url); hls.attachMedia(v);
     hls.on(window.Hls.Events.MANIFEST_PARSED,onok);
-    hls.on(window.Hls.Events.FRAG_BUFFERED,onok);
-    hls.on(window.Hls.Events.ERROR,function(e,d){if(d&&d.fatal)onfail()});
+    hls.on(window.Hls.Events.FRAG_BUFFERED,function(){recov=0;onok()});
+    hls.on(window.Hls.Events.ERROR,function(e,d){
+      if(!d||!d.fatal)return;                       // non-fatal: hls.js retries/skips the bad fragment itself
+      if(recov<4){
+        recov++;
+        if(d.type===window.Hls.ErrorTypes.MEDIA_ERROR){try{hls.recoverMediaError();return}catch(_){}}
+        else{try{hls.startLoad();return}catch(_){}}  // network/other: reload from the live edge (past the bad segment)
+      }
+      onfail();
+    });
   }else if(v.canPlayType('application/vnd.apple.mpegurl')){
     v.src=url; v.addEventListener('loadeddata',onok,{once:true}); v.addEventListener('error',onfail,{once:true}); v.play().catch(function(){});
   }else onfail();
