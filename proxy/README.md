@@ -15,18 +15,33 @@ proxy too.
 
 ## Deploy (≈2 minutes, free)
 
-You need a free Cloudflare account. Then, from this folder:
+You need a free Cloudflare account. Pick whichever is easiest:
+
+### Option A — one click (recommended)
+
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/gnaidu05/Iptv/tree/main/proxy)
+
+Opens Cloudflare, asks you to authorize in your own browser, and deploys this
+`proxy/` folder to your account. When it finishes it shows the
+`https://…workers.dev` URL.
+
+### Option B — GitHub Action (I can trigger it for you)
+
+1. Create an API token at <https://dash.cloudflare.com/profile/api-tokens> with
+   the **“Edit Cloudflare Workers”** template.
+2. In this repo: **Settings → Secrets and variables → Actions → New repository
+   secret**, name it `CLOUDFLARE_API_TOKEN`, paste the token. (If your login has
+   more than one Cloudflare account, add `CLOUDFLARE_ACCOUNT_ID` too.)
+3. Run the **“Deploy CORS proxy”** workflow (Actions tab → Run workflow) — or
+   just tell me and I'll trigger it. The `…workers.dev` URL prints in the log.
+
+### Option C — command line
 
 ```bash
 cd proxy
 npx wrangler login       # opens your browser to authorize (one time)
 npx wrangler deploy      # prints a URL like https://aura-proxy.<you>.workers.dev
 ```
-
-That's it. Copy the printed `*.workers.dev` URL.
-
-(Prefer no CLI? In the Cloudflare dashboard: **Workers & Pages → Create → Worker**,
-replace the starter code with the contents of `worker.js`, and **Deploy**.)
 
 ## Turn it on in Aura
 

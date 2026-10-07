@@ -1,0 +1,41 @@
+name: Deploy CORS proxy (Cloudflare Worker)
+
+# Deploys proxy/worker.js to YOUR Cloudflare account.
+# One-time setup: add a repo secret CLOUDFLARE_API_TOKEN
+#   (GitHub → Settings → Secrets and variables → Actions → New repository secret).
+#   Create the token at https://dash.cloudflare.com/profile/api-tokens using the
+#   "Edit Cloudflare Workers" template.
+#   If your login has more than one Cloudflare account, also add
+#   CLOUDFLARE_ACCOUNT_ID (shown in the dashboard URL / Workers overview).
+# Then run this workflow (Actions tab → "Deploy CORS proxy" → Run workflow).
+# The deployed https://<name>.<you>.workers.dev URL prints in the deploy step.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Deploy Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: proxy
+
+      - name: Next step
+        run: |
+          echo "Worker deployed. Copy the https://...workers.dev URL printed above,"
+          echo "open Aura → Help (gear) → 'Play extra channels', paste it, and Save."
