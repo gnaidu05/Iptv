@@ -139,15 +139,19 @@ def write_report(counts: dict, stamp: str) -> None:
             "## Results\n\n"
             "| Bucket | Count | File |\n"
             "|--------|-------|------|\n"
-            f"| ✅ Active — HTTPS (browser + player safe) | {counts['https']} | `india-active.m3u` |\n"
+            f"| ✅ Active — HTTPS (reachable) | {counts['https']} | `india-active.m3u` |\n"
+            f"| 🌐 Browser-playable (CORS-verified) — powers the web app | {counts['web']} | `india-web.m3u` |\n"
             f"| ✅ Active — HTTP (native players only) | {counts['http']} | `india-active-http.m3u` |\n"
             f"| 🇮🇳 Geo-blocked — likely works from India | {counts['geo']} | `india-geo.m3u` |\n"
             f"| ❌ Dead / unreachable | {counts['dead']} | — |\n"
             f"| Source pool (all) | {counts['total']} | `india.m3u` |\n\n"
-            "`india-active.m3u` powers the web set-top box (HTTPS only, so it is "
-            "safe to play from the `https://` GitHub Pages site). `http://` "
-            "streams cannot play on the HTTPS page (mixed content) — use "
-            "`india-active-http.m3u` in a native player like VLC.\n\n"
+            "`india-web.m3u` powers the web set-top box — it is the HTTPS subset "
+            "whose manifest, variant and first segment all return CORS headers, "
+            "so every channel actually plays in a browser (no \"NO SIGNAL — "
+            "unavailable in browser\"). `india-active.m3u` is the full reachable "
+            "HTTPS list; some of those lack CORS and only play in a native player "
+            "like VLC. `http://` streams can't play on the HTTPS page (mixed "
+            "content) — use `india-active-http.m3u` in VLC.\n\n"
             "`india-geo.m3u` holds channels that returned `403`/`401` from the "
             "US-based CI runner — they reject non-India IPs, so they usually "
             "**work from an Indian connection** even though they can't be verified "
@@ -155,6 +159,73 @@ def write_report(counts: dict, stamp: str) -> None:
             "## Notes on dead links\n\n"
             "Most remaining failures are genuine `404`s or network errors.\n"
         )
+
+
+CORS_ORIGIN = "https://gnaidu05.github.io"
+
+
+def _acao(headers) -> bool:
+    return any(k.lower() == "access-control-allow-origin" for k in headers)
+
+
+def _first_uri(text: str, base: str):
+    from urllib.parse import urljoin
+    for line in text.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        return urljoin(base, line)
+    return None
+
+
+def _playable(url: str) -> bool:
+    """True when a stream plays in a browser: CORS present on the manifest, the
+    chosen variant, AND the first media segment (hls.js fetches all three)."""
+    import requests
+
+    h = {"Origin": CORS_ORIGIN, "Range": "bytes=0-4000"}
+    try:
+        r = requests.get(url, headers=h, timeout=12)
+        if r.status_code not in (200, 206) or not _acao(r.headers):
+            return False
+        body = r.text
+        if "#EXT-X-STREAM-INF" in body:
+            var = _first_uri(body, r.url)
+            if not var:
+                return False
+            r2 = requests.get(var, headers=h, timeout=12)
+            if r2.status_code not in (200, 206) or not _acao(r2.headers):
+                return False
+            media, mbase = r2.text, r2.url
+        else:
+            media, mbase = body, r.url
+        seg = _first_uri(media, mbase)
+        if not seg:
+            return True  # live edge with no segment listed yet — assume ok
+        r3 = requests.get(seg, headers={"Origin": CORS_ORIGIN, "Range": "bytes=0-1"},
+                          timeout=12, stream=True)
+        ok = r3.status_code in (200, 206) and _acao(r3.headers)
+        r3.close()
+        return ok
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def browser_playable(tracks, workers=40):
+    """Keep only tracks that are CORS-playable end to end. Two passes so a
+    transient timeout doesn't wrongly drop a good channel."""
+    import concurrent.futures as cf
+
+    good = set()
+    for _ in range(2):
+        todo = [t for t in tracks if t.path not in good]
+        if not todo:
+            break
+        with cf.ThreadPoolExecutor(max_workers=workers) as ex:
+            for t, ok in zip(todo, ex.map(lambda x: _playable(x.path), todo)):
+                if ok:
+                    good.add(t.path)
+    return [t for t in tracks if t.path in good]
 
 
 def main() -> int:
@@ -183,19 +254,29 @@ def main() -> int:
     active_http.tracks = dedupe(active_http.tracks)
     geo.tracks = dedupe(geo.tracks)
 
+    # Browser-playable subset powers the web STB (CORS-verified end to end), so
+    # channels that would show "NO SIGNAL — unavailable in browser" are excluded
+    # from the app while staying in india-active.m3u for native players.
+    print("\nProbing browser playability (CORS)…")
+    web = m3u.Playlist(attributes=header)
+    web.tracks = browser_playable(active_https.tracks)
+
     counts = {
         "https": len(active_https),
+        "web": len(web),
         "http": len(active_http),
         "geo": len(geo),
         "dead": dead,
         "total": len(pool),
     }
-    print(f"\nActive HTTPS: {counts['https']}   Active HTTP: {counts['http']}   "
-          f"Geo (India-only): {counts['geo']}   Dead: {counts['dead']}   Source: {counts['total']}")
+    print(f"\nActive HTTPS: {counts['https']}   Browser-playable: {counts['web']}   "
+          f"Active HTTP: {counts['http']}   Geo: {counts['geo']}   "
+          f"Dead: {counts['dead']}   Source: {counts['total']}")
 
     # write playlists
     pool.write_file(SOURCE)
     active_https.write_file(os.path.join(PLAYLISTS, "india-active.m3u"))
+    web.write_file(os.path.join(PLAYLISTS, "india-web.m3u"))
     active_http.write_file(os.path.join(PLAYLISTS, "india-active-http.m3u"))
     geo.write_file(os.path.join(PLAYLISTS, "india-geo.m3u"))
     # remove the obsolete pre-CI bucket if present

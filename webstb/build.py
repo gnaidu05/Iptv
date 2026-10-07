@@ -21,7 +21,12 @@ sys.path.insert(0, os.path.join(ROOT, "tools", "m3u"))
 
 import m3u  # noqa: E402
 
-PLAYLIST = os.path.join(ROOT, "playlists", "india-active.m3u")
+# The STB loads the browser-playable subset (CORS-verified end to end) when it
+# exists, so channels that can't play in a browser don't show "NO SIGNAL". The
+# full HTTPS list (india-active.m3u) remains for native players like VLC.
+_WEB = os.path.join(ROOT, "playlists", "india-web.m3u")
+_ACTIVE = os.path.join(ROOT, "playlists", "india-active.m3u")
+PLAYLIST = _WEB if os.path.exists(_WEB) else _ACTIVE
 GEO_PLAYLIST = os.path.join(ROOT, "playlists", "india-geo.m3u")
 LANG_MAP = os.path.join(ROOT, "playlists", "lang-map.json")
 OUT = os.path.join(HERE, "channels.js")
