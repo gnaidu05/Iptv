@@ -847,6 +847,8 @@ function tune(v,url,vlc,onok,onfail){
     hls.on(window.Hls.Events.FRAG_BUFFERED,function(){recov=0;onok()});
     hls.on(window.Hls.Events.ERROR,function(e,d){
       if(!d||!d.fatal)return;                       // non-fatal: hls.js retries/skips the bad fragment itself
+      var det=(d.details||'');
+      if(det.indexOf('IncompatibleCodecs')>=0||det.toLowerCase().indexOf('manifestparsing')>=0){onfail();return} // won't recover
       if(recov<4){
         recov++;
         if(d.type===window.Hls.ErrorTypes.MEDIA_ERROR){try{hls.recoverMediaError();return}catch(_){}}
@@ -870,12 +872,22 @@ function playChannel(n){
   document.getElementById('pbName').textContent=c.name.replace(/\s*\(.*?\)\s*/,' ').trim();
   updatePbarProg(n);
   var v=document.getElementById('video'); applyVolume();
-  pStatus('tuning','Tuning <b>'+esc(c.name)+'</b>…');
-  var settled=false; clearTimeout(tuneTimer);
+  // If a channel fails to tune directly, retry once through the proxy (it adds
+  // CORS and a neutral Referer, which fixes many CDN blocks). px channels whose
+  // first attempt is already proxied skip straight to NO SIGNAL.
+  var settled=false, triedProxy=(!!c.px&&!!PROXY&&!PLAYALL);
+  clearTimeout(tuneTimer);
   function ok(){if(settled)return;settled=true;clearTimeout(tuneTimer);pStatus('off');v.play().catch(function(){})}
-  function fail(){if(settled)return;settled=true;clearTimeout(tuneTimer);pStatus('nosignal')}
-  tuneTimer=setTimeout(fail,13000);
-  tune(v,streamUrl(c),c.vlc,ok,fail);
+  function attempt(url,label){ clearTimeout(tuneTimer);
+    pStatus('tuning','Tuning <b>'+esc(c.name)+'</b>'+(label||'')+'…');
+    tuneTimer=setTimeout(fail,13000); tune(v,url,c.vlc,ok,fail); }
+  function fail(){
+    if(settled)return;
+    if(!triedProxy&&PROXY&&!PLAYALL){ triedProxy=true;
+      attempt(PROXY+'/?url='+encodeURIComponent(c.url),' (proxy)'); return; }
+    settled=true;clearTimeout(tuneTimer);pStatus('nosignal');
+  }
+  attempt(streamUrl(c),'');
   showPbar(true);   // keep the OSD (programme + time left) visible after selecting
 }
 function closePlayer(){
