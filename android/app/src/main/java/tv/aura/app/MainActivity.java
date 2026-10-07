@@ -111,6 +111,7 @@ public class MainActivity extends Activity {
             String scheme = u.getScheme();
             if (host == null || host.equalsIgnoreCase(HOST)) return null;   // app assets
             if (scheme == null || !(scheme.equals("http") || scheme.equals("https"))) return null;
+            if (isPassthrough(host)) return null;   // let the WebView handle YouTube/Google natively
 
             String method = req.getMethod();
             if ("OPTIONS".equalsIgnoreCase(method)) {
@@ -158,6 +159,19 @@ public class MainActivity extends Activity {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /** Hosts that must use the WebView's own networking (cookies, auth) rather
+     * than our CORS re-fetch — chiefly the YouTube embed player and its CDN. */
+    private static boolean isPassthrough(String host) {
+        host = host.toLowerCase();
+        String[] skip = {"youtube.com", "youtube-nocookie.com", "googlevideo.com",
+                "ytimg.com", "ggpht.com", "google.com", "gstatic.com", "googleapis.com",
+                "doubleclick.net", "googlesyndication.com"};
+        for (String s : skip) {
+            if (host.equals(s) || host.endsWith("." + s)) return true;
+        }
+        return false;
     }
 
     private static Map<String, String> corsHeaders() {

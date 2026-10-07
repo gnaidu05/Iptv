@@ -831,6 +831,26 @@ function pStatus(mode,msg){var s=document.getElementById('pstatus'),sp=document.
 }
 function destroyHls(v){ if(hls){try{hls.destroy()}catch(e){} hls=null} v.removeAttribute('src'); try{v.load()}catch(e){} }
 
+/* ---------- YouTube live channels (official embed) ---------- */
+function clearYt(){ var f=document.getElementById('ytframe'); if(f){f.src='about:blank';f.remove();} document.getElementById('video').style.display=''; }
+function playYouTube(c){
+  var v=document.getElementById('video'); destroyHls(v); v.style.display='none';
+  pStatus('off'); clearTimeout(tuneTimer);
+  var f=document.getElementById('ytframe');
+  if(!f){
+    f=document.createElement('iframe'); f.id='ytframe';
+    f.setAttribute('allow','autoplay; encrypted-media; picture-in-picture; fullscreen');
+    f.setAttribute('allowfullscreen','');
+    f.style.cssText='position:absolute;inset:0;width:100%;height:100%;border:0;background:#000';
+    var pl=document.getElementById('player'); pl.insertBefore(f,pl.firstChild);  // below the OSD overlays
+  }
+  var o=location.origin;
+  var base=c.ytlive
+    ? 'https://www.youtube.com/embed/live_stream?channel='+encodeURIComponent(c.yt)
+    : 'https://www.youtube.com/embed/'+encodeURIComponent(c.yt);
+  f.src=base+(base.indexOf('?')<0?'?':'&')+'autoplay=1&playsinline=1&rel=0&modestbranding=1&origin='+encodeURIComponent(o);
+}
+
 function tune(v,url,vlc,onok,onfail){
   destroyHls(v);
   if(window.Hls&&window.Hls.isSupported()){
@@ -872,6 +892,11 @@ function playChannel(n){
   document.getElementById('pbName').textContent=c.name.replace(/\s*\(.*?\)\s*/,' ').trim();
   updatePbarProg(n);
   var v=document.getElementById('video'); applyVolume();
+
+  // YouTube-embedded channels play in an official iframe, not via HLS.
+  if(c.yt){ playYouTube(c); showPbar(true); return; }
+  clearYt();
+
   // If a channel fails to tune directly, retry once through the proxy (it adds
   // CORS and a neutral Referer, which fixes many CDN blocks). px channels whose
   // first attempt is already proxied skip straight to NO SIGNAL.
@@ -892,7 +917,7 @@ function playChannel(n){
 }
 function closePlayer(){
   inPlayer=false; pbarPinned=false; closePGuide(); document.getElementById('player').classList.remove('show');
-  var v=document.getElementById('video'); destroyHls(v); pStatus('off');
+  var v=document.getElementById('video'); destroyHls(v); clearYt(); pStatus('off');
   renderDots();
   // return to the channel you were watching: mark it and bring it into view
   var pos=visible.findIndex(function(c){return c.num===currentNum});
