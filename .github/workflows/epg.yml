@@ -44,7 +44,15 @@ jobs:
             echo "No EPG changes."
           else
             git commit -m "chore: refresh EPG now/next data"
-            git push
+            # Race-proof push: the weekly refresh can land on main while this
+            # job runs, so rebase and retry instead of failing (which would also
+            # skip the Pages deploy steps below).
+            for i in 1 2 3 4 5; do
+              if git push; then break; fi
+              echo "push rejected, rebasing onto latest main (attempt $i)…"
+              git pull --rebase --autostash origin main || exit 1
+              sleep $((i * 3))
+            done
           fi
 
       - name: Configure Pages

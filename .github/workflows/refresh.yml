@@ -47,7 +47,13 @@ jobs:
             echo "No channel changes this week."
           else
             git commit -m "chore: weekly channel refresh (auto-pruned dead streams)"
-            git push
+            # Race-proof push: rebase and retry if main moved under us.
+            for i in 1 2 3 4 5; do
+              if git push; then break; fi
+              echo "push rejected, rebasing onto latest main (attempt $i)…"
+              git pull --rebase --autostash origin main || exit 1
+              sleep $((i * 3))
+            done
           fi
 
       - name: Configure Pages
