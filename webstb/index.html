@@ -479,7 +479,7 @@
     <div class="help-row"><span class="ic">❤️</span><div><b>Favourites</b> <span>— tap the heart on any channel, then open the Favourites tab.</span></div></div>
     <div class="help-row"><span class="ic">⛶</span><div><b>Fullscreen</b> <span>— while watching, tap the ⛶ button (or press F) for true device fullscreen.</span></div></div>
     <div class="help-row"><span class="ic">⌨️</span><div><b>Keyboard</b> <span>: arrows to move, Enter to watch, / to search, F fullscreen.</span></div></div>
-    <div class="help-row"><span class="ic">🔌</span><div style="flex:1"><b>Play extra channels</b> <span>— a few channels need a CORS proxy. Paste your proxy URL to unlock them (see the repo's <code>proxy/</code> folder to deploy a free one).</span>
+    <div class="help-row"><span class="ic">🔌</span><div style="flex:1"><b>Play extra channels</b> <span>— a few channels need a CORS proxy, which is already built in, so they just play. Advanced: paste a different proxy URL here to override it.</span>
       <div style="display:flex;gap:8px;margin-top:8px">
         <input id="proxyInput" type="url" inputmode="url" placeholder="https://your-worker.workers.dev" style="flex:1;min-width:0;padding:9px 11px;border-radius:9px;border:1px solid var(--line2);background:var(--card2);color:var(--txt);font-size:13px">
         <button id="proxySave" style="border:0;border-radius:9px;padding:0 14px;font-weight:700;color:#fff;background:var(--grad);cursor:pointer">Save</button>
@@ -587,11 +587,12 @@ var DATA=window.STB_DATA||{channels:[]}, CH=DATA.channels;
    Channels flagged px:1 have no CORS headers, so a plain browser can't play
    them. They are shown + played when either:
      • the native Android shell runs the page with ?app=1 (it adds CORS itself), or
-     • a CORS proxy is configured (?proxy=<url>, remembered in localStorage).
-   Otherwise they stay hidden so they never show "NO SIGNAL". */
+     • a CORS proxy is used. A default proxy is built in so it works everywhere
+       with no setup; ?proxy=<url> (remembered in localStorage) overrides it. */
+var PROXY_DEFAULT='https://aura-proxy.gnaidu05.workers.dev';
 var _qs=new URLSearchParams(location.search);
 var PLAYALL=(_qs.get('app')==='1')||window.AURA_PLAYALL===true;
-var PROXY=((_qs.get('proxy')||localStorage.getItem('aura_proxy')||'').trim()).replace(/\/+$/,'');
+var PROXY=((_qs.get('proxy')||localStorage.getItem('aura_proxy')||PROXY_DEFAULT).trim()).replace(/\/+$/,'');
 if(_qs.get('proxy')!==null){try{PROXY?localStorage.setItem('aura_proxy',PROXY):localStorage.removeItem('aura_proxy')}catch(e){}}
 function canPx(){return PLAYALL||!!PROXY}
 function streamUrl(c){
