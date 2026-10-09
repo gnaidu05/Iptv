@@ -88,8 +88,14 @@ public class MainActivity extends Activity {
 
         web.setWebChromeClient(new FullscreenChromeClient());
 
+        // Android TV: the WebView must hold focus so the remote's D-pad reaches
+        // the page as arrow-key events (the web app handles arrow/Enter/Back nav).
+        web.setFocusable(true);
+        web.setFocusableInTouchMode(true);
+
         root.addView(web);
         setContentView(root);
+        web.requestFocus();
 
         if (savedInstanceState == null) {
             web.loadUrl(APP_URL);
@@ -234,11 +240,21 @@ public class MainActivity extends Activity {
     public void onBackPressed() {
         if (customView != null) {
             web.getWebChromeClient().onHideCustomView();
-        } else if (web.canGoBack()) {
-            web.goBack();
-        } else {
-            super.onBackPressed();
+            return;
         }
+        // Ask the web app to close one UI layer (player, guide, search…). It
+        // returns "true" if it handled Back; otherwise we fall back to native.
+        web.evaluateJavascript("(window.auraBack&&window.auraBack())?true:false", value -> {
+            if (!"true".equals(value)) {
+                runOnUiThread(() -> {
+                    if (web.canGoBack()) {
+                        web.goBack();
+                    } else {
+                        finish();
+                    }
+                });
+            }
+        });
     }
 
     @Override

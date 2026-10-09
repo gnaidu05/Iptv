@@ -1234,6 +1234,24 @@ function openEPG(){
   clearInterval(epgNowTimer); epgNowTimer=setInterval(epgMoveNow,30000);
 }
 function closeEPG(){epgOpen=false;document.getElementById('epg').classList.remove('show');clearInterval(epgNowTimer);setNav('live')}
+
+/* Back-button handler for the native shells (Android phone + TV remote).
+   Closes one UI layer at a time; returns true if it handled the press, false
+   when already at the home grid so the app can exit. */
+window.auraBack=function(){
+  try{
+    var lm=document.getElementById('langMenu');
+    if(lm&&lm.classList.contains('open')){closeLangMenu();return true}
+    var hp=document.getElementById('help');
+    if(hp&&hp.classList.contains('show')){closeHelp();return true}
+    var se=document.getElementById('search');
+    if(se&&se.classList.contains('show')){closeSearch();return true}
+    if(typeof epgOpen!=='undefined'&&epgOpen){closeEPG();return true}
+    if(typeof pgOpen!=='undefined'&&pgOpen){closePGuide();return true}
+    if(typeof inPlayer!=='undefined'&&inPlayer){closePlayer();return true}
+  }catch(e){}
+  return false;
+};
 function agoStr(iso){var s=Math.max(0,Math.round((Date.now()-Date.parse(iso))/1000));
   if(s<90)return s+'s ago'; var m=Math.round(s/60); if(m<90)return m+' min ago'; return Math.round(m/60)+'h ago'}
 function buildEpgStatic(){

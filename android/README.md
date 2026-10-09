@@ -1,10 +1,16 @@
-# Aura for Android
+# Aura for Android (phone + TV)
 
 A lightweight **WebView shell** that wraps the hosted Aura web app
 (`https://gnaidu05.github.io/Iptv/webstb/`) in a native Android app — so it
 installs like any app, runs full-screen, plays HLS, and supports HTML5
 fullscreen video. Because it loads the live site, the channel list and the
 weekly auto-refresh keep working with no app update needed.
+
+The **same APK runs on phones and on Android TV / Fire TV / Google TV** — it
+declares the leanback launcher + a TV banner, and the remote's D-pad drives the
+grid (arrows to move, OK to play, Back to go up a level). On a TV box, sideload
+`aura.apk` (e.g. via *Downloader* / *Send files to TV* / `adb install`) and it
+appears in the TV home screen's apps row.
 
 ## Get the APK
 
