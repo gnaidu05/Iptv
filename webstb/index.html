@@ -383,6 +383,41 @@
   /* the boot "Start watching" button is auto-pressed on TV; hide the control */
   html.tv #powerBtn{display:none}
 
+  /* ---- TV home = category rails (Netflix-style) instead of a dense grid ---- */
+  html.tv #tabs,html.tv #gridhead,html.tv #grid{display:none}
+  html.tv #hero{min-height:300px;padding-bottom:20px}
+  #tvhome{display:none}
+  html.tv #tvhome{display:block;padding:6px 0 70px}
+  .tvrail{margin:0 0 30px;overflow:visible}
+  .tvrail-title{font-size:25px;font-weight:800;margin:0 0 12px;padding:0 60px;color:#fff;letter-spacing:.3px}
+  .tvrail-title .cnt{font-size:16px;color:var(--muted);font-weight:600;margin-left:10px}
+  .tvrail-vp{overflow:visible;padding:14px 0}            /* room for the focus scale/glow */
+  .tvrail-track{display:flex;gap:20px;padding:0 60px;will-change:transform;transition:transform .26s cubic-bezier(.2,.7,.2,1)}
+  .tvcard{flex:0 0 244px;width:244px;background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);
+    border-radius:18px;padding:16px;position:relative;cursor:pointer;transition:transform .14s ease,box-shadow .14s ease}
+  .tvcard .n{font-family:Menlo,Consolas,monospace;font-size:20px;font-weight:800;color:var(--txt)}
+  .tvcard .lg{height:82px;display:grid;place-items:center;margin:10px 0 12px}
+  .tvcard .lg img{max-height:78px;max-width:72%;object-fit:contain}
+  .tvcard .lg .ph{font-size:28px;font-weight:800;color:var(--muted)}
+  .tvcard .nm{font-size:19px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tvcard .sb{margin-top:6px;color:var(--muted);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tvcard .hd{position:absolute;right:14px;bottom:14px;border:1px solid var(--line2);border-radius:6px;padding:2px 8px;font-size:12px;color:var(--muted)}
+  .tvcard .favdot{position:absolute;right:14px;top:14px;color:var(--p3);font-size:15px;display:none}
+  .tvcard.fav .favdot{display:block}
+  .tvcard.sel{transform:scale(1.08);z-index:3;border-color:transparent;
+    box-shadow:0 0 0 3px var(--p2),0 18px 46px rgba(0,0,0,.6),0 0 46px rgba(77,124,255,.55)}
+  .tvcard.playing{box-shadow:0 0 0 3px var(--live),0 0 30px rgba(56,224,123,.42)}
+  /* channel-surf banner shown briefly when changing channels in the player */
+  #surf{position:absolute;left:0;right:0;bottom:120px;z-index:5;display:none;justify-content:center;pointer-events:none}
+  #surf.show{display:flex}
+  #surf .card{display:flex;align-items:center;gap:18px;background:rgba(5,8,16,.9);border:1px solid var(--line2);
+    border-radius:18px;padding:16px 26px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+  #surf .lg{width:74px;height:54px;border-radius:10px;background:#0a0f1c;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden}
+  #surf .lg img{max-width:84%;max-height:80%;object-fit:contain}#surf .lg .ph{font-weight:800;color:var(--muted)}
+  #surf .n{font-family:Menlo,Consolas,monospace;font-size:28px;font-weight:800}
+  #surf .nm{font-size:22px;font-weight:700}#surf .pg{color:var(--muted);font-size:15px;margin-top:3px}
+  html.tv #surf{bottom:150px}
+
   @media (max-width:1100px){.upnext{display:none}.hero-name{font-size:32px}}
   @media (max-width:760px){
     #rail{width:64px;flex-basis:64px;padding-top:16px}
@@ -530,6 +565,8 @@
       </div>
     </div>
     <div id="grid"></div>
+    <!-- TV only: category rails replace the grid (built by buildTVHome) -->
+    <div id="tvhome"></div>
   </main>
 </div>
 
@@ -559,6 +596,7 @@
 <div id="player">
   <video id="video" playsinline></video>
   <div id="pbuf"><div class="sp"></div><span>Buffering…</span></div>
+  <div id="surf"><div class="card"><div class="lg" id="surfLogo"></div><div><div><span class="n" id="surfNum">1</span></div><div class="nm" id="surfName">—</div><div class="pg" id="surfProg"></div></div></div></div>
   <div id="pProgress"><i></i></div>
   <div id="pbar">
     <div class="pbar-top">
@@ -896,7 +934,8 @@ function renderDots(){
 function toggleFav(n){ if(favs.has(n))favs.delete(n); else favs.add(n);
   localStorage.setItem('stb_favs',JSON.stringify([...favs]));
   render(); renderDots();
-  if(favView&&!favs.size){favView=false;setNav('live');render()} }
+  if(favView&&!favs.size){favView=false;setNav('live');render()}
+  if(TV){ toast(favs.has(n)?'Added to Favourites':'Removed from Favourites'); if(!inPlayer)refreshTVHome(); } }
 
 /* ---------- player ---------- */
 function pStatus(mode,msg){var s=document.getElementById('pstatus'),sp=document.getElementById('pspin'),ns=document.getElementById('pnosig');
@@ -1021,7 +1060,9 @@ function closePlayer(){
   inPlayer=false; pbarPinned=false; closePGuide(); document.getElementById('player').classList.remove('show');
   var v=document.getElementById('video'); destroyHls(v); clearYt(); pStatus('off');
   if(window.__hideBuf)window.__hideBuf();
+  if(window.__hideSurf)window.__hideSurf();
   renderDots();
+  if(TV){ refreshTVHome(); return; }   // rebuild rails (playing marker) + keep focus
   // return to the channel you were watching: mark it and bring it into view
   var pos=visible.findIndex(function(c){return c.num===currentNum});
   if(pos>=0)focusIndex=pos;
@@ -1158,11 +1199,19 @@ document.getElementById('pNextBtn').onclick=function(e){e.stopPropagation();zap(
 function setNav(view){document.querySelectorAll('.nav').forEach(function(n){n.classList.toggle('active',n.dataset.view===view)})}
 document.getElementById('rail').addEventListener('click',function(e){
   var b=e.target.closest('.nav'); if(!b)return; var v=b.dataset.view;
+  if(v==='guide'){openEPG();return}
+  if(v==='search'){openSearch();return}
+  if(v==='settings'){openHelp();return}
+  if(TV){
+    // On TV, Live = top of the rails; Favourites = jump to the Favourites row.
+    setNav(v==='fav'?'fav':'live');
+    if(v==='fav'){var fr=-1;for(var i=0;i<tvRows.length;i++)if(tvRows[i].title==='Favourites'){fr=i;break}
+      if(fr>=0)tvFocus(fr,tvCols[fr]||0); else toast('No favourites yet — press OK-hold or ❤ on a channel')}
+    else{tvFocus(0,0);document.getElementById('main').scrollTo({top:0,behavior:'smooth'})}
+    return;
+  }
   if(v==='live'){favView=false;catFilter='ALL';setNav('live');render();document.getElementById('main').scrollTo({top:0,behavior:'smooth'})}
   else if(v==='fav'){openFav()}
-  else if(v==='guide'){openEPG()}
-  else if(v==='search'){openSearch()}
-  else if(v==='settings'){openHelp()}
 });
 function openFav(){favView=true;focusIndex=0;setNav('fav');document.getElementById('favPill').classList.add('on');render();
   document.getElementById('gridhead').scrollIntoView({behavior:'smooth'})}
@@ -1280,9 +1329,12 @@ document.addEventListener('keydown',function(e){
       e.preventDefault(); return;
     }
     if(e.key==='Escape'||e.key==='Backspace'){closePlayer()}
-    else if(e.key==='ArrowUp'||e.key==='Enter'||e.key==='g'||e.key==='G'){openPGuide()}
+    else if(e.key==='Enter'||e.key==='g'||e.key==='G'){openPGuide()}
     else if(e.key==='f'||e.key==='F'){toggleFullscreen()}
     else if(e.key==='m'||e.key==='M'){document.getElementById('pMuteBtn').click()}
+    // On TV, Up/Down surf channels (prev/next); OK opens the channel list.
+    else if(e.key==='ArrowUp'){TV?zap(-1):openPGuide()}
+    else if(e.key==='ArrowDown'){TV?zap(1):openPGuide()}
     else if(e.key==='ArrowRight'){zap(1)} else if(e.key==='ArrowLeft'){zap(-1)}
     else if(e.key>='0'&&e.key<='9'){numJump(e.key)}
     else return;
@@ -1307,6 +1359,97 @@ document.addEventListener('keydown',function(e){
 });
 function moveFocus(d){focusIndex=Math.max(0,Math.min(visible.length-1,focusIndex+d));syncSel();
   var c=visible[focusIndex]; if(c){currentNum=c.num;setHero(c.num);renderDots()} }
+
+/* ======================= TV home: category rails =======================
+   On a television the dense wrapping grid is hard to navigate and scan from the
+   couch, so TV mode shows horizontal rails grouped by category (Recently
+   watched, Favourites, each category, DD Free Dish, India). Up/Down moves
+   between rows, Left/Right scrolls a row, OK plays. Browser/phone keep the grid. */
+var tvRows=[], tvRow=0, tvCols=[];
+function tvPlayable(c){ return !(c.px&&!canPx()); }
+function buildTVHome(){
+  var host=document.getElementById('tvhome'); if(!host)return;
+  host.innerHTML=''; tvRows=[]; tvCols=[];
+  var normal=CH.filter(function(c){return !c.geo&&tvPlayable(c)});
+  function add(title,items){ if(items&&items.length)tvRows.push({title:title,items:items}); }
+  add('Recently watched', watchHist.map(byNum).filter(function(c){return c&&tvPlayable(c)}));
+  add('Favourites', CH.filter(function(c){return favs.has(c.num)&&tvPlayable(c)}));
+  CAT_ORDER.forEach(function(cat){
+    var items=normal.filter(function(c){return catOf(c)===cat}).sort(function(a,b){return a.num-b.num});
+    add(cat, items);
+  });
+  add('DD Free Dish', CH.filter(function(c){return c.fd&&tvPlayable(c)}).sort(function(a,b){return a.num-b.num}));
+  add('India ⭐ · best on an Indian connection', CH.filter(function(c){return c.geo}));
+  tvRows.forEach(function(row,r){
+    tvCols[r]=0;
+    var sec=document.createElement('div'); sec.className='tvrail'; sec.dataset.r=r;
+    var h=document.createElement('h3'); h.className='tvrail-title';
+    h.innerHTML=esc(row.title)+'<span class="cnt">'+row.items.length+'</span>';
+    var vp=document.createElement('div'); vp.className='tvrail-vp';
+    var track=document.createElement('div'); track.className='tvrail-track';
+    row.items.forEach(function(c,i){
+      var d=document.createElement('div');
+      d.className='tvcard'+(favs.has(c.num)?' fav':'')+(c.num===currentNum?' playing':'');
+      d.dataset.r=r; d.dataset.i=i;
+      d.innerHTML='<div class="n">'+c.num+'</div><div class="lg">'+logoImg(c)+'</div>'+
+        '<div class="nm">'+esc(c.name.replace(/\s*\(.*?\)\s*/,' ').trim())+'</div>'+
+        '<div class="sb">'+esc(cardProg(c)||catOf(c))+'</div>'+
+        (isHD(c)?'<div class="hd">HD</div>':'')+'<div class="favdot">❤</div>';
+      (function(cn,rr,ii){d.onclick=function(){tvRow=rr;tvCols[rr]=ii;playChannel(cn)}})(c.num,r,i);
+      track.appendChild(d);
+    });
+    vp.appendChild(track); sec.appendChild(h); sec.appendChild(vp); host.appendChild(sec);
+  });
+  tvRow=Math.min(tvRow,Math.max(0,tvRows.length-1));
+}
+function tvCardEl(r,i){return document.querySelector('.tvcard[data-r="'+r+'"][data-i="'+i+'"]')}
+function tvFocus(r,i,noVScroll){
+  if(!tvRows.length)return;
+  r=Math.max(0,Math.min(tvRows.length-1,r));
+  i=Math.max(0,Math.min(tvRows[r].items.length-1,i));
+  tvRow=r; tvCols[r]=i; zone='rails'; clearKbf();
+  document.querySelectorAll('.tvcard.sel').forEach(function(el){el.classList.remove('sel')});
+  var card=tvCardEl(r,i); if(!card)return;
+  card.classList.add('sel');
+  var track=card.parentNode; track.style.transform='translateX(-'+Math.max(0,card.offsetLeft-60)+'px)';
+  if(!noVScroll){var sec=track.parentNode.parentNode; sec.scrollIntoView({block:'center',behavior:'smooth'});}
+  var c=tvRows[r].items[i]; if(c){currentNum=c.num;setHero(c.num);renderDots()}
+}
+function refreshTVHome(){
+  var r=tvRow,i=tvCols[tvRow]||0; buildTVHome();
+  // Land back on the channel you watched, preferring its category row over the
+  // Recently-watched/Favourites rows so you stay in the genre you were browsing.
+  var cat=null,any=null;
+  for(var rr=0;rr<tvRows.length;rr++){var t=tvRows[rr].title,it=tvRows[rr].items;
+    for(var ii=0;ii<it.length;ii++){ if(it[ii].num!==currentNum)continue;
+      if(!any)any=[rr,ii];
+      if(t!=='Recently watched'&&t!=='Favourites'&&!cat)cat=[rr,ii]; }}
+  var pick=cat||any; if(pick){r=pick[0];i=pick[1];}
+  tvFocus(r,i,true);
+}
+function homeNavTV(e){
+  var k=e.key;
+  if(zone==='rail'){
+    var rb=railBtns();
+    if(k==='ArrowUp'){railIdx=Math.max(0,railIdx-1);setZone('rail')}
+    else if(k==='ArrowDown'){railIdx=Math.min(rb.length-1,railIdx+1);setZone('rail')}
+    else if(k==='ArrowRight'||k==='Escape'||k==='Backspace'){clearKbf();tvFocus(tvRow,tvCols[tvRow]||0)}
+    else if(k==='Enter'){clearKbf();if(rb[railIdx])rb[railIdx].click()}
+    else return false;
+    e.preventDefault();return true;
+  }
+  var row=tvRows[tvRow]; if(!row)return false;
+  var col=tvCols[tvRow]||0;
+  if(k==='ArrowRight')tvFocus(tvRow,col+1);
+  else if(k==='ArrowLeft'){ if(col<=0){railIdx=activeNavIdx();setZone('rail')} else tvFocus(tvRow,col-1); }
+  else if(k==='ArrowDown')tvFocus(tvRow+1,tvCols[tvRow+1]!=null?tvCols[tvRow+1]:0);
+  else if(k==='ArrowUp'){ if(tvRow>0)tvFocus(tvRow-1,tvCols[tvRow-1]!=null?tvCols[tvRow-1]:0); else document.getElementById('main').scrollTo({top:0,behavior:'smooth'}); }
+  else if(k==='Enter'){var c=row.items[col]; if(c)playChannel(c.num);}
+  else if(k==='g'||k==='G'){var cf=row.items[col]; if(cf)toggleFav(cf.num);}
+  else if(k==='/'){openSearch();}
+  else return false;
+  e.preventDefault();return true;
+}
 
 /* ---------- home-screen zone navigation (rail ↔ tabs ↔ tools ↔ grid) ----------
    Lets a TV remote reach every control, not just the grid, so the app feels
@@ -1334,6 +1477,7 @@ function focusGrid(i){zone='grid';clearKbf();if(!visible.length)return;
   focusIndex=Math.max(0,Math.min(visible.length-1,i));var c=visible[focusIndex];
   if(c){currentNum=c.num;setHero(c.num);renderDots()} syncSel();}
 function homeNav(e){
+  if(TV)return homeNavTV(e);
   var k=e.key;
   if(zone==='rail'){
     var rb=railBtns();
@@ -1386,8 +1530,27 @@ function homeNav(e){
   if(k==='ArrowLeft'&&focusIndex%cols()===0){enterRail();e.preventDefault();return true}
   return false;
 }
-function zap(delta){var pos=CH.findIndex(function(c){return c.num===currentNum});if(pos<0)pos=0;
+function zap(delta){
+  // On TV, surf within the category row you were browsing (feels like a real
+  // TV's channel up/down within a genre); elsewhere step through all channels.
+  if(TV&&tvRows[tvRow]&&tvRows[tvRow].items.length){
+    var items=tvRows[tvRow].items;
+    var p=items.findIndex(function(c){return c.num===currentNum}); if(p<0)p=tvCols[tvRow]||0;
+    p=(p+delta+items.length)%items.length; tvCols[tvRow]=p;
+    showSurf(items[p].num); playChannel(items[p].num); return;
+  }
+  var pos=CH.findIndex(function(c){return c.num===currentNum});if(pos<0)pos=0;
   pos=(pos+delta+CH.length)%CH.length; playChannel(CH[pos].num)}
+var surfT=null;
+function showSurf(n){ var c=byNum(n); if(!c)return;
+  document.getElementById('surfLogo').innerHTML=logoImg(c);
+  document.getElementById('surfNum').textContent=String(n).padStart(3,'0');
+  document.getElementById('surfName').textContent=c.name.replace(/\s*\(.*?\)\s*/,' ').trim();
+  document.getElementById('surfProg').textContent=progLine(n)||catOf(c);
+  var s=document.getElementById('surf'); s.classList.add('show');
+  clearTimeout(surfT); surfT=setTimeout(function(){s.classList.remove('show')},2600);
+}
+window.__hideSurf=function(){clearTimeout(surfT);var s=document.getElementById('surf');if(s)s.classList.remove('show')};
 var numBuf='',numT=null;
 function numJump(d){numBuf=(numBuf+d).slice(-4);clearTimeout(numT);toast('Channel '+numBuf);
   numT=setTimeout(function(){var n=parseInt(numBuf,10);numBuf='';if(byNum(n))playChannel(n)},1200)}
@@ -1430,9 +1593,13 @@ window.auraBack=function(){
     if(typeof epgOpen!=='undefined'&&epgOpen){closeEPG();return true}
     if(typeof pgOpen!=='undefined'&&pgOpen){closePGuide();return true}
     if(typeof inPlayer!=='undefined'&&inPlayer){closePlayer();return true}
-    // On the home screen, Back from the rail/tabs/tools returns to the grid
-    // rather than exiting the app; only Back from the grid itself exits.
-    if(poweredOn&&typeof zone!=='undefined'&&zone!=='grid'){focusGrid(focusIndex);return true}
+    // On the home screen, Back from a side zone returns to the content
+    // (grid / rails); only Back from there exits the app.
+    var homeZone=TV?'rails':'grid';
+    if(poweredOn&&typeof zone!=='undefined'&&zone!==homeZone){
+      if(TV){clearKbf();tvFocus(tvRow,tvCols[tvRow]||0);} else focusGrid(focusIndex);
+      return true;
+    }
   }catch(e){}
   return false;
 };
@@ -1524,6 +1691,7 @@ function finish(){
   buildTabs(); render(); renderRecent();
   var last=parseInt(localStorage.getItem('stb_last')||'',10);
   currentNum=(last&&byNum(last))?last:CH[0].num;
+  if(TV){ buildTVHome(); zone='rails'; tvFocus(0,0,true); }
   setHero(currentNum); renderDots(); tick();
   loadEPG();
   // advance now/next + progress every 30s; refresh the guide every 30 min
