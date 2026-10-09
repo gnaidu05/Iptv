@@ -99,6 +99,11 @@ def lang_of(name: str, url: str, group: str) -> str:
             return lang
     if group in ENGLISH_GROUPS:           # FAST movie/comedy/classic adds
         return "English"
+    # Unmapped and not Indian by script/keyword: a Latin-script name is almost
+    # always an English/global FAST channel (DD India, CNBC, the world FAST adds).
+    n = name or ""
+    if n and sum(c.isascii() for c in n) / len(n) > 0.85:
+        return "English"
     return "Other"
 
 # DD Free Dish bouquet membership. All Doordarshan channels plus the private
