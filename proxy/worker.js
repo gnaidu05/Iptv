@@ -79,6 +79,16 @@ export default {
 
     if (isManifest) {
       const text = await resp.text();
+      // Only rewrite a genuine playlist. If the upstream failed (e.g. a geo
+      // 403 returned as an HTML error page), pass the real status through so
+      // the player sees the failure instead of a rewritten error page.
+      const ok = resp.status >= 200 && resp.status < 300 && text.trimStart().startsWith("#EXTM3U");
+      if (!ok) {
+        return new Response(text, {
+          status: resp.status && resp.status >= 400 ? resp.status : 502,
+          headers: { ...CORS, "Content-Type": "text/plain", "Cache-Control": "no-store" },
+        });
+      }
       const out = rewriteManifest(text, upstreamUrl, self);
       return new Response(out, {
         status: 200,

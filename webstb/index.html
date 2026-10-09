@@ -901,7 +901,10 @@ function playChannel(n){
   // If a channel fails to tune directly, retry once through the proxy (it adds
   // CORS and a neutral Referer, which fixes many CDN blocks). px channels whose
   // first attempt is already proxied skip straight to NO SIGNAL.
-  var settled=false, triedProxy=(!!c.px&&!!PROXY&&!PLAYALL);
+  // Proxy fallback applies to normal channels only. px channels already go
+  // through the proxy on their first attempt; geo (India ⭐) channels are
+  // India-only, which the proxy (outside India) can't reach — so skip it.
+  var settled=false, triedProxy=(!!c.geo)||(!!c.px&&!!PROXY&&!PLAYALL);
   clearTimeout(tuneTimer);
   function ok(){if(settled)return;settled=true;clearTimeout(tuneTimer);pStatus('off');v.play().catch(function(){})}
   function attempt(url,label){ clearTimeout(tuneTimer);
