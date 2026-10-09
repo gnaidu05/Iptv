@@ -3,10 +3,14 @@ package tv.aura.app;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.TextView;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -36,6 +40,35 @@ public class MainActivity extends Activity {
     private static final String APP_URL = "https://gnaidu05.github.io/Iptv/webstb/?app=1";
     private static final String HOST = "gnaidu05.github.io";
 
+    private void showStatus(String msg) {
+        if (status == null) return;
+        status.setText(msg);
+        status.setVisibility(View.VISIBLE);
+    }
+
+    private void hideStatus() {
+        if (status != null) status.setVisibility(View.GONE);
+    }
+
+    /** Main-frame load failed or hung: show a message and reload with backoff,
+     *  which recovers the common cold-launch case where Wi-Fi isn't up yet. */
+    private void retryLoad(String msg) {
+        ui.removeCallbacks(watchdog);
+        if (web == null) return;
+        if (reloadTries < 6) {
+            reloadTries++;
+            showStatus(msg);
+            long delay = Math.min(8000L, 1000L * reloadTries);
+            ui.postDelayed(new Runnable() {
+                @Override public void run() {
+                    if (!pageFinished && web != null) { hadError = false; web.loadUrl(appUrl()); }
+                }
+            }, delay);
+        } else {
+            showStatus("Can't reach Aura.\nCheck this TV's internet connection, then reopen the app.");
+        }
+    }
+
     /** URL to load — adds &tv=1 on a TV so the web app switches to its 10-foot,
      *  fully D-pad-navigable layout instead of the phone/browser layout. */
     private String appUrl() {
@@ -60,6 +93,18 @@ public class MainActivity extends Activity {
 
     private WebView web;
     private FrameLayout root;
+
+    // Load resilience: on a cold TV launch the network is often not up yet, so
+    // the first page fetch fails and the WebView shows a black screen. We show a
+    // native loading/error overlay and auto-retry the main-frame load.
+    private final Handler ui = new Handler(Looper.getMainLooper());
+    private TextView status;
+    private int reloadTries = 0;
+    private boolean pageFinished = false;
+    private boolean hadError = false;
+    private final Runnable watchdog = new Runnable() {
+        @Override public void run() { if (!pageFinished) retryLoad("Still connecting…"); }
+    };
 
     // HTML5 fullscreen video state
     private View customView;
@@ -104,6 +149,33 @@ public class MainActivity extends Activity {
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest req) {
                 return proxyIfNeeded(req);
             }
+
+            @Override
+            public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
+                pageFinished = false; hadError = false;
+                showStatus("Loading Aura…");
+                ui.removeCallbacks(watchdog);
+                ui.postDelayed(watchdog, 12000);   // nothing after 12s → retry
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                ui.removeCallbacks(watchdog);
+                if (hadError) return;              // a failed load: leave the retry running
+                pageFinished = true; reloadTries = 0;
+                hideStatus();
+                view.postInvalidate();             // nudge a repaint (some TV WebViews start blank)
+            }
+
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest req, android.webkit.WebResourceError err) {
+                if (req != null && req.isForMainFrame()) { hadError = true; retryLoad("Couldn't connect — retrying…"); }
+            }
+
+            @Override
+            public void onReceivedHttpError(WebView view, WebResourceRequest req, WebResourceResponse resp) {
+                if (req != null && req.isForMainFrame()) { hadError = true; retryLoad("Couldn't connect — retrying…"); }
+            }
         });
 
         web.setWebChromeClient(new FullscreenChromeClient());
@@ -114,6 +186,20 @@ public class MainActivity extends Activity {
         web.setFocusableInTouchMode(true);
 
         root.addView(web);
+
+        // Native loading/error overlay over the dark background (so a slow or
+        // failed load is never just a black screen).
+        status = new TextView(this);
+        status.setText("Loading Aura…");
+        status.setTextColor(Color.parseColor("#c7cfdd"));
+        status.setTextSize(20);
+        status.setGravity(Gravity.CENTER);
+        status.setPadding(60, 40, 60, 40);
+        FrameLayout.LayoutParams slp = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        slp.gravity = Gravity.CENTER;
+        root.addView(status, slp);
+
         setContentView(root);
         web.requestFocus();
 
