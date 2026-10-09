@@ -211,6 +211,13 @@
   .bars i:nth-child(3){height:100%;background:#3ae7e7}.bars i:nth-child(4){height:100%;background:#3ae74a}
   .bars i:nth-child(5){height:100%;background:#e73ae7}.bars i:nth-child(6){height:100%;background:#e73a3a}
   .bars i:nth-child(7){height:100%;background:#3a4ae7}
+  /* lightweight mid-playback buffering pill (doesn't dim the video) */
+  #pbuf{position:absolute;top:18px;left:50%;transform:translateX(-50%);z-index:5;display:none;align-items:center;gap:10px;
+    padding:9px 16px;border-radius:30px;background:rgba(5,8,16,.82);border:1px solid var(--line2);color:#fff;font-size:13px;letter-spacing:.5px}
+  #pbuf.show{display:flex}
+  #pbuf .sp{width:18px;height:18px;border-radius:50%;border:2.5px solid rgba(255,255,255,.2);border-top-color:var(--p2);animation:spin 1s linear infinite}
+  html.tv #pbuf{font-size:17px;padding:11px 22px;top:26px}
+  html.tv #pbuf .sp{width:22px;height:22px}
   #pProgress{position:absolute;top:0;left:0;right:0;height:3px;z-index:4;background:rgba(255,255,255,.14);display:none}
   #pProgress > i{display:block;height:100%;width:0;background:var(--grad);transition:width 1s linear}
   #pbar{position:absolute;top:0;left:0;right:0;padding:18px 24px 26px;z-index:2;display:flex;flex-direction:column;
@@ -551,6 +558,7 @@
 <!-- PLAYER -->
 <div id="player">
   <video id="video" playsinline></video>
+  <div id="pbuf"><div class="sp"></div><span>Buffering…</span></div>
   <div id="pProgress"><i></i></div>
   <div id="pbar">
     <div class="pbar-top">
@@ -899,6 +907,17 @@ function pStatus(mode,msg){var s=document.getElementById('pstatus'),sp=document.
 }
 function destroyHls(v){ if(hls){try{hls.destroy()}catch(e){} hls=null} v.removeAttribute('src'); try{v.load()}catch(e){} }
 
+/* Mid-playback buffering pill: show a small spinner when the stream stalls
+   while playing (not during the initial tune, which has its own overlay), so
+   it never looks frozen. Debounced so tiny hiccups don't flicker it. */
+(function(){var v=document.getElementById('video'),pb=document.getElementById('pbuf'),t=null;
+  function show(){clearTimeout(t);t=setTimeout(function(){if(inPlayer&&!v.paused&&!v.ended)pb.classList.add('show')},450)}
+  function hide(){clearTimeout(t);pb.classList.remove('show')}
+  ['waiting','stalled'].forEach(function(ev){v.addEventListener(ev,show)});
+  ['playing','canplay','canplaythrough','pause','emptied'].forEach(function(ev){v.addEventListener(ev,hide)});
+  window.__hideBuf=hide;
+})();
+
 /* ---------- YouTube live channels (official embed) ---------- */
 function clearYt(){ var f=document.getElementById('ytframe'); if(f){f.src='about:blank';f.remove();} document.getElementById('video').style.display=''; }
 function playYouTube(c){
@@ -923,11 +942,23 @@ function tune(v,url,vlc,onok,onfail){
   destroyHls(v);
   if(window.Hls&&window.Hls.isSupported()){
     hls=new window.Hls({
-      maxBufferLength:18, maxMaxBufferLength:45,
-      liveSyncDurationCount:3, lowLatencyMode:false,
+      // Buffering: keep a healthy forward buffer so brief network dips don't
+      // stall playback (the old 18s was below hls.js's own default and caused
+      // frequent rebuffering). Capped in seconds + bytes so cheap TV boxes
+      // don't run out of memory.
+      maxBufferLength:30, maxMaxBufferLength:120, maxBufferSize:60*1000*1000,
+      backBufferLength:30,
+      // Quality: assume a reasonable home connection so ABR starts on a sharp
+      // variant instead of the lowest/blurriest one, and climbs quickly. Picture
+      // quality is still chosen automatically and falls back if the link is weak.
+      abrEwmaDefaultEstimate:3000000, abrBandWidthFactor:0.95, abrBandWidthUpFactor:0.8,
+      startLevel:-1, capLevelToPlayerSize:false, capLevelOnFPSDrop:true,
+      startFragPrefetch:true,
+      // Live tuning: stay near the edge but keep enough slack to ride out jitter.
+      liveSyncDurationCount:3, liveMaxLatencyDurationCount:12, lowLatencyMode:false,
       manifestLoadingTimeOut:14000, manifestLoadingMaxRetry:3, manifestLoadingRetryDelay:600,
       levelLoadingTimeOut:14000, levelLoadingMaxRetry:5, levelLoadingRetryDelay:600,
-      fragLoadingMaxRetry:8, fragLoadingRetryDelay:500
+      fragLoadingTimeOut:22000, fragLoadingMaxRetry:10, fragLoadingRetryDelay:500
     });
     var recov=0;   // budget for recovering fatal errors (e.g. a flappy CDN edge)
     hls.loadSource(url); hls.attachMedia(v);
@@ -989,6 +1020,7 @@ function playChannel(n){
 function closePlayer(){
   inPlayer=false; pbarPinned=false; closePGuide(); document.getElementById('player').classList.remove('show');
   var v=document.getElementById('video'); destroyHls(v); clearYt(); pStatus('off');
+  if(window.__hideBuf)window.__hideBuf();
   renderDots();
   // return to the channel you were watching: mark it and bring it into view
   var pos=visible.findIndex(function(c){return c.num===currentNum});

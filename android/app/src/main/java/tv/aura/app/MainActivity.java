@@ -139,6 +139,7 @@ public class MainActivity extends Activity {
             if (host == null || host.equalsIgnoreCase(HOST)) return null;   // app assets
             if (scheme == null || !(scheme.equals("http") || scheme.equals("https"))) return null;
             if (isPassthrough(host)) return null;   // let the WebView handle YouTube/Google natively
+            if (isImage(u.getPath())) return null;  // logos/images aren't CORS-gated; fetch natively (faster, parallel)
 
             String method = req.getMethod();
             if ("OPTIONS".equalsIgnoreCase(method)) {
@@ -151,7 +152,7 @@ public class MainActivity extends Activity {
             HttpURLConnection c = (HttpURLConnection) new URL(u.toString()).openConnection();
             c.setInstanceFollowRedirects(true);
             c.setConnectTimeout(12000);
-            c.setReadTimeout(15000);
+            c.setReadTimeout(20000);
             c.setRequestMethod("GET");
             c.setRequestProperty("User-Agent", UA);
             c.setRequestProperty("Accept", "*/*");
@@ -182,10 +183,22 @@ public class MainActivity extends Activity {
 
             InputStream body = (code >= 400) ? c.getErrorStream() : c.getInputStream();
             if (body == null) body = new java.io.ByteArrayInputStream(new byte[0]);
-            return new WebResourceResponse(mime, enc, code, reason, headers, body);
+            // Buffer so the WebView reads segments in large chunks, not byte-by-byte.
+            return new WebResourceResponse(mime, enc, code, reason, headers,
+                    new java.io.BufferedInputStream(body, 64 * 1024));
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /** Static image assets (channel logos) — not subject to CORS, so let the
+     *  WebView fetch them directly instead of re-routing through our proxy. */
+    private static boolean isImage(String path) {
+        if (path == null) return false;
+        String p = path.toLowerCase();
+        return p.endsWith(".png") || p.endsWith(".jpg") || p.endsWith(".jpeg")
+                || p.endsWith(".webp") || p.endsWith(".gif") || p.endsWith(".svg")
+                || p.endsWith(".ico") || p.endsWith(".bmp");
     }
 
     /** Hosts that must use the WebView's own networking (cookies, auth) rather
