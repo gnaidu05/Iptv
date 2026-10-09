@@ -35,6 +35,25 @@ public class MainActivity extends Activity {
 
     private static final String APP_URL = "https://gnaidu05.github.io/Iptv/webstb/?app=1";
     private static final String HOST = "gnaidu05.github.io";
+
+    /** URL to load — adds &tv=1 on a TV so the web app switches to its 10-foot,
+     *  fully D-pad-navigable layout instead of the phone/browser layout. */
+    private String appUrl() {
+        return isTelevision() ? APP_URL + "&tv=1" : APP_URL;
+    }
+
+    /** True on Android TV / Fire TV / Google TV (leanback / TV ui-mode). */
+    private boolean isTelevision() {
+        try {
+            android.app.UiModeManager um =
+                    (android.app.UiModeManager) getSystemService(UI_MODE_SERVICE);
+            if (um != null && um.getCurrentModeType()
+                    == android.content.res.Configuration.UI_MODE_TYPE_TELEVISION) {
+                return true;
+            }
+        } catch (Exception ignored) { }
+        return getPackageManager().hasSystemFeature("android.software.leanback");
+    }
     private static final String UA =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                     + "(KHTML, like Gecko) Chrome/125.0 Safari/537.36";
@@ -103,7 +122,7 @@ public class MainActivity extends Activity {
         // apps) could come back as a blank/black screen, and a fresh load also
         // picks up the latest channel list. Broad configChanges in the manifest
         // keep rotation/resize from recreating the Activity, so nothing is lost.
-        web.loadUrl(APP_URL);
+        web.loadUrl(appUrl());
     }
 
     /**

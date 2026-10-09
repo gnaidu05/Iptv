@@ -317,6 +317,65 @@
   #powerBtn{margin-top:6px;cursor:pointer;border:0;border-radius:999px;padding:14px 30px;font-weight:800;letter-spacing:1px;color:#fff;background:var(--grad);box-shadow:0 12px 30px rgba(124,92,255,.4)}
   .firm{position:absolute;bottom:22px;color:var(--muted);font-size:11px;letter-spacing:2px}
 
+  /* ---------- remote / keyboard focus (all modes) ---------- */
+  .nav.kbf{color:#fff;background:rgba(124,92,255,.22);border-color:var(--p1);
+    box-shadow:0 0 0 2px var(--p1),0 0 20px rgba(124,92,255,.5)}
+  .tab.kbf{color:#fff;box-shadow:0 0 0 2px var(--p2),0 0 18px rgba(77,124,255,.5)}
+  .ghbtn.kbf{color:#fff;border-color:var(--p2);background:rgba(77,124,255,.2);
+    box-shadow:0 0 0 2px var(--p2),0 0 18px rgba(77,124,255,.5)}
+  .langopt.kbf{background:rgba(77,124,255,.22);color:#fff}
+
+  /* ================= TV / 10-foot mode (?tv=1) =================
+     Larger type, larger cards, bolder focus and no mouse chrome, so the app
+     reads from across a room and feels like a native TV app, not a web page. */
+  html.tv body{font-size:18px;cursor:none;overscroll-behavior:none}
+  html.tv #rail{width:124px;flex-basis:124px;padding:30px 0 22px;gap:12px}
+  html.tv .logo span{font-size:17px}
+  html.tv .bloom-sm{width:48px;height:48px}
+  html.tv .nav{width:72px;height:72px;border-radius:20px}
+  html.tv .nav svg{width:32px;height:32px}
+  html.tv .rail-time{font-size:17px}
+  html.tv .rail-date{font-size:12px}
+  html.tv #topctl{display:none}            /* avatar/email + fav pill = mouse chrome */
+  html.tv .wifi{display:none}
+  html.tv #hero{padding:48px 60px 32px;min-height:400px}
+  html.tv .np{font-size:14px;letter-spacing:4px}
+  html.tv .hero-name{font-size:54px}
+  html.tv .hero-logo{width:120px;height:90px}
+  html.tv .hero-logo .ph{font-size:30px}
+  html.tv .hero-prog{font-size:20px}
+  html.tv .badge{font-size:14px;padding:8px 14px}
+  html.tv .upnext h4{font-size:14px}
+  html.tv .un-name{font-size:16px}
+  html.tv #tabs{padding:16px 60px 10px;gap:12px}
+  html.tv .tab{font-size:20px;padding:13px 24px;border-radius:14px}
+  html.tv #gridhead{padding:28px 60px 16px}
+  html.tv #gridhead h2{font-size:30px}
+  html.tv #gridCount{font-size:16px}
+  html.tv .ghbtn{height:48px;padding:0 18px;font-size:16px;border-radius:12px}
+  html.tv .ghbtn svg{width:19px;height:19px}
+  html.tv #grid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px;padding:0 60px 64px}
+  html.tv .cardc{padding:20px;border-radius:20px;transition:transform .13s ease,box-shadow .13s ease}
+  html.tv .cardc:hover{transform:none;border-color:var(--line)}  /* no mouse-hover lift on TV */
+  html.tv .c-num{font-size:24px}
+  html.tv .c-fav{width:38px;height:38px}html.tv .c-fav svg{width:19px;height:19px}
+  html.tv .c-logo{height:88px;margin:12px 0 16px}
+  html.tv .c-logo img{max-height:84px}
+  html.tv .c-logo .ph{font-size:30px}
+  html.tv .c-name{font-size:21px}
+  html.tv .c-sub{font-size:15px}
+  html.tv .c-hd{font-size:13px;padding:3px 9px}
+  /* bold, scaled focus so the selection pops from across the room */
+  html.tv .cardc.sel{transform:scale(1.07);z-index:3;border-color:transparent;
+    box-shadow:0 0 0 3px var(--p2),0 16px 44px rgba(0,0,0,.6),0 0 44px rgba(77,124,255,.55)}
+  html.tv .nav.kbf{box-shadow:0 0 0 3px var(--p1),0 0 26px rgba(124,92,255,.6)}
+  html.tv .tab.kbf{transform:scale(1.06);box-shadow:0 0 0 3px var(--p2),0 0 24px rgba(77,124,255,.6)}
+  html.tv .ghbtn.kbf{transform:scale(1.05)}
+  html.tv .langopt{font-size:17px;padding:11px 14px}
+  html.tv #langMenu{min-width:260px}
+  /* the boot "Start watching" button is auto-pressed on TV; hide the control */
+  html.tv #powerBtn{display:none}
+
   @media (max-width:1100px){.upnext{display:none}.hero-name{font-size:32px}}
   @media (max-width:760px){
     #rail{width:64px;flex-basis:64px;padding-top:16px}
@@ -594,6 +653,10 @@ var DATA=window.STB_DATA||{channels:[]}, CH=DATA.channels;
 var PROXY_DEFAULT='https://aura-proxy.gnaidu05.workers.dev';
 var _qs=new URLSearchParams(location.search);
 var PLAYALL=(_qs.get('app')==='1')||window.AURA_PLAYALL===true;
+// TV / 10-foot mode: the native shell adds &tv=1 on a television. Enables the
+// bigger layout and full D-pad zone navigation (rail ↔ tabs ↔ tools ↔ grid).
+var TV=(_qs.get('tv')==='1')||window.AURA_TV===true;
+if(TV){try{document.documentElement.classList.add('tv')}catch(e){}}
 var PROXY=((_qs.get('proxy')||localStorage.getItem('aura_proxy')||PROXY_DEFAULT).trim()).replace(/\/+$/,'');
 if(_qs.get('proxy')!==null){try{PROXY?localStorage.setItem('aura_proxy',PROXY):localStorage.removeItem('aura_proxy')}catch(e){}}
 function canPx(){return PLAYALL||!!PROXY}
@@ -606,6 +669,8 @@ var watchHist=JSON.parse(localStorage.getItem('stb_hist')||'[]');
 var catFilter='ALL', favView=false, hdOnly=false, sortMode=0, query='', langFilter='ALL';
 var visible=[], focusIndex=0, currentNum=null, loadedNum=null, hls=null;
 var poweredOn=false, inPlayer=false, tuneTimer=null;
+// remote-nav zones on the home screen: 'grid' | 'tabs' | 'tools' | 'rail'
+var zone='grid', railIdx=0, toolIdx=0, langSel=0;
 
 var SORTS=['number','name','favourites'];
 // Canonical categories, high→low priority. A channel's raw group-title may be a
@@ -1191,6 +1256,9 @@ document.addEventListener('keydown',function(e){
     else return;
     e.preventDefault(); return;
   }
+  // Zone navigation (rail / tabs / tools / grid edges). If it handled the key,
+  // we're done; otherwise fall through to in-grid movement and shortcuts.
+  if(homeNav(e))return;
   switch(e.key){
     case 'ArrowRight':moveFocus(1);e.preventDefault();break;
     case 'ArrowLeft':moveFocus(-1);e.preventDefault();break;
@@ -1207,6 +1275,85 @@ document.addEventListener('keydown',function(e){
 });
 function moveFocus(d){focusIndex=Math.max(0,Math.min(visible.length-1,focusIndex+d));syncSel();
   var c=visible[focusIndex]; if(c){currentNum=c.num;setHero(c.num);renderDots()} }
+
+/* ---------- home-screen zone navigation (rail ↔ tabs ↔ tools ↔ grid) ----------
+   Lets a TV remote reach every control, not just the grid, so the app feels
+   native rather than like a scrolled web page. Zones top→bottom in the main
+   column are tabs, tools (the header buttons) and grid; the rail is to the left. */
+function railBtns(){return [].slice.call(document.querySelectorAll('#rail .nav'))}
+function tabBtns(){return [].slice.call(document.querySelectorAll('#tabs .tab'))}
+function toolBtns(){return ['searchBtn','sortBtn','langBtn','filtBtn']
+  .map(function(id){return document.getElementById(id)}).filter(Boolean)}
+function clearKbf(){document.querySelectorAll('.kbf').forEach(function(el){el.classList.remove('kbf')})}
+function activeTabIdx(){var t=tabBtns();for(var i=0;i<t.length;i++)if(t[i].classList.contains('active'))return i;return 0}
+function setZone(z){
+  zone=z; clearKbf();
+  if(z==='rail'){var r=railBtns()[railIdx]; if(r)r.classList.add('kbf')}
+  else if(z==='tabs'){var tb=tabBtns()[activeTabIdx()]; if(tb){tb.classList.add('kbf');tb.scrollIntoView({block:'nearest',inline:'nearest'})}}
+  else if(z==='tools'){var tt=toolBtns(); toolIdx=Math.min(toolIdx,tt.length-1);
+    if(tt[toolIdx]){tt[toolIdx].classList.add('kbf');document.getElementById('gridhead').scrollIntoView({block:'nearest'})}}
+  else if(z==='langmenu'){var o=document.querySelectorAll('#langMenu .langopt');
+    langSel=Math.max(0,Math.min(langSel,o.length-1)); if(o[langSel]){o[langSel].classList.add('kbf');o[langSel].scrollIntoView({block:'nearest'})}}
+  else { syncSel(); }   // grid uses the existing .sel highlight
+}
+function enterRail(){railIdx=activeNavIdx();setZone('rail')}
+function activeNavIdx(){var b=railBtns();for(var i=0;i<b.length;i++)if(b[i].classList.contains('active'))return i;return 0}
+function focusGrid(i){zone='grid';clearKbf();if(!visible.length)return;
+  focusIndex=Math.max(0,Math.min(visible.length-1,i));var c=visible[focusIndex];
+  if(c){currentNum=c.num;setHero(c.num);renderDots()} syncSel();}
+function homeNav(e){
+  var k=e.key;
+  if(zone==='rail'){
+    var rb=railBtns();
+    if(k==='ArrowUp'){railIdx=Math.max(0,railIdx-1);setZone('rail')}
+    else if(k==='ArrowDown'){railIdx=Math.min(rb.length-1,railIdx+1);setZone('rail')}
+    else if(k==='ArrowRight'){focusGrid(focusIndex)}
+    else if(k==='Enter'){clearKbf();if(rb[railIdx])rb[railIdx].click()}
+    else if(k==='Escape'||k==='Backspace'){focusGrid(focusIndex)}
+    else return false;
+    e.preventDefault();return true;
+  }
+  if(zone==='tabs'){
+    var tb=tabBtns(),cur=activeTabIdx();
+    if(k==='ArrowRight'){if(tb[cur+1]){tb[cur+1].click();setZone('tabs')}}
+    else if(k==='ArrowLeft'){if(cur<=0){enterRail()}else{tb[cur-1].click();setZone('tabs')}}
+    else if(k==='ArrowDown'){setZone('tools')}
+    else if(k==='ArrowUp'){enterRail()}
+    else if(k==='Enter'){focusGrid(0)}
+    else if(k==='Escape'||k==='Backspace'){focusGrid(focusIndex)}
+    else return false;
+    e.preventDefault();return true;
+  }
+  if(zone==='tools'){
+    var tt=toolBtns();
+    if(k==='ArrowRight'){toolIdx=Math.min(tt.length-1,toolIdx+1);setZone('tools')}
+    else if(k==='ArrowLeft'){if(toolIdx<=0){enterRail()}else{toolIdx--;setZone('tools')}}
+    else if(k==='ArrowUp'){setZone('tabs')}
+    else if(k==='ArrowDown'){focusGrid(0)}
+    else if(k==='Enter'){var cur=tt[toolIdx];clearKbf();if(cur)cur.click();
+      // Language opens a menu: hand focus to it; others re-highlight the button.
+      if(cur&&cur.id==='langBtn'&&document.getElementById('langMenu').classList.contains('open')){langSel=0;setZone('langmenu')}
+      else setZone('tools')}
+    else if(k==='Escape'||k==='Backspace'){focusGrid(focusIndex)}
+    else return false;
+    e.preventDefault();return true;
+  }
+  if(zone==='langmenu'){
+    var opts=[].slice.call(document.querySelectorAll('#langMenu .langopt'));
+    if(!opts.length||!document.getElementById('langMenu').classList.contains('open')){setZone('tools');return true}
+    if(k==='ArrowDown'){langSel=Math.min(opts.length-1,langSel+1)}
+    else if(k==='ArrowUp'){langSel=Math.max(0,langSel-1)}
+    else if(k==='Enter'){opts[langSel].click();setZone('tools');e.preventDefault();return true}
+    else if(k==='Escape'||k==='Backspace'){closeLangMenu();setZone('tools');e.preventDefault();return true}
+    else return false;
+    clearKbf();opts[langSel].classList.add('kbf');opts[langSel].scrollIntoView({block:'nearest'});
+    e.preventDefault();return true;
+  }
+  // zone === 'grid': edges step out into the surrounding zones
+  if(k==='ArrowUp'&&focusIndex<cols()){setZone('tools');e.preventDefault();return true}
+  if(k==='ArrowLeft'&&focusIndex%cols()===0){enterRail();e.preventDefault();return true}
+  return false;
+}
 function zap(delta){var pos=CH.findIndex(function(c){return c.num===currentNum});if(pos<0)pos=0;
   pos=(pos+delta+CH.length)%CH.length; playChannel(CH[pos].num)}
 var numBuf='',numT=null;
@@ -1251,6 +1398,9 @@ window.auraBack=function(){
     if(typeof epgOpen!=='undefined'&&epgOpen){closeEPG();return true}
     if(typeof pgOpen!=='undefined'&&pgOpen){closePGuide();return true}
     if(typeof inPlayer!=='undefined'&&inPlayer){closePlayer();return true}
+    // On the home screen, Back from the rail/tabs/tools returns to the grid
+    // rather than exiting the app; only Back from the grid itself exits.
+    if(poweredOn&&typeof zone!=='undefined'&&zone!=='grid'){focusGrid(focusIndex);return true}
   }catch(e){}
   return false;
 };
