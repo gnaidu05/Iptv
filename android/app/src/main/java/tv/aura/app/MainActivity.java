@@ -3,6 +3,7 @@ package tv.aura.app;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -97,11 +98,12 @@ public class MainActivity extends Activity {
         setContentView(root);
         web.requestFocus();
 
-        if (savedInstanceState == null) {
-            web.loadUrl(APP_URL);
-        } else {
-            web.restoreState(savedInstanceState);
-        }
+        // Always load the live page fresh. Restoring a saved WebView state across
+        // a process death (common on TV, where the launcher kills backgrounded
+        // apps) could come back as a blank/black screen, and a fresh load also
+        // picks up the latest channel list. Broad configChanges in the manifest
+        // keep rotation/resize from recreating the Activity, so nothing is lost.
+        web.loadUrl(APP_URL);
     }
 
     /**
@@ -234,6 +236,44 @@ public class MainActivity extends Activity {
 
     private void exitImmersive() {
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+    }
+
+    /**
+     * Drive the web app with the TV remote's D-pad. WebView does not reliably
+     * deliver D-pad arrow/OK presses to the page's JS key handlers (which is why
+     * the boot screen could get stuck and the grid wouldn't move), so we map them
+     * to the arrow/Enter keys the web app listens for and inject them directly,
+     * consuming the native event to avoid double navigation. Back is left to the
+     * framework so onBackPressed() runs. Non-D-pad keys fall through unchanged.
+     */
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (web != null && customView == null && event.getAction() == KeyEvent.ACTION_DOWN) {
+            String key = null;
+            switch (event.getKeyCode()) {
+                case KeyEvent.KEYCODE_DPAD_UP:    key = "ArrowUp"; break;
+                case KeyEvent.KEYCODE_DPAD_DOWN:  key = "ArrowDown"; break;
+                case KeyEvent.KEYCODE_DPAD_LEFT:  key = "ArrowLeft"; break;
+                case KeyEvent.KEYCODE_DPAD_RIGHT: key = "ArrowRight"; break;
+                case KeyEvent.KEYCODE_DPAD_CENTER:
+                case KeyEvent.KEYCODE_ENTER:
+                case KeyEvent.KEYCODE_NUMPAD_ENTER: key = "Enter"; break;
+                default: break;
+            }
+            if (key != null) {
+                injectKey(key);
+                return true;
+            }
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
+    /** Dispatch a synthetic keydown to the page so its remote-nav handlers run. */
+    private void injectKey(String key) {
+        final String js = "(function(k){try{document.dispatchEvent("
+                + "new KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true}))}"
+                + "catch(e){}})('" + key + "');";
+        web.evaluateJavascript(js, null);
     }
 
     @Override

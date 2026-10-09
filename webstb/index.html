@@ -571,7 +571,7 @@
   <div class="bbar"><i id="bootbar"></i></div>
   <div id="bootmsg">System ready</div>
   <button id="powerBtn">▶ Start watching</button>
-  <div class="firm">LIVE INDIAN TV · BUILD 2026.10.08</div>
+  <div class="firm">LIVE INDIAN TV · BUILD 2026.10.09</div>
 </div>
 
 <!-- Cache-busted so the app/TV always loads the latest channel list from the
@@ -1360,6 +1360,10 @@ document.getElementById('powerBtn').onclick=bootStart;
 // remember last played
 var _play=playChannel; playChannel=function(n){localStorage.setItem('stb_last',n);_play(n)};
 if(!CH.length){document.getElementById('bootmsg').textContent='No channels (channels.js missing)';document.getElementById('powerBtn').style.display='none'}
+// In the native/TV app (?app=1), auto power on: a TV remote's D-pad OK may not
+// land on the Start-watching button, which left the app stuck on the boot
+// screen. Auto-start (after the channel list is present) so it goes straight in.
+else if(PLAYALL){setTimeout(bootStart,500)}
 
 // live email initial for avatar
 try{document.getElementById('avatar').textContent=(("gnaidu05@gmail.com")[0]||'U').toUpperCase()}catch(e){}
