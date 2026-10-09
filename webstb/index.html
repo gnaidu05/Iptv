@@ -574,7 +574,9 @@
   <div class="firm">LIVE INDIAN TV · BUILD 2026.10.08</div>
 </div>
 
-<script src="channels.js"></script>
+<!-- Cache-busted so the app/TV always loads the latest channel list from the
+     repo (the weekly refresh redeploys channels.js); same-origin, parses in order. -->
+<script>document.write('<scr'+'ipt src="channels.js?v='+Date.now()+'"></scr'+'ipt>')</script>
 <script>
 (function(){var s=document.createElement('script');
   s.src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js";
