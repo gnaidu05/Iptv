@@ -44,14 +44,16 @@ jobs:
             echo "No EPG changes."
           else
             git commit -m "chore: refresh EPG now/next data"
-            # Race-proof push: the weekly refresh can land on main while this
-            # job runs, so rebase and retry instead of failing (which would also
-            # skip the Pages deploy steps below).
+            # Race-proof push: another run can land on main while this job runs.
+            # Merge it in, keeping OUR freshly-regenerated epg.json on any
+            # conflict (a plain rebase/pull would abort on the conflict and fail,
+            # which also skips the Pages deploy below).
             for i in 1 2 3 4 5; do
               if git push; then break; fi
-              echo "push rejected, rebasing onto latest main (attempt $i)…"
-              git pull --rebase --autostash origin main || exit 1
-              sleep $((i * 3))
+              echo "push rejected; merging latest main (keeping our epg.json)… attempt $i"
+              git fetch origin main
+              git merge -X ours --no-edit origin/main || { git merge --abort; exit 1; }
+              sleep $((i * 2))
             done
           fi
 
