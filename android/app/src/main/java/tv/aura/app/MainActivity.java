@@ -297,12 +297,30 @@ public class MainActivity extends Activity {
         setContentView(root);
         web.requestFocus();
 
+        // After an app update, clear the WebView cache ONCE so the new build
+        // always loads the latest page (a plain install-over otherwise keeps the
+        // old cached HTML). Normal launches keep their cache, so they stay fast.
+        clearCacheOnUpdate();
+
         // Always load the live page fresh. Restoring a saved WebView state across
         // a process death (common on TV, where the launcher kills backgrounded
         // apps) could come back as a blank/black screen, and a fresh load also
         // picks up the latest channel list. Broad configChanges in the manifest
         // keep rotation/resize from recreating the Activity, so nothing is lost.
         web.loadUrl(appUrl());
+    }
+
+    private void clearCacheOnUpdate() {
+        try {
+            android.content.SharedPreferences sp = getSharedPreferences("aura", MODE_PRIVATE);
+            int last = sp.getInt("lastVer", -1);
+            int cur = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+            if (last != cur) {
+                web.clearCache(true);
+                sp.edit().putInt("lastVer", cur).apply();
+                appendLog("AuraDiag", "cleared WebView cache on update " + last + "->" + cur);
+            }
+        } catch (Exception ignored) { }
     }
 
     /**
