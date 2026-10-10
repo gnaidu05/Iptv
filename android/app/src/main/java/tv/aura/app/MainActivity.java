@@ -140,12 +140,12 @@ public class MainActivity extends Activity {
     }
 
     /** URL to load — adds &tv=1 on a TV so the web app switches to its 10-foot,
-     *  fully D-pad-navigable layout instead of the phone/browser layout. A
-     *  per-launch cache-buster forces a fresh index.html so the TV always runs
-     *  the latest UI (a stale cached page was serving an old, slower build). */
+     *  fully D-pad-navigable layout instead of the phone/browser layout. Uses
+     *  normal HTTP caching (no per-launch cache-buster): re-downloading the page
+     *  and channel list every launch made cold start very slow on TV boxes; the
+     *  app updates on revalidation instead. */
     private String appUrl() {
-        String base = isTelevision() ? APP_URL + "&tv=1" : APP_URL;
-        return base + "&cb=" + System.currentTimeMillis();
+        return isTelevision() ? APP_URL + "&tv=1" : APP_URL;
     }
 
     /** True on Android TV / Fire TV / Google TV (leanback / TV ui-mode). */
@@ -452,6 +452,14 @@ public class MainActivity extends Activity {
             if (m != null) appendLog("AuraWeb", m.messageLevel() + " " + m.message()
                     + " @" + m.lineNumber());
             return true;
+        }
+
+        @Override
+        public void onProgressChanged(WebView view, int newProgress) {
+            // The page is actually downloading/parsing — don't let the watchdog
+            // reload it (reloading a slow-but-working load only makes it slower).
+            if (newProgress >= 25 && !pageFinished) ui.removeCallbacks(watchdog);
+            if (newProgress >= 100) markLoaded(view);
         }
 
         @Override

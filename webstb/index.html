@@ -708,14 +708,26 @@
   <div class="firm">LIVE INDIAN TV · BUILD 2026.10.10</div>
 </div>
 
-<!-- Cache-busted so the app/TV always loads the latest channel list from the
-     repo (the weekly refresh redeploys channels.js); same-origin, parses in order. -->
-<script>document.write('<scr'+'ipt src="channels.js?v='+Date.now()+'"></scr'+'ipt>')</script>
+<!-- Channel list. Loaded with normal HTTP caching (GitHub Pages revalidates it),
+     not a per-launch cache-buster — re-downloading ~230KB on every launch made
+     a TV's cold start crawl. The weekly refresh changes it; launches pick that
+     up on revalidation. -->
+<script src="channels.js"></script>
 <script>
-(function(){var s=document.createElement('script');
+// hls.js (~1 MB) is only needed to PLAY a stream, so load it on demand the first
+// time a channel is opened — not at boot. This keeps the home screen (channel
+// list) light and fast to first paint, which matters a lot on weak TV boxes.
+function ensureHls(cb){
+  if(window.Hls){cb&&cb(true);return}
+  if(window.__hlsReady===false){cb&&cb(false);return}
+  if(window.__hlsCbs){window.__hlsCbs.push(cb);return}
+  window.__hlsCbs=[cb];
+  var s=document.createElement('script');
   s.src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js";
-  s.onload=function(){window.__hlsReady=true};s.onerror=function(){window.__hlsReady=false};
-  document.head.appendChild(s);})();
+  s.onload=function(){window.__hlsReady=true;var q=window.__hlsCbs||[];window.__hlsCbs=null;q.forEach(function(f){f&&f(true)})};
+  s.onerror=function(){window.__hlsReady=false;var q=window.__hlsCbs||[];window.__hlsCbs=null;q.forEach(function(f){f&&f(false)})};
+  document.head.appendChild(s);
+}
 
 var DATA=window.STB_DATA||{channels:[]}, CH=DATA.channels;
 var AURA_T0=(window.performance&&performance.now)?performance.now():Date.now();
@@ -1010,6 +1022,8 @@ function playYouTube(c){
 
 function tune(v,url,vlc,onok,onfail){
   destroyHls(v);
+  // hls.js is loaded on demand: fetch it on the first tune, then retry.
+  if(!window.Hls && window.__hlsReady!==false){ ensureHls(function(){tune(v,url,vlc,onok,onfail)}); return; }
   if(window.Hls&&window.Hls.isSupported()){
     hls=new window.Hls({
       // Buffering: keep a healthy forward buffer so brief network dips don't
