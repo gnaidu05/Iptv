@@ -382,6 +382,11 @@
   html.tv #langMenu{min-width:260px}
   /* the boot "Start watching" button is auto-pressed on TV; hide the control */
   html.tv #powerBtn{display:none}
+  /* Kill continuous animations on TV — constant repaints make weak boxes lag. */
+  html.tv .dot{animation:none}
+  html.tv .live-bar>i{animation:none;left:0;width:34%}
+  html.tv .tvrail-track{transition:transform .18s ease}
+  html.tv .bloom circle,html.tv .bloom g{animation:none !important}
 
   /* ---- TV home = category rails (Netflix-style) instead of a dense grid ---- */
   html.tv #tabs,html.tv #gridhead,html.tv #grid{display:none}
@@ -394,7 +399,7 @@
   .tvrail-vp{overflow:visible;padding:14px 0}            /* room for the focus scale/glow */
   .tvrail-track{display:flex;gap:20px;padding:0 60px;will-change:transform;transition:transform .26s cubic-bezier(.2,.7,.2,1)}
   .tvcard{flex:0 0 244px;width:244px;background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);
-    border-radius:18px;padding:16px;position:relative;cursor:pointer;transition:transform .14s ease,box-shadow .14s ease}
+    border-radius:18px;padding:16px;position:relative;cursor:pointer;transition:transform .12s ease}
   .tvcard .n{font-family:Menlo,Consolas,monospace;font-size:20px;font-weight:800;color:var(--txt)}
   .tvcard .lg{height:82px;display:grid;place-items:center;margin:10px 0 12px}
   .tvcard .lg img{max-height:78px;max-width:72%;object-fit:contain}
@@ -1367,11 +1372,16 @@ function moveFocus(d){focusIndex=Math.max(0,Math.min(visible.length-1,focusIndex
    between rows, Left/Right scrolls a row, OK plays. Browser/phone keep the grid. */
 var tvRows=[], tvRow=0, tvCols=[];
 function tvPlayable(c){ return !(c.px&&!canPx()); }
+window.tvImgErr=function(im){var s=document.createElement('span');s.className='ph';
+  s.textContent=im.getAttribute('data-ph')||''; if(im.parentNode)im.replaceWith(s);};
 function buildTVHome(){
+  // Rails are built lazily: we create only the row shells (title + empty track)
+  // up front, and fill a row's cards the first time it's reached. Logos load on
+  // demand too. This keeps a TV box from choking on ~870 cards + images at once.
   var host=document.getElementById('tvhome'); if(!host)return;
   host.innerHTML=''; tvRows=[]; tvCols=[];
   var normal=CH.filter(function(c){return !c.geo&&tvPlayable(c)});
-  function add(title,items){ if(items&&items.length)tvRows.push({title:title,items:items}); }
+  function add(title,items){ if(items&&items.length)tvRows.push({title:title,items:items,built:false,track:null}); }
   add('Recently watched', watchHist.map(byNum).filter(function(c){return c&&tvPlayable(c)}));
   add('Favourites', CH.filter(function(c){return favs.has(c.num)&&tvPlayable(c)}));
   CAT_ORDER.forEach(function(cat){
@@ -1386,33 +1396,50 @@ function buildTVHome(){
     var h=document.createElement('h3'); h.className='tvrail-title';
     h.innerHTML=esc(row.title)+'<span class="cnt">'+row.items.length+'</span>';
     var vp=document.createElement('div'); vp.className='tvrail-vp';
-    var track=document.createElement('div'); track.className='tvrail-track';
-    row.items.forEach(function(c,i){
-      var d=document.createElement('div');
-      d.className='tvcard'+(favs.has(c.num)?' fav':'')+(c.num===currentNum?' playing':'');
-      d.dataset.r=r; d.dataset.i=i;
-      d.innerHTML='<div class="n">'+c.num+'</div><div class="lg">'+logoImg(c)+'</div>'+
-        '<div class="nm">'+esc(c.name.replace(/\s*\(.*?\)\s*/,' ').trim())+'</div>'+
-        '<div class="sb">'+esc(cardProg(c)||catOf(c))+'</div>'+
-        (isHD(c)?'<div class="hd">HD</div>':'')+'<div class="favdot">❤</div>';
-      (function(cn,rr,ii){d.onclick=function(){tvRow=rr;tvCols[rr]=ii;playChannel(cn)}})(c.num,r,i);
-      track.appendChild(d);
-    });
-    vp.appendChild(track); sec.appendChild(h); sec.appendChild(vp); host.appendChild(sec);
+    row.track=document.createElement('div'); row.track.className='tvrail-track';
+    vp.appendChild(row.track); sec.appendChild(h); sec.appendChild(vp); host.appendChild(sec);
   });
   tvRow=Math.min(tvRow,Math.max(0,tvRows.length-1));
+  ensureRow(0); ensureRow(1);
 }
-function tvCardEl(r,i){return document.querySelector('.tvcard[data-r="'+r+'"][data-i="'+i+'"]')}
+function ensureRow(r){
+  var row=tvRows[r]; if(!row||row.built)return; row.built=true;
+  var frag=document.createDocumentFragment();
+  row.items.forEach(function(c,i){
+    var d=document.createElement('div');
+    d.className='tvcard'+(favs.has(c.num)?' fav':'')+(c.num===currentNum?' playing':'');
+    d.dataset.r=r; d.dataset.i=i;
+    var logo=c.logo
+      ? '<img data-src="'+esc(c.logo)+'" data-ph="'+esc(initials(c))+'" decoding="async" onerror="tvImgErr(this)">'
+      : '<span class="ph">'+esc(initials(c))+'</span>';
+    d.innerHTML='<div class="n">'+c.num+'</div><div class="lg">'+logo+'</div>'+
+      '<div class="nm">'+esc(c.name.replace(/\s*\(.*?\)\s*/,' ').trim())+'</div>'+
+      '<div class="sb">'+esc(cardProg(c)||catOf(c))+'</div>'+
+      (isHD(c)?'<div class="hd">HD</div>':'')+'<div class="favdot">❤</div>';
+    (function(cn,rr,ii){d.onclick=function(){tvRow=rr;tvCols[rr]=ii;playChannel(cn)}})(c.num,r,i);
+    frag.appendChild(d);
+  });
+  row.track.appendChild(frag);
+  revealImages(r,8);
+}
+function revealImages(r,upto){
+  var row=tvRows[r]; if(!row||!row.built)return; var cards=row.track.children;
+  for(var i=0;i<=upto&&i<cards.length;i++){var im=cards[i].querySelector('img[data-src]');
+    if(im){im.src=im.getAttribute('data-src'); im.removeAttribute('data-src');}}
+}
+function tvCardEl(r,i){var row=tvRows[r]; return row&&row.track?row.track.children[i]:null}
 function tvFocus(r,i,noVScroll){
   if(!tvRows.length)return;
   r=Math.max(0,Math.min(tvRows.length-1,r));
+  ensureRow(r); ensureRow(r+1);   // build this row (and prefetch the next) on arrival
   i=Math.max(0,Math.min(tvRows[r].items.length-1,i));
   tvRow=r; tvCols[r]=i; zone='rails'; clearKbf();
   document.querySelectorAll('.tvcard.sel').forEach(function(el){el.classList.remove('sel')});
   var card=tvCardEl(r,i); if(!card)return;
   card.classList.add('sel');
   var track=card.parentNode; track.style.transform='translateX(-'+Math.max(0,card.offsetLeft-60)+'px)';
-  if(!noVScroll){var sec=track.parentNode.parentNode; sec.scrollIntoView({block:'center',behavior:'smooth'});}
+  revealImages(r,i+6);
+  if(!noVScroll){var sec=track.parentNode.parentNode; sec.scrollIntoView({block:'center',behavior:(TV?'auto':'smooth')});}
   var c=tvRows[r].items[i]; if(c){currentNum=c.num;setHero(c.num);renderDots()}
 }
 function refreshTVHome(){
@@ -1682,16 +1709,24 @@ document.getElementById('epgClose').onclick=closeEPG;
 var steps=[[14,'Starting Aura…'],[34,'Connecting…'],[58,'Loading channels…'],
   [80,'Found '+CH.length+' live channels'],[92,'Loading TV guide…'],[100,'Ready']];
 function bootStart(){ if(poweredOn)return; document.getElementById('powerBtn').style.display='none';
+  if(TV){finish();return}   // skip the cosmetic boot animation on TV — go straight in
   var i=0,bar=document.getElementById('bootbar'),msg=document.getElementById('bootmsg');
   (function step(){ if(i>=steps.length){finish();return}
     var s=steps[i++]; bar.style.width=s[0]+'%'; msg.textContent=s[1]; setTimeout(step,300+Math.random()*300) })();
 }
 function finish(){
   poweredOn=true; document.getElementById('boot').classList.add('hide');
-  buildTabs(); render(); renderRecent();
   var last=parseInt(localStorage.getItem('stb_last')||'',10);
   currentNum=(last&&byNum(last))?last:CH[0].num;
-  if(TV){ buildTVHome(); zone='rails'; tvFocus(0,0,true); }
+  if(TV){
+    // TV: build only the lazy rails (not the 800-card hidden grid) and stop the
+    // decorative SVG (SMIL) animations, which otherwise repaint constantly and
+    // make a weak TV box sluggish.
+    buildTVHome(); zone='rails'; tvFocus(0,0,true); renderRecent();
+    try{[].forEach.call(document.querySelectorAll('svg'),function(s){s.pauseAnimations&&s.pauseAnimations()})}catch(e){}
+  }else{
+    buildTabs(); render(); renderRecent();
+  }
   setHero(currentNum); renderDots(); tick();
   loadEPG();
   // advance now/next + progress every 30s; refresh the guide every 30 min

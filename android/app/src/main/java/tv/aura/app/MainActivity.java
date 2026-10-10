@@ -50,6 +50,15 @@ public class MainActivity extends Activity {
         if (status != null) status.setVisibility(View.GONE);
     }
 
+    /** The page is on screen: clear the loading overlay and stop the watchdog. */
+    private void markLoaded(WebView view) {
+        if (pageFinished) return;
+        pageFinished = true; reloadTries = 0;
+        ui.removeCallbacks(watchdog);
+        hideStatus();
+        if (view != null) view.postInvalidate();   // nudge a repaint (some TV WebViews start blank)
+    }
+
     /** Main-frame load failed or hung: show a message and reload with backoff,
      *  which recovers the common cold-launch case where Wi-Fi isn't up yet. */
     private void retryLoad(String msg) {
@@ -155,26 +164,31 @@ public class MainActivity extends Activity {
                 pageFinished = false; hadError = false;
                 showStatus("Loading Aura…");
                 ui.removeCallbacks(watchdog);
-                ui.postDelayed(watchdog, 12000);   // nothing after 12s → retry
+                ui.postDelayed(watchdog, 25000);   // nothing painted after 25s → retry
+            }
+
+            @Override
+            public void onPageCommitVisible(WebView view, String url) {
+                // First real paint — the app is on screen. This is the success
+                // signal, NOT onPageFinished: the load event waits for every
+                // image (hundreds of logos), which on a TV can take minutes and
+                // would otherwise keep the watchdog reloading the page.
+                markLoaded(view);
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                ui.removeCallbacks(watchdog);
-                if (hadError) return;              // a failed load: leave the retry running
-                pageFinished = true; reloadTries = 0;
-                hideStatus();
-                view.postInvalidate();             // nudge a repaint (some TV WebViews start blank)
+                if (!hadError) markLoaded(view);
             }
 
             @Override
             public void onReceivedError(WebView view, WebResourceRequest req, android.webkit.WebResourceError err) {
-                if (req != null && req.isForMainFrame()) { hadError = true; retryLoad("Couldn't connect — retrying…"); }
+                if (!pageFinished && req != null && req.isForMainFrame()) { hadError = true; retryLoad("Couldn't connect — retrying…"); }
             }
 
             @Override
             public void onReceivedHttpError(WebView view, WebResourceRequest req, WebResourceResponse resp) {
-                if (req != null && req.isForMainFrame()) { hadError = true; retryLoad("Couldn't connect — retrying…"); }
+                if (!pageFinished && req != null && req.isForMainFrame()) { hadError = true; retryLoad("Couldn't connect — retrying…"); }
             }
         });
 
