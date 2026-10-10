@@ -32,6 +32,6 @@
     </group>
 
     <!-- Golden core -->
-    <path android:fillColor="@color/gold"
+    <path android:fillColor="#FFFFC24D"
         android:pathData="M54,45 a9,9 0 1,0 0.1,0 z" />
 </vector>
