@@ -90,6 +90,14 @@ public class MainActivity extends Activity {
                         + ",\"webview\":\"" + jsonEsc(wv) + "\""
                         + ",\"appVersion\":\"" + jsonEsc(appVersionName()) + "\""
                         + ",\"loadMs\":" + loadMs
+                        + ",\"paintVia\":\"" + paintVia + "\""
+                        + ",\"reloads\":" + reloadTries
+                        + ",\"starts\":" + startedCount
+                        + ",\"maxProgress\":" + maxProgress
+                        + ",\"tStarted\":" + tStarted
+                        + ",\"tFirstProgress\":" + tFirstProgress
+                        + ",\"tCommit\":" + tCommit
+                        + ",\"tFinished\":" + tFinished
                         + "}";
                     HttpURLConnection c = (HttpURLConnection) new URL(LOG_URL).openConnection();
                     c.setConnectTimeout(10000);
@@ -175,9 +183,18 @@ public class MainActivity extends Activity {
     private int reloadTries = 0;
     private boolean pageFinished = false;
     private boolean hadError = false;
+    // Load timeline instrumentation (all offsets in ms from createdAt).
+    private int startedCount = 0, maxProgress = 0;
+    private long tStarted = 0, tFirstProgress = 0, tCommit = 0, tFinished = 0;
+    private String paintVia = "none";
     private final Runnable watchdog = new Runnable() {
-        @Override public void run() { if (!pageFinished) retryLoad("Still connecting…"); }
+        @Override public void run() {
+            // Only reload if the page truly never started loading — reloading a
+            // slow-but-progressing load just restarts it and makes things worse.
+            if (!pageFinished && maxProgress < 10) retryLoad("Still connecting…");
+        }
     };
+    private long since() { return createdAt > 0 ? android.os.SystemClock.elapsedRealtime() - createdAt : -1; }
 
     // HTML5 fullscreen video state
     private View customView;
@@ -227,23 +244,27 @@ public class MainActivity extends Activity {
             @Override
             public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
                 pageFinished = false; hadError = false;
+                startedCount++;
+                if (tStarted == 0) tStarted = since();
                 showStatus("Loading Aura…");
                 ui.removeCallbacks(watchdog);
-                ui.postDelayed(watchdog, 25000);   // nothing painted after 25s → retry
+                ui.postDelayed(watchdog, 25000);   // only reloads if progress stays <10%
             }
 
             @Override
             public void onPageCommitVisible(WebView view, String url) {
                 // First real paint — the app is on screen. This is the success
-                // signal, NOT onPageFinished: the load event waits for every
-                // image (hundreds of logos), which on a TV can take minutes and
-                // would otherwise keep the watchdog reloading the page.
+                // signal, NOT onPageFinished (whose load event waits for every
+                // sub-resource and can lag minutes on a TV).
+                if (tCommit == 0) tCommit = since();
+                if ("none".equals(paintVia)) paintVia = "commit";
                 markLoaded(view);
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                if (!hadError) markLoaded(view);
+                if (tFinished == 0) tFinished = since();
+                if (!hadError) { if ("none".equals(paintVia)) paintVia = "finished"; markLoaded(view); }
             }
 
             @Override
@@ -474,10 +495,12 @@ public class MainActivity extends Activity {
 
         @Override
         public void onProgressChanged(WebView view, int newProgress) {
+            if (newProgress > 0 && tFirstProgress == 0) tFirstProgress = since();
+            if (newProgress > maxProgress) maxProgress = newProgress;
             // The page is actually downloading/parsing — don't let the watchdog
             // reload it (reloading a slow-but-working load only makes it slower).
-            if (newProgress >= 25 && !pageFinished) ui.removeCallbacks(watchdog);
-            if (newProgress >= 100) markLoaded(view);
+            if (newProgress >= 10 && !pageFinished) ui.removeCallbacks(watchdog);
+            if (newProgress >= 100) { if ("none".equals(paintVia)) paintVia = "progress"; markLoaded(view); }
         }
 
         @Override
