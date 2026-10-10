@@ -1,0 +1,46 @@
+feature,area,priority,original,clone,notes
+Boot splash with Start button (needed for autoplay gesture),boot,must,yes,no,skipped on TV mode
+Channel grid with logo number name,launcher,must,yes,no,868 channels; initials fallback for broken logos
+Category tabs built from channel groups,launcher,must,yes,no,India ⭐ geo tab kept separate
+Fullscreen HLS playback (hls.js + native),player,must,yes,no,hls.js lazy-loaded at first play
+Tuning spinner and buffering indicator,player,must,yes,no,
+No Signal state with Retry and Next channel,player,must,yes,no,
+Automatic CORS proxy fallback for px channels,player,must,yes,no,proxy/worker.js rewrites HLS manifests
+Zap prev/next channel in player,player,must,yes,no,arrow keys; up/down on TV
+Back/Esc leaves player,player,must,yes,no,
+Keyboard / D-pad focus navigation across zones,navigation,must,yes,no,rail tabs tools langmenu grid
+Remember last channel,state,must,yes,no,stb_last
+Favourites toggle and favourites view,state,must,yes,no,stb_favs
+Now/next programme on cards and hero,epg,must,yes,no,computed client-side from epoch timestamps
+Hero NOW PLAYING with progress and min left,launcher,must,yes,no,
+Android WebView shell (phone + TV leanback),android,must,yes,no,D-pad mapped to key events
+Weekly stream health check + prune,pipeline,must,yes,no,scripts/refresh.py + tools/m3u
+Static hosting auto-deploy,pipeline,must,yes,no,GitHub Pages workflow
+Search by channel name,launcher,should,yes,no,
+Language filter menu with counts,launcher,should,yes,no,14 languages
+HD-only filter,launcher,should,yes,no,regex on name
+Sort cycle (number / name / favourites),launcher,should,yes,no,
+Direct channel-number entry,navigation,should,yes,no,up to 4 digits
+Recently watched panel,state,should,yes,no,stb_hist
+Full EPG timeline grid with day tabs,epg,should,yes,no,virtualized rendering
+In-player mini guide,player,should,yes,no,
+Channel surf card on zap,player,should,yes,no,
+Mute + volume persisted,player,should,yes,no,stb_vol stb_muted
+True device fullscreen + landscape lock,player,should,yes,no,
+TV list mode for weak boxes,tv,should,yes,no,?tv=1; pauses SVG animations
+DD Free Dish row,launcher,should,yes,no,fd flag
+6-hourly EPG rebuild with fuzzy name matching,pipeline,should,yes,no,scripts/build_epg.py
+Clear WebView cache on app update,android,should,yes,no,
+Native CORS in Android app (play-all mode),android,should,yes,no,?app=1
+APK build + release workflow,pipeline,should,yes,no,apk-latest release
+YouTube-sourced channels via embed,player,could,yes,no,extras.json yt/ytlive
+Custom proxy URL setting in Help,settings,could,yes,no,aura_proxy; ?proxy= override
+Help / about modal,settings,could,yes,no,
+Live clock and date,launcher,could,yes,no,
+Toast feedback,ui,could,yes,no,
+Diagnostics overlay (?diag=1),diagnostics,could,yes,no,
+Device log upload to repo via proxy /log,diagnostics,could,yes,no,needs GH_LOG_TOKEN
+Muted hero preview video,launcher,could,yes,no,
+Owning or hosting the stream content,content,could,yes,skip,third-party broadcasters' content; only public playlists are consumed
+Recreating EPG source feeds,content,could,yes,skip,external data (Tata Play/JioTV/epgshare01); reuse the build script
+Samsung TV Plus India in-app playback,content,could,no,skip,geo-locked ad-session streams; outside the app pipeline
