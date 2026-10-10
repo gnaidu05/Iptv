@@ -40,6 +40,10 @@ public class MainActivity extends Activity {
 
     private static final String APP_URL = "https://gnaidu05.github.io/Iptv/webstb/?app=1";
     private static final String HOST = "gnaidu05.github.io";
+    private static final String LOG_URL = "https://aura-proxy.gnaidu05.workers.dev/log";
+
+    private long createdAt = 0;
+    private volatile boolean loggedThisLaunch = false;
 
     private void showStatus(String msg) {
         if (status == null) return;
@@ -58,6 +62,62 @@ public class MainActivity extends Activity {
         ui.removeCallbacks(watchdog);
         hideStatus();
         if (view != null) view.postInvalidate();   // nudge a repaint (some TV WebViews start blank)
+        long loadMs = (createdAt > 0) ? (android.os.SystemClock.elapsedRealtime() - createdAt) : -1;
+        postDeviceLog(loadMs);
+    }
+
+    /** Post a device report to the log endpoint ourselves, so a diagnostics
+     *  record reaches the repo even if the page's own JS is stale or blocked.
+     *  Fire-and-forget on a background thread; silent no-op if logging is off. */
+    private void postDeviceLog(final long loadMs) {
+        if (loggedThisLaunch) return;
+        loggedThisLaunch = true;
+        final boolean tv = isTelevision();
+        new Thread(new Runnable() {
+            @Override public void run() {
+                try {
+                    String wv = "?";
+                    try {
+                        android.content.pm.PackageInfo pi = WebView.getCurrentWebViewPackage();
+                        if (pi != null) wv = pi.packageName + " " + pi.versionName;
+                    } catch (Throwable ignored) { }
+                    String json = "{"
+                        + "\"tag\":\"android\""
+                        + ",\"ts\":\"" + jsonEsc(new java.util.Date().toString()) + "\""
+                        + ",\"device\":\"" + jsonEsc(android.os.Build.MANUFACTURER + " " + android.os.Build.MODEL) + "\""
+                        + ",\"androidSdk\":" + android.os.Build.VERSION.SDK_INT
+                        + ",\"tv\":" + tv
+                        + ",\"webview\":\"" + jsonEsc(wv) + "\""
+                        + ",\"appVersion\":\"" + jsonEsc(appVersionName()) + "\""
+                        + ",\"loadMs\":" + loadMs
+                        + "}";
+                    HttpURLConnection c = (HttpURLConnection) new URL(LOG_URL).openConnection();
+                    c.setConnectTimeout(10000);
+                    c.setReadTimeout(10000);
+                    c.setRequestMethod("POST");
+                    c.setDoOutput(true);
+                    c.setRequestProperty("Content-Type", "application/json");
+                    c.getOutputStream().write(json.getBytes("UTF-8"));
+                    c.getOutputStream().close();
+                    int code = c.getResponseCode();
+                    appendLog("AuraDiag", "device log posted (http " + code + "): " + json);
+                    c.disconnect();
+                } catch (Exception e) {
+                    appendLog("AuraDiag", "device log post failed: " + e);
+                }
+            }
+        }).start();
+    }
+
+    private static String jsonEsc(String s) {
+        if (s == null) return "";
+        return s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", " ").replace("\r", " ");
+    }
+
+    private String appVersionName() {
+        try {
+            return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        } catch (Exception e) { return "?"; }
     }
 
     /** Main-frame load failed or hung: show a message and reload with backoff,
@@ -80,9 +140,12 @@ public class MainActivity extends Activity {
     }
 
     /** URL to load — adds &tv=1 on a TV so the web app switches to its 10-foot,
-     *  fully D-pad-navigable layout instead of the phone/browser layout. */
+     *  fully D-pad-navigable layout instead of the phone/browser layout. A
+     *  per-launch cache-buster forces a fresh index.html so the TV always runs
+     *  the latest UI (a stale cached page was serving an old, slower build). */
     private String appUrl() {
-        return isTelevision() ? APP_URL + "&tv=1" : APP_URL;
+        String base = isTelevision() ? APP_URL + "&tv=1" : APP_URL;
+        return base + "&cb=" + System.currentTimeMillis();
     }
 
     /** True on Android TV / Fire TV / Google TV (leanback / TV ui-mode). */
@@ -123,6 +186,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        createdAt = android.os.SystemClock.elapsedRealtime();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         root = new FrameLayout(this);
