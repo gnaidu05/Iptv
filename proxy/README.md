@@ -59,23 +59,23 @@ https://aura-proxy.<you>.workers.dev/?url=https%3A%2F%2Fexample.com%2Fstream.m3u
 
 should return a playlist whose lines point back at your worker.
 
-## Device logs → repo (optional)
+## Device logs → repo (optional, no CLI)
 
-The Worker also has a `/log` endpoint the app posts diagnostics to. To have those
-committed to the repo (under `logs/`) so you can review TV issues:
+The Worker has a `/log` endpoint the app posts diagnostics to. To have those
+committed to the repo (under `logs/`) so you can review TV issues — all in the
+browser, no command line:
 
-1. Create a GitHub token with permission to dispatch to `gnaidu05/Iptv`
-   (classic token with `repo` scope, or a fine-grained token with
-   **Contents: read & write** on this repo).
-2. Add it as a Worker secret named `GH_LOG_TOKEN`:
-   ```
-   npx wrangler secret put GH_LOG_TOKEN
-   ```
-   (or set it under the Worker's **Settings → Variables and Secrets** in the
-   Cloudflare dashboard).
+1. **Create a token** — https://github.com/settings/tokens/new?scopes=repo&description=Aura%20log%20token
+   → **Generate token** → copy it (`ghp_…`).
+2. **Add it as a repo secret** —
+   https://github.com/gnaidu05/Iptv/settings/secrets/actions/new
+   → Name `GH_LOG_TOKEN`, paste the token, **Add secret**.
+3. **Run the deploy** — Actions tab → **Deploy CORS proxy** → **Run workflow**.
+   That workflow now installs `GH_LOG_TOKEN` onto the Worker automatically.
 
-The `log-ingest.yml` workflow then writes each report to `logs/aura-*.json`.
-Without the secret the endpoint is a silent no-op, so nothing breaks.
+After that, the `log-ingest.yml` workflow writes each device report to
+`logs/aura-*.json`. Without the secret the endpoint is a silent no-op, so
+nothing breaks.
 
 ## Notes & limits
 
