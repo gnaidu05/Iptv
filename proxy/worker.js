@@ -26,12 +26,42 @@ const UA =
 const M3U8_RE = /\.m3u8(\?|$)/i;
 
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: CORS });
     }
 
     const here = new URL(request.url);
+
+    // Device diagnostics sink: the app POSTs a small JSON report here; we forward
+    // it to the repo as a repository_dispatch so a workflow can commit it under
+    // logs/. No-op (silent) unless GH_LOG_TOKEN is configured on the Worker.
+    if (here.pathname === "/log") {
+      if (request.method !== "POST")
+        return new Response("POST only", { status: 405, headers: CORS });
+      const token = env && env.GH_LOG_TOKEN;
+      let body = "";
+      try { body = await request.text(); } catch {}
+      if (!token) return new Response("", { status: 204, headers: CORS }); // not configured
+      let payload;
+      try { payload = JSON.parse(body); } catch { payload = { raw: String(body).slice(0, 4000) }; }
+      try {
+        const gh = await fetch("https://api.github.com/repos/gnaidu05/Iptv/dispatches", {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + token,
+            Accept: "application/vnd.github+json",
+            "Content-Type": "application/json",
+            "User-Agent": "aura-proxy",
+          },
+          body: JSON.stringify({ event_type: "aura-log", client_payload: payload }),
+        });
+        return new Response("", { status: gh.ok ? 204 : 502, headers: CORS });
+      } catch (e) {
+        return new Response("", { status: 502, headers: CORS });
+      }
+    }
+
     const target = here.searchParams.get("url");
     if (!target) {
       return new Response("Aura proxy. Use /?url=<encoded stream url>", {

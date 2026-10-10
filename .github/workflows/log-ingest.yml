@@ -1,0 +1,36 @@
+name: Ingest device log
+
+# Receives device diagnostics forwarded by the Cloudflare Worker's /log endpoint
+# (repository_dispatch) and commits them under logs/ so they can be reviewed.
+on:
+  repository_dispatch:
+    types: [aura-log]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: log-ingest
+  cancel-in-progress: false
+
+jobs:
+  save:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Write and commit the log
+        env:
+          PAYLOAD: ${{ toJSON(github.event.client_payload) }}
+        run: |
+          set -e
+          mkdir -p logs
+          ts=$(date -u +%Y%m%dT%H%M%SZ)
+          f="logs/aura-${ts}-${RANDOM}.json"
+          printf '%s\n' "$PAYLOAD" > "$f"
+          git config user.name "aura-logbot"
+          git config user.email "noreply@anthropic.com"
+          git add "$f"
+          git commit -m "chore(logs): device diagnostics ${ts}" || { echo "nothing to commit"; exit 0; }
+          for i in 1 2 3 4; do
+            git pull --rebase -X ours origin main && git push && break || sleep $((2**i))
+          done

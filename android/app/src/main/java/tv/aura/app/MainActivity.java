@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -190,9 +191,24 @@ public class MainActivity extends Activity {
             public void onReceivedHttpError(WebView view, WebResourceRequest req, WebResourceResponse resp) {
                 if (!pageFinished && req != null && req.isForMainFrame()) { hadError = true; retryLoad("Couldn't connect — retrying…"); }
             }
+
+            // Pre-API-23 devices (Android 5.0/5.1) get the deprecated callback;
+            // only the main document URL triggers a retry.
+            @Override
+            @SuppressWarnings("deprecation")
+            public void onReceivedError(WebView view, int errorCode, String desc, String failingUrl) {
+                if (!pageFinished && failingUrl != null && failingUrl.contains("/Iptv/webstb")) {
+                    hadError = true; retryLoad("Couldn't connect — retrying…");
+                }
+            }
         });
 
         web.setWebChromeClient(new FullscreenChromeClient());
+
+        // Diagnostics bridge: the web app reports device/timing info and errors
+        // here; we mirror them to logcat (adb logcat -s AuraDiag AuraWeb) and to a
+        // local log file, so sluggishness/black-screen reports can be investigated.
+        web.addJavascriptInterface(new DiagBridge(), "AuraShell");
 
         // Android TV: the WebView must hold focus so the remote's D-pad reaches
         // the page as arrow-key events (the web app handles arrow/Enter/Back nav).
@@ -328,8 +344,52 @@ public class MainActivity extends Activity {
         if (v != null) into.put(name, v);
     }
 
+    /** Device/runtime facts the web diagnostics can't see, prepended to reports. */
+    private String deviceInfo() {
+        String wv = "?";
+        try {
+            android.content.pm.PackageInfo pi = WebView.getCurrentWebViewPackage();
+            if (pi != null) wv = pi.packageName + " " + pi.versionName;
+        } catch (Throwable ignored) { }
+        return "device=" + android.os.Build.MANUFACTURER + " " + android.os.Build.MODEL
+                + "; androidSdk=" + android.os.Build.VERSION.SDK_INT
+                + "; tv=" + isTelevision() + "; webview=" + wv;
+    }
+
+    /** Append a line to logcat and a capped local log file (adb pull, or a file
+     *  manager, can retrieve it from the app's external files dir). */
+    private void appendLog(String tag, String line) {
+        Log.i(tag, line);
+        try {
+            java.io.File dir = getExternalFilesDir(null);
+            if (dir == null) return;
+            java.io.File f = new java.io.File(dir, "aura-log.txt");
+            if (f.length() > 256 * 1024) f.delete();   // keep it small
+            java.io.FileWriter w = new java.io.FileWriter(f, true);
+            w.write(System.currentTimeMillis() + " [" + tag + "] " + line + "\n");
+            w.close();
+        } catch (Exception ignored) { }
+    }
+
+    /** Exposed to the page as window.AuraShell — the web app reports here. */
+    private class DiagBridge {
+        @android.webkit.JavascriptInterface
+        public void diag(String json) { appendLog("AuraDiag", deviceInfo() + "; " + json); }
+        @android.webkit.JavascriptInterface
+        public void log(String msg) { appendLog("AuraWeb", msg); }
+        @android.webkit.JavascriptInterface
+        public String info() { return deviceInfo(); }
+    }
+
     /** Handle HTML5 fullscreen video by swapping the WebView for the video view. */
     private class FullscreenChromeClient extends WebChromeClient {
+        @Override
+        public boolean onConsoleMessage(android.webkit.ConsoleMessage m) {
+            if (m != null) appendLog("AuraWeb", m.messageLevel() + " " + m.message()
+                    + " @" + m.lineNumber());
+            return true;
+        }
+
         @Override
         public void onShowCustomView(View view, CustomViewCallback callback) {
             if (customView != null) {

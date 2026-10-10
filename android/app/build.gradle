@@ -8,10 +8,13 @@ android {
 
     defaultConfig {
         applicationId "tv.aura.app"
-        minSdk 26
+        // Lollipop (5.0) is the practical floor — it has the modern, updatable
+        // WebView and the request-interception API the app relies on, and covers
+        // essentially every Android phone and TV still in use.
+        minSdk 21
         targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.1"
     }
 
     buildTypes {

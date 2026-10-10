@@ -59,6 +59,24 @@ https://aura-proxy.<you>.workers.dev/?url=https%3A%2F%2Fexample.com%2Fstream.m3u
 
 should return a playlist whose lines point back at your worker.
 
+## Device logs → repo (optional)
+
+The Worker also has a `/log` endpoint the app posts diagnostics to. To have those
+committed to the repo (under `logs/`) so you can review TV issues:
+
+1. Create a GitHub token with permission to dispatch to `gnaidu05/Iptv`
+   (classic token with `repo` scope, or a fine-grained token with
+   **Contents: read & write** on this repo).
+2. Add it as a Worker secret named `GH_LOG_TOKEN`:
+   ```
+   npx wrangler secret put GH_LOG_TOKEN
+   ```
+   (or set it under the Worker's **Settings → Variables and Secrets** in the
+   Cloudflare dashboard).
+
+The `log-ingest.yml` workflow then writes each report to `logs/aura-*.json`.
+Without the secret the endpoint is a silent no-op, so nothing breaks.
+
 ## Notes & limits
 
 - Free Workers allow ~100,000 requests/day. HLS pulls many small segment

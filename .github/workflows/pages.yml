@@ -3,6 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+    paths-ignore: ['logs/**']   # device diagnostics don't need a redeploy
   workflow_dispatch:
 
 permissions:

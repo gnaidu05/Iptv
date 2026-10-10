@@ -44,8 +44,23 @@ cd android
 
 ## Notes
 
-- `minSdk 26` (Android 8.0+), `targetSdk 34`. No AndroidX — just the framework
-  `WebView`, so the build is small and fast.
+- `minSdk 21` (Android 5.0+), `targetSdk 34` — runs on virtually every Android
+  phone and TV in use. No AndroidX — just the framework `WebView`, so the build
+  is small and fast.
+
+### Diagnostics / logs
+
+The app mirrors the web page's console and a device/timing report to logcat and
+to a local file, and (if configured) uploads them to the repo:
+
+- **logcat:** `adb logcat -s AuraDiag AuraWeb` while the app runs.
+- **local file:** `aura-log.txt` in the app's external files dir
+  (`/sdcard/Android/data/tv.aura.app/files/aura-log.txt`) — pull with
+  `adb pull` or a file manager.
+- **to the repo:** the page POSTs a small JSON report to the proxy's `/log`
+  endpoint, which forwards it to the repo (committed under `logs/`) when the
+  Worker has a `GH_LOG_TOKEN` secret set — see `proxy/README.md`.
+- Add `?diag=1` to the URL to show an on-screen diagnostics panel.
 - HTTPS-only (`usesCleartextTraffic="false"`); the app plays the same
   browser-safe streams as the web STB.
 - To ship a Play Store build, replace the debug signing with a release keystore
