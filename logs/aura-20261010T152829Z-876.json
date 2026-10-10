@@ -1,0 +1,10 @@
+{
+  "androidSdk": 28,
+  "appVersion": "1.2",
+  "device": "Hisense HiSmartTV A4",
+  "loadMs": 84687,
+  "tag": "android",
+  "ts": "Sat Oct 10 20:58:21 GMT+05:30 2026",
+  "tv": true,
+  "webview": "com.google.android.webview 138.0.7204.179"
+}
