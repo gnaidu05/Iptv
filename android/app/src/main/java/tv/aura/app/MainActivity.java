@@ -55,12 +55,21 @@ public class MainActivity extends Activity {
         if (status != null) status.setVisibility(View.GONE);
     }
 
+    private String loadSummary() {
+        return "prog " + maxProgress + "% · starts " + startedCount + " · reloads " + reloadTries
+                + "\nt0=" + tStarted + " tP=" + tFirstProgress + " tC=" + tCommit + " tF=" + tFinished + " ms";
+    }
+
     /** The page is on screen: clear the loading overlay and stop the watchdog. */
     private void markLoaded(WebView view) {
         if (pageFinished) return;
         pageFinished = true; reloadTries = 0;
         ui.removeCallbacks(watchdog);
-        hideStatus();
+        // Show the load result on screen briefly (readable even without logs),
+        // then hide the overlay.
+        long loadMs = (createdAt > 0) ? (android.os.SystemClock.elapsedRealtime() - createdAt) : -1;
+        showStatus("Loaded in " + loadMs + " ms (" + paintVia + ")\n" + loadSummary());
+        ui.postDelayed(new Runnable() { @Override public void run() { hideStatus(); } }, 7000);
         // Force the WebView to recomposite its surface — some TV panels show a
         // black WebView until something triggers a redraw.
         if (view != null) {
@@ -69,7 +78,6 @@ public class MainActivity extends Activity {
             w.setVisibility(View.GONE);
             ui.post(new Runnable() { @Override public void run() { if (w != null) w.setVisibility(View.VISIBLE); } });
         }
-        long loadMs = (createdAt > 0) ? (android.os.SystemClock.elapsedRealtime() - createdAt) : -1;
         postDeviceLog(loadMs);
     }
 
@@ -345,6 +353,12 @@ public class MainActivity extends Activity {
             @Override public void run() { if (!loggedThisLaunch) postDeviceLog(-1); }
         }, 6000);
 
+        // If it's still loading at 9s, show the timeline on screen so the state
+        // is readable even when the network log can't get through.
+        ui.postDelayed(new Runnable() {
+            @Override public void run() { if (!pageFinished) showStatus("Still loading…\n" + loadSummary()); }
+        }, 9000);
+
         // Stall recovery: if the page still hasn't painted after 35s, reload it
         // once (even if it was slowly progressing) so it can't hang forever. Capped
         // so it never becomes the old tight reload loop.
@@ -525,6 +539,7 @@ public class MainActivity extends Activity {
         public void onProgressChanged(WebView view, int newProgress) {
             if (newProgress > 0 && tFirstProgress == 0) tFirstProgress = since();
             if (newProgress > maxProgress) maxProgress = newProgress;
+            if (!pageFinished) showStatus("Loading… " + newProgress + "%");
             // The page is actually downloading/parsing — don't let the watchdog
             // reload it (reloading a slow-but-working load only makes it slower).
             if (newProgress >= 10 && !pageFinished) ui.removeCallbacks(watchdog);
