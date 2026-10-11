@@ -39,8 +39,17 @@ jobs:
         working-directory: android
         run: ./gradlew --no-daemon assembleDebug
 
-      - name: Rename APK
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk aura.apk
+      - name: Rename APK (plus a per-version copy)
+        id: apk
+        run: |
+          set -e
+          VER=$(sed -n 's/.*versionName "\([^"]*\)".*/\1/p' android/app/build.gradle | head -1)
+          [ -n "$VER" ] || VER="dev"
+          echo "ver=$VER" >> "$GITHUB_OUTPUT"
+          cp android/app/build/outputs/apk/debug/app-debug.apk aura.apk
+          # A uniquely-named copy so each version is a fresh download URL
+          # (a single same-named asset gets cached by the CDN/browser).
+          cp android/app/build/outputs/apk/debug/app-debug.apk "aura-v${VER}.apk"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
@@ -56,7 +65,12 @@ jobs:
           body: |
             **Aura** for Android — a full-screen shell around the live web app.
 
-            Install: download `aura.apk`, then on your phone enable
-            *Install unknown apps* for your browser/file manager and open it.
+            Latest version: **v${{ steps.apk.outputs.ver }}**
+
+            Download the versioned file below (e.g. `aura-v${{ steps.apk.outputs.ver }}.apk`) —
+            each version is a fresh URL, so you never install a cached old copy.
+            Then enable *Install unknown apps* for your browser/file manager and open it.
             (Debug-signed build; Play Protect may warn — tap *Install anyway*.)
-          files: aura.apk
+          files: |
+            aura.apk
+            aura-v${{ steps.apk.outputs.ver }}.apk

@@ -331,11 +331,24 @@ public class MainActivity extends Activity {
         web.loadUrl(appUrl());
 
         // Guarantee a device report even if the page never paints (hangs
-        // mid-load): if nothing has reported within 10s, send a snapshot of the
+        // mid-load): if nothing has reported within 6s, send a snapshot of the
         // load state so the timeline is captured regardless of outcome.
         ui.postDelayed(new Runnable() {
             @Override public void run() { if (!loggedThisLaunch) postDeviceLog(-1); }
-        }, 10000);
+        }, 6000);
+
+        // Stall recovery: if the page still hasn't painted after 35s, reload it
+        // once (even if it was slowly progressing) so it can't hang forever. Capped
+        // so it never becomes the old tight reload loop.
+        ui.postDelayed(new Runnable() {
+            @Override public void run() {
+                if (!pageFinished && web != null && reloadTries < 2) {
+                    reloadTries++; hadError = false;
+                    showStatus("Taking a while — retrying once…");
+                    web.loadUrl(appUrl());
+                }
+            }
+        }, 35000);
     }
 
     private void clearCacheOnUpdate() {
