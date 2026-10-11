@@ -47,7 +47,7 @@ public class MainActivity extends Activity {
 
     private void showStatus(String msg) {
         if (status == null) return;
-        status.setText(msg);
+        status.setText("Aura v" + appVersionName() + "\n" + msg);
         status.setVisibility(View.VISIBLE);
     }
 
@@ -61,7 +61,14 @@ public class MainActivity extends Activity {
         pageFinished = true; reloadTries = 0;
         ui.removeCallbacks(watchdog);
         hideStatus();
-        if (view != null) view.postInvalidate();   // nudge a repaint (some TV WebViews start blank)
+        // Force the WebView to recomposite its surface — some TV panels show a
+        // black WebView until something triggers a redraw.
+        if (view != null) {
+            final WebView w = view;
+            w.postInvalidate();
+            w.setVisibility(View.GONE);
+            ui.post(new Runnable() { @Override public void run() { if (w != null) w.setVisibility(View.VISIBLE); } });
+        }
         long loadMs = (createdAt > 0) ? (android.os.SystemClock.elapsedRealtime() - createdAt) : -1;
         postDeviceLog(loadMs);
     }
@@ -303,11 +310,12 @@ public class MainActivity extends Activity {
         root.addView(web);
 
         // Native loading/error overlay over the dark background (so a slow or
-        // failed load is never just a black screen).
+        // failed load is never just a black screen). The version is shown large
+        // so the running build is verifiable on screen.
         status = new TextView(this);
-        status.setText("Loading Aura…");
-        status.setTextColor(Color.parseColor("#c7cfdd"));
-        status.setTextSize(20);
+        status.setText("Aura v" + appVersionName() + "\nLoading…");
+        status.setTextColor(Color.parseColor("#e7ecf5"));
+        status.setTextSize(26);
         status.setGravity(Gravity.CENTER);
         status.setPadding(60, 40, 60, 40);
         FrameLayout.LayoutParams slp = new FrameLayout.LayoutParams(
