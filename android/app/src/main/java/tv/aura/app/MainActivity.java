@@ -329,6 +329,13 @@ public class MainActivity extends Activity {
         // picks up the latest channel list. Broad configChanges in the manifest
         // keep rotation/resize from recreating the Activity, so nothing is lost.
         web.loadUrl(appUrl());
+
+        // Guarantee a device report even if the page never paints (hangs
+        // mid-load): if nothing has reported within 10s, send a snapshot of the
+        // load state so the timeline is captured regardless of outcome.
+        ui.postDelayed(new Runnable() {
+            @Override public void run() { if (!loggedThisLaunch) postDeviceLog(-1); }
+        }, 10000);
     }
 
     private void clearCacheOnUpdate() {
