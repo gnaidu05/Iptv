@@ -387,54 +387,41 @@
   html.tv .live-bar>i{animation:none;left:0;width:34%}
   html.tv .bloom circle,html.tv .bloom g{animation:none !important}
 
-  /* ================= TV = lightweight channel list (set-top-box style) =======
-     A virtualized text-first list (only the visible rows exist in the DOM) with
-     a single preview logo — fast on low-power TV boxes, and no wall of images. */
+  /* ================= TV = trimmed rails (set-top-box, D-pad) =================
+     The same tile look as the web/phone hub, but rows and logos are built lazily
+     (only what you reach / focus), so a low-power TV box stays responsive. */
   html.tv #hero,html.tv #tabs,html.tv #gridhead,html.tv #grid,
-  html.tv #rail,html.tv #topctl{display:none}
-  html.tv #main{display:flex;flex-direction:column;overflow:hidden;padding:0;
+  html.tv #rail,html.tv #topctl,html.tv #hubNav{display:none}
+  html.tv #main{overflow-y:auto;overflow-x:hidden;padding:0;
     background:radial-gradient(1200px 700px at 72% -10%,rgba(77,124,255,.10),transparent 60%),var(--bg)}
   #tvhome{display:none}
-  html.tv #tvhome{display:flex;flex-direction:column;flex:1;min-height:0}
+  html.tv #tvhome{display:block;padding-bottom:40px}
 
-  #tvbar{display:flex;align-items:center;gap:12px;padding:16px 40px;border-bottom:1px solid var(--line)}
-  #tvbar .brand{font-weight:900;font-size:22px;letter-spacing:1px;background:var(--grad);
-    -webkit-background-clip:text;background-clip:text;color:transparent;margin-right:8px}
-  .tvbtn{height:46px;padding:0 18px;border-radius:12px;border:1px solid var(--line2);background:rgba(255,255,255,.04);
-    color:var(--txt);font-size:16px;font-weight:600;display:inline-flex;align-items:center;gap:8px}
-  .tvbtn.kbf{color:#fff;border-color:var(--p2);background:rgba(77,124,255,.22);box-shadow:0 0 0 2px var(--p2)}
-  #tvclock{margin-left:auto;color:var(--muted);font-size:16px;font-variant-numeric:tabular-nums}
+  #tvbar{display:flex;align-items:center;gap:12px;padding:18px 48px;position:sticky;top:0;z-index:20;
+    background:linear-gradient(180deg,var(--bg) 70%,transparent)}
+  #tvbar .brand{font-weight:900;font-size:26px;letter-spacing:1px;background:var(--grad);
+    -webkit-background-clip:text;background-clip:text;color:transparent;margin-right:auto}
+  .tvbtn{height:52px;padding:0 22px;border-radius:14px;border:1px solid var(--line2);background:rgba(255,255,255,.04);
+    color:var(--txt);font-size:18px;font-weight:700;display:inline-flex;align-items:center;gap:8px}
+  .tvbtn.kbf{color:#fff;border-color:var(--p2);background:rgba(77,124,255,.28);box-shadow:0 0 0 3px var(--p2)}
+  #tvclock{margin-left:14px;color:var(--muted);font-size:17px;font-variant-numeric:tabular-nums}
 
-  #tvbody{flex:1;display:flex;min-height:0}
-  #tvlistwrap{flex:1 1 56%;min-width:0;display:flex;flex-direction:column;padding:18px 0 18px 40px}
-  #tvcat{display:flex;align-items:center;gap:14px;font-size:24px;font-weight:800;color:#fff;margin:0 0 10px}
-  #tvcat .arrows{color:var(--muted);font-size:17px;font-weight:600}
-  #tvcat .cnt{color:var(--muted);font-size:16px;font-weight:600}
-  #tvlist{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:2px}
-  .lrow{display:flex;align-items:center;gap:16px;height:50px;padding:0 18px;border-radius:12px;
-    color:var(--muted);overflow:hidden}
-  .lrow .ln{font-family:Menlo,Consolas,monospace;font-size:18px;font-weight:800;width:62px;flex:0 0 auto;text-align:right}
-  .lrow .lnm{font-size:19px;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
-  .lrow .lnow{font-size:15px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:38%;flex:0 1 auto}
-  .lrow .lfav{color:var(--p3);flex:0 0 auto;opacity:0}
-  .lrow.isfav .lfav{opacity:1}
-  .lrow.blank{visibility:hidden}
-  .lrow.sel{background:linear-gradient(90deg,rgba(77,124,255,.28),rgba(124,92,255,.10));
-    box-shadow:inset 0 0 0 2px var(--p2);height:62px}
-  .lrow.sel .ln{font-size:22px;color:#fff}.lrow.sel .lnm{font-size:23px;font-weight:700;color:#fff}
-  .lrow.sel .lnow{color:#cdd6e8}
-  .lrow.playing .lnm{color:var(--live)}
-
-  #tvprev{flex:1 1 44%;min-width:0;display:flex;flex-direction:column;justify-content:center;align-items:center;
-    gap:16px;padding:24px 40px;border-left:1px solid var(--line);text-align:center}
-  #tvprev .plogo{width:min(260px,70%);aspect-ratio:16/9;border-radius:16px;background:#0a0f1c;border:1px solid var(--line);
-    display:grid;place-items:center;overflow:hidden}
-  #tvprev .plogo img{max-width:82%;max-height:78%;object-fit:contain}
-  #tvprev .plogo .ph{font-size:52px;font-weight:800;color:var(--muted)}
-  #tvprev .pnum{color:var(--p2);font-weight:800;letter-spacing:2px;font-size:15px}
-  #tvprev .pname{font-size:30px;font-weight:800;color:#fff;line-height:1.1}
-  #tvprev .pnow{color:var(--txt);font-size:17px}#tvprev .pnext{color:var(--muted);font-size:15px}
-  #tvprev .phint{margin-top:10px;color:var(--dim);font-size:14px;letter-spacing:.3px}
+  html.tv .hrow{margin:14px 0 4px;overflow:visible}
+  html.tv .hrow-h{font-size:24px;padding:0 48px 10px}
+  html.tv .hrow-t{overflow:visible;padding:14px 48px;will-change:transform;transition:transform .2s ease}
+  html.tv .htile{width:230px}
+  html.tv .htile-art{height:130px;border-radius:16px}
+  html.tv .htile-art .ph{font-size:40px}
+  html.tv .htile-nm{font-size:18px}
+  html.tv .htile-sub{font-size:14px}
+  html.tv .htile.sel{transform:scale(1.09);z-index:3}
+  html.tv .htile.sel .htile-art{box-shadow:0 0 0 3px var(--p2),0 16px 40px rgba(0,0,0,.6),0 0 40px rgba(77,124,255,.5)}
+  html.tv .htile-favdot{position:absolute;right:10px;top:10px;color:var(--p3);font-size:16px}
+  html.tv .hcirc{width:120px}
+  html.tv .hcirc-l{width:100px;height:100px}
+  html.tv .hcirc-nm{font-size:14px}
+  html.tv .hcirc.sel .hcirc-l{box-shadow:0 0 0 3px var(--p2),0 0 32px rgba(77,124,255,.55)}
+  html.tv .hcirc.sel{transform:scale(1.07)}
 
   /* channel-surf banner shown briefly when changing channels in the player */
   #surf{position:absolute;left:0;right:0;bottom:120px;z-index:5;display:none;justify-content:center;pointer-events:none}
@@ -1078,7 +1065,7 @@ function toggleFav(n){ if(favs.has(n))favs.delete(n); else favs.add(n);
   localStorage.setItem('stb_favs',JSON.stringify([...favs]));
   render(); renderDots();
   if(favView&&!favs.size){favView=false;setNav('live');render()}
-  if(TV){ toast(favs.has(n)?'Added to Favourites':'Removed from Favourites'); if(!inPlayer)refreshTVHome(); } }
+  if(TV){ toast(favs.has(n)?'Added to Favourites':'Removed from Favourites'); } }
 
 /* ---------- player ---------- */
 function pStatus(mode,msg){var s=document.getElementById('pstatus'),sp=document.getElementById('pspin'),ns=document.getElementById('pnosig');
@@ -1511,130 +1498,108 @@ document.addEventListener('keydown',function(e){
 function moveFocus(d){focusIndex=Math.max(0,Math.min(visible.length-1,focusIndex+d));syncSel();
   var c=visible[focusIndex]; if(c){currentNum=c.num;setHero(c.num);renderDots()} }
 
-/* ================= TV home: set-top-box channel list =================
-   A lightweight, virtualized channel list (only the ~11 visible rows exist in
-   the DOM, text-first, one preview logo) — fast on low-power TV boxes and shaped
-   like a classic STB guide. Up/Down = channel, Left/Right = category, OK plays.
-   Browser/phone keep the full grid. */
+/* ================= TV home: trimmed rails (D-pad, lazy) =================
+   Same tile look as the web/phone hub, but built lazily (only rows you reach,
+   logos revealed in a window around focus) so a low-power TV box stays fast.
+   Up/Down = row, Left/Right = channel, OK = play, G = favourite. */
 function tvPlayable(c){ return !(c.px&&!canPx()); }
-var tvCats=[], tvCat=0, listSel=0, LIST_WIN=11, listRows=[], tvPrevT=null, tvBarIdx=0;
+var tvRows=[], tvRow=0, tvCols=[], tvZone='rails', tvBarIdx=0;
+window.tvImgErr=function(im){var s=document.createElement('span');s.className='ph';
+  s.textContent=im.getAttribute('data-ph')||''; if(im.parentNode)im.replaceWith(s);};
 
 function buildTVHome(){
   var host=document.getElementById('tvhome'); if(!host)return;
-  tvCats=[];
-  var normal=CH.filter(function(c){return !c.geo&&tvPlayable(c)});
-  function add(title,items){ if(items&&items.length)tvCats.push({title:title,items:items}); }
-  add('Recently watched', watchHist.map(byNum).filter(function(c){return c&&tvPlayable(c)}));
-  add('Favourites', CH.filter(function(c){return favs.has(c.num)&&tvPlayable(c)}));
-  CAT_ORDER.forEach(function(cat){
-    var items=normal.filter(function(c){return catOf(c)===cat}).sort(function(a,b){return a.num-b.num});
-    add(cat, items);
+  tvRows=homeRowDefs(16).map(function(r){return {title:r.title,items:r.items,circ:r.circ,built:false,track:null}});
+  if(!tvRows.length)tvRows=[{title:'All channels',items:CH.slice(0,16),circ:false,built:false,track:null}];
+  tvCols=tvRows.map(function(){return 0});
+  tvRow=Math.max(0,Math.min(tvRow,tvRows.length-1));
+  host.innerHTML='<div id="tvbar"><span class="brand">Aura</span>'+
+    '<button class="tvbtn" data-act="search">\u{1F50D} Search</button>'+
+    '<button class="tvbtn" data-act="guide">\u{1F4FA} Guide</button>'+
+    '<button class="tvbtn" data-act="settings">⚙ Settings</button>'+
+    '<span id="tvclock"></span></div><div id="tvrows"></div>';
+  var rc=document.getElementById('tvrows'), frag=document.createDocumentFragment();
+  tvRows.forEach(function(row,r){
+    var sec=document.createElement('div'); sec.className='hrow'+(row.circ?' circ':''); sec.dataset.r=r;
+    var h=document.createElement('div'); h.className='hrow-h'; h.textContent=row.title; sec.appendChild(h);
+    row.track=document.createElement('div'); row.track.className='hrow-t';
+    sec.appendChild(row.track); frag.appendChild(sec);
   });
-  add('DD Free Dish', CH.filter(function(c){return c.fd&&tvPlayable(c)}).sort(function(a,b){return a.num-b.num}));
-  add('India ⭐ · best on an Indian connection', CH.filter(function(c){return c.geo}));
-  if(!tvCats.length)add('All channels', CH.slice());
-
-  host.innerHTML=
-    '<div id="tvbar">'+
-      '<span class="brand">Aura</span>'+
-      '<button class="tvbtn" data-act="search">🔍 Search</button>'+
-      '<button class="tvbtn" data-act="fav">★ Favourites</button>'+
-      '<button class="tvbtn" data-act="guide">📺 Guide</button>'+
-      '<button class="tvbtn" data-act="settings">⚙ Settings</button>'+
-      '<span id="tvclock"></span>'+
-    '</div>'+
-    '<div id="tvbody"><div id="tvlistwrap"><div id="tvcat"></div><div id="tvlist"></div></div>'+
-    '<div id="tvprev"></div></div>';
-  var list=document.getElementById('tvlist'); listRows=[];
-  for(var s=0;s<LIST_WIN;s++){
-    var row=document.createElement('div'); row.className='lrow blank';
-    row.innerHTML='<div class="ln"></div><div class="lnm"></div><div class="lnow"></div><div class="lfav">❤</div>';
-    (function(slot,el){el.onclick=function(){ if(el.__num!=null){ listSel=listSel-(LIST_WIN>>1)+slot; clampSel(); playChannel(el.__num);} };})(s,row);
-    list.appendChild(row); listRows.push(row);
-  }
-  document.getElementById('tvbar').addEventListener('click',function(e){
-    var b=e.target.closest('[data-act]'); if(b)tvBarAct(b.dataset.act); });
-  tvCat=Math.max(0,Math.min(tvCat,tvCats.length-1)); listSel=0;
-  renderList(); tick();
+  rc.appendChild(frag);
+  document.getElementById('tvbar').addEventListener('click',function(e){var b=e.target.closest('[data-act]');if(b)tvBarAct(b.dataset.act)});
+  tvZone='rails'; tick();
+  ensureTVRow(0); ensureTVRow(1);
+  tvFocus(tvRow, tvCols[tvRow]||0);
 }
-function curItems(){return (tvCats[tvCat]&&tvCats[tvCat].items)||[]}
-function clampSel(){var n=curItems().length; listSel=Math.max(0,Math.min(n-1,listSel));}
-function renderList(){
-  var items=curItems(), center=LIST_WIN>>1;
-  var catEl=document.getElementById('tvcat');
-  if(catEl)catEl.innerHTML=esc(tvCats[tvCat]?tvCats[tvCat].title:'')+
-    ' <span class="arrows">‹ › category</span> <span class="cnt">'+items.length+' ch</span>';
-  for(var s=0;s<LIST_WIN;s++){
-    var idx=listSel-center+s, row=listRows[s], c=items[idx];
-    if(!c){ row.className='lrow blank'; row.__num=null; continue; }
-    row.className='lrow'+(s===center?' sel':'')+(favs.has(c.num)?' isfav':'')+(c.num===currentNum?' playing':'');
-    row.__num=c.num;
-    row.children[0].textContent=c.num;
-    row.children[1].textContent=c.name.replace(/\s*\(.*?\)\s*/,' ').trim();
-    row.children[2].textContent=(cardProg(c)||'');
-  }
-  updatePreview(items[listSel]);
+function tvLogo(c){ return c.logo
+  ? '<img data-src="'+esc(c.logo)+'" data-ph="'+esc(initials(c))+'" decoding="async" onerror="tvImgErr(this)">'
+  : '<span class="ph">'+esc(initials(c))+'</span>'; }
+function ensureTVRow(r){
+  var row=tvRows[r]; if(!row||row.built)return; row.built=true;
+  var frag=document.createDocumentFragment();
+  row.items.forEach(function(c,i){
+    var d=document.createElement('div');
+    if(row.circ){ d.className='hcirc';
+      d.innerHTML='<div class="hcirc-l">'+tvLogo(c)+'</div><div class="hcirc-nm">'+esc(hubClean(c.name))+'</div>'; }
+    else { d.className='htile';
+      d.innerHTML='<div class="htile-art" style="background:'+hubArtBg(c)+'">'+tvLogo(c)+
+        '<span class="htile-live"><span class="d"></span>LIVE</span>'+(isHD(c)?'<span class="htile-hd">HD</span>':'')+
+        (favs.has(c.num)?'<span class="htile-favdot">❤</span>':'')+'</div>'+
+        '<div class="htile-nm">'+esc(hubClean(c.name))+'</div><div class="htile-sub">'+esc(cardProg(c)||catOf(c))+'</div>'; }
+    d.dataset.r=r; d.dataset.i=i;
+    (function(cn){d.onclick=function(){playChannel(cn)}})(c.num);
+    frag.appendChild(d);
+  });
+  row.track.appendChild(frag);
+  tvRevealImages(r,6);
 }
-function updatePreview(c){
-  var el=document.getElementById('tvprev'); if(!el)return;
-  if(!c){el.innerHTML='';return}
-  var st=EPG_READY?epgState(c.num):null;
-  var now=(st&&st.cur)?esc(st.cur[2]||'Live programme'):'Live';
-  var next=(st&&st.next&&st.next[0])?('Next: '+esc(st.next[0][2]||'')):'';
-  el.innerHTML=
-    '<div class="plogo"><span class="ph">'+esc(initials(c))+'</span></div>'+
-    '<div class="pnum">CH '+c.num+(isHD(c)?' · HD':'')+'</div>'+
-    '<div class="pname">'+esc(c.name.replace(/\s*\(.*?\)\s*/,' ').trim())+'</div>'+
-    '<div class="pnow">● '+now+'</div>'+(next?'<div class="pnext">'+next+'</div>':'')+
-    '<div class="phint">OK to watch · ↑↓ channel · ‹ › category</div>';
-  currentNum=c.num;
-  // Load the single preview logo, debounced so fast scrolling doesn't spam the
-  // network (this is the only image on the TV home — no per-row logos).
-  clearTimeout(tvPrevT);
-  if(c.logo){ (function(url){ tvPrevT=setTimeout(function(){
-      var box=el.querySelector('.plogo'); if(!box)return;
-      var im=new Image(); im.decoding='async';
-      im.onload=function(){ if(el.querySelector('.plogo')===box){box.innerHTML='';box.appendChild(im);} };
-      im.src=url;
-    },240); })(c.logo); }
+function tvRevealImages(r,upto){ var row=tvRows[r]; if(!row||!row.built)return; var cards=row.track.children;
+  for(var i=Math.max(0,upto-10);i<=upto&&i<cards.length;i++){var im=cards[i].querySelector('img[data-src]');
+    if(im){im.src=im.getAttribute('data-src');im.removeAttribute('data-src');}} }
+function tvTileAt(r,i){var row=tvRows[r];return row&&row.track?row.track.children[i]:null}
+function tvFocus(r,i){
+  if(!tvRows.length)return;
+  r=Math.max(0,Math.min(tvRows.length-1,r)); ensureTVRow(r); ensureTVRow(r+1);
+  i=Math.max(0,Math.min(tvRows[r].items.length-1,i));
+  tvRow=r; tvCols[r]=i; tvZone='rails';
+  document.querySelectorAll('#tvhome .sel,.tvbtn.kbf').forEach(function(el){el.classList.remove('sel');el.classList.remove('kbf')});
+  var card=tvTileAt(r,i); if(!card)return;
+  card.classList.add('sel');
+  var track=card.parentNode; track.style.transform='translateX(-'+Math.max(0,card.offsetLeft-56)+'px)';
+  tvRevealImages(r,i+5);
+  track.parentNode.scrollIntoView({block:'center',behavior:'auto'});
+  var c=tvRows[r].items[i]; if(c)currentNum=c.num;
 }
-function tvBarAct(a){
-  if(a==='search')openSearch();
-  else if(a==='fav'){ var fi=-1; for(var i=0;i<tvCats.length;i++)if(tvCats[i].title==='Favourites'){fi=i;break}
-    if(fi>=0){tvCat=fi;listSel=0;zone='list';clearKbf();renderList()} else toast('No favourites yet — press ★/G on a channel'); }
-  else if(a==='guide')openEPG();
-  else if(a==='settings')openHelp();
-}
+function tvBarAct(a){ if(a==='search')openSearch(); else if(a==='guide')openEPG(); else if(a==='settings')openHelp(); }
+function tvBarBtns(){return [].slice.call(document.querySelectorAll('#tvbar .tvbtn'))}
 function refreshTVHome(){
   var want=currentNum; buildTVHome();
-  var best=null;
-  for(var i=0;i<tvCats.length;i++){var t=tvCats[i].title,it=tvCats[i].items;
-    for(var j=0;j<it.length;j++){ if(it[j].num!==want)continue;
-      if(!best)best=[i,j];
-      if(t!=='Recently watched'&&t!=='Favourites'){best=[i,j];break} } }
-  if(best){tvCat=best[0];listSel=best[1];}
-  zone='list'; renderList();
+  for(var r=0;r<tvRows.length;r++){var it=tvRows[r].items; var t=tvRows[r].title;
+    for(var i=0;i<it.length;i++){ if(it[i].num===want && t!=='Live News'){ tvRow=r; tvCols[r]=i; } } }
+  tvFocus(tvRow, tvCols[tvRow]||0);
 }
-function tvBarBtns(){return [].slice.call(document.querySelectorAll('#tvbar .tvbtn'))}
 function homeNavTV(e){
   var k=e.key;
-  if(zone==='bar'){
+  if(tvZone==='bar'){
     var b=tvBarBtns();
     if(k==='ArrowLeft')tvBarIdx=Math.max(0,tvBarIdx-1);
     else if(k==='ArrowRight')tvBarIdx=Math.min(b.length-1,tvBarIdx+1);
-    else if(k==='ArrowDown'||k==='Escape'||k==='Backspace'){zone='list';clearKbf();renderList();e.preventDefault();return true}
-    else if(k==='Enter'){if(b[tvBarIdx])b[tvBarIdx].click();e.preventDefault();return true}
+    else if(k==='ArrowDown'||k==='Escape'||k==='Backspace'){document.querySelectorAll('.tvbtn.kbf').forEach(function(x){x.classList.remove('kbf')});tvFocus(tvRow,tvCols[tvRow]||0);e.preventDefault();return true;}
+    else if(k==='Enter'){if(b[tvBarIdx])b[tvBarIdx].click();e.preventDefault();return true;}
     else return false;
-    clearKbf(); if(b[tvBarIdx])b[tvBarIdx].classList.add('kbf'); e.preventDefault(); return true;
+    document.querySelectorAll('.tvbtn.kbf').forEach(function(x){x.classList.remove('kbf')}); if(b[tvBarIdx])b[tvBarIdx].classList.add('kbf');
+    e.preventDefault();return true;
   }
-  // zone === 'list'
-  var n=curItems().length;
-  if(k==='ArrowUp'){ if(listSel>0){listSel--;renderList()} else {zone='bar';tvBarIdx=0;clearKbf();var bb=tvBarBtns();if(bb[0])bb[0].classList.add('kbf')} }
-  else if(k==='ArrowDown'){ if(listSel<n-1){listSel++;renderList()} }
-  else if(k==='ArrowLeft'){ if(tvCats.length){tvCat=(tvCat-1+tvCats.length)%tvCats.length; listSel=0; renderList();} }
-  else if(k==='ArrowRight'){ if(tvCats.length){tvCat=(tvCat+1)%tvCats.length; listSel=0; renderList();} }
-  else if(k==='Enter'){ var c=curItems()[listSel]; if(c)playChannel(c.num); }
-  else if(k==='g'||k==='G'){ var cf=curItems()[listSel]; if(cf)toggleFav(cf.num); }
+  var row=tvRows[tvRow]; if(!row)return false; var col=tvCols[tvRow]||0;
+  if(k==='ArrowRight')tvFocus(tvRow,col+1);
+  else if(k==='ArrowLeft'){ if(col>0)tvFocus(tvRow,col-1); }
+  else if(k==='ArrowDown')tvFocus(tvRow+1,tvCols[tvRow+1]!=null?tvCols[tvRow+1]:0);
+  else if(k==='ArrowUp'){ if(tvRow>0)tvFocus(tvRow-1,tvCols[tvRow-1]!=null?tvCols[tvRow-1]:0);
+    else { tvZone='bar'; tvBarIdx=0; var bb=tvBarBtns(); if(bb[0])bb[0].classList.add('kbf'); document.getElementById('main').scrollTo({top:0,behavior:'auto'}); } }
+  else if(k==='Enter'){ var c=row.items[col]; if(c)playChannel(c.num); }
+  else if(k==='g'||k==='G'){ var cf=row.items[col]; if(cf){ toggleFav(cf.num);
+      var card=tvTileAt(tvRow,col), art=card&&card.querySelector('.htile-art');
+      if(art){ var dot=art.querySelector('.htile-favdot'); if(favs.has(cf.num)&&!dot){var s=document.createElement('span');s.className='htile-favdot';s.textContent='❤';art.appendChild(s);} else if(!favs.has(cf.num)&&dot){dot.remove();} } } }
   else if(k==='/'){ openSearch(); }
   else return false;
   e.preventDefault(); return true;
@@ -1722,10 +1687,10 @@ function homeNav(e){
 function zap(delta){
   // On TV, surf within the category you were browsing (feels like a real TV's
   // channel up/down within a genre); elsewhere step through all channels.
-  if(TV&&curItems().length){
-    var items=curItems();
-    var p=items.findIndex(function(c){return c.num===currentNum}); if(p<0)p=listSel;
-    p=(p+delta+items.length)%items.length; listSel=p;
+  if(TV&&tvRows[tvRow]&&tvRows[tvRow].items.length){
+    var items=tvRows[tvRow].items;
+    var p=items.findIndex(function(c){return c.num===currentNum}); if(p<0)p=tvCols[tvRow]||0;
+    p=(p+delta+items.length)%items.length; tvCols[tvRow]=p;
     showSurf(items[p].num); playChannel(items[p].num); return;
   }
   var pos=CH.findIndex(function(c){return c.num===currentNum});if(pos<0)pos=0;
@@ -1782,12 +1747,14 @@ window.auraBack=function(){
     if(typeof epgOpen!=='undefined'&&epgOpen){closeEPG();return true}
     if(typeof pgOpen!=='undefined'&&pgOpen){closePGuide();return true}
     if(typeof inPlayer!=='undefined'&&inPlayer){closePlayer();return true}
-    // On the home screen, Back from a side zone returns to the content
-    // (grid / rails); only Back from there exits the app.
-    var homeZone=TV?'list':'grid';
-    if(poweredOn&&typeof zone!=='undefined'&&zone!==homeZone){
-      if(TV){clearKbf();zone='list';renderList();} else focusGrid(focusIndex);
-      return true;
+    // On the home screen, Back from a side zone returns to the content; only
+    // Back from the home content itself exits the app.
+    if(poweredOn&&TV){
+      if(tvZone!=='rails'){ tvZone='rails'; tvFocus(tvRow,tvCols[tvRow]||0); return true; }
+      return false;
+    }
+    if(poweredOn&&!TV&&!document.documentElement.classList.contains('hub')&&typeof zone!=='undefined'&&zone!=='grid'){
+      focusGrid(focusIndex); return true;
     }
   }catch(e){}
   return false;
@@ -1933,19 +1900,17 @@ var LANG_ROWS=[['Hindi','Hindi Entertainment'],['Tamil','Premium Tamil Channels 
   ['Odia','Odia Channels'],['Assamese','Assamese Channels']];
 var hubRows=[], hubHeroT=null, hubHeroI=0, hubHeroList=[];
 
-function buildHub(){
-  var host=document.getElementById('hub'); if(!host)return;
+// Shared row definitions used by both the hub (web/phone) and the TV rails, so
+// both surfaces show the same categories/language groupings. cap = max per row.
+function homeRowDefs(cap){
   var normal=CH.filter(function(c){return !c.geo&&hubPlayable(c)});
   function byCat(cat){return normal.filter(function(c){return catOf(c)===cat}).sort(function(a,b){return a.num-b.num})}
   function byLang(l){return normal.filter(function(c){return (c.lang||'')===l}).sort(function(a,b){return a.num-b.num})}
-
-  hubRows=[];
-  function add(title,items,circ){ items=(items||[]).slice(0,20); if(items.length)hubRows.push({title:title,items:items,circ:!!circ}); }
-  var fav=CH.filter(function(c){return favs.has(c.num)&&hubPlayable(c)});
-  var rec=watchHist.map(byNum).filter(function(c){return c&&hubPlayable(c)});
+  var rows=[];
+  function add(title,items,circ){ items=(items||[]).slice(0,cap); if(items.length)rows.push({title:title,items:items,circ:!!circ}); }
   add('Live News', byCat('News'), true);
-  add('Your Favourites', fav);
-  add('Continue Watching', rec);
+  add('Your Favourites', CH.filter(function(c){return favs.has(c.num)&&hubPlayable(c)}));
+  add('Continue Watching', watchHist.map(byNum).filter(function(c){return c&&hubPlayable(c)}));
   add('Trending Movies', byCat('Movies'));
   add('Entertainment', byCat('Entertainment'));
   add('Tiny Titans', byCat('Kids'));
@@ -1959,6 +1924,13 @@ function buildHub(){
   add('LIVE Sports Channels', byCat('Sports'), true);
   if(CH.some(function(c){return c.fd})) add('DD Free Dish', CH.filter(function(c){return c.fd&&hubPlayable(c)}));
   if(CH.some(function(c){return c.geo})) add('India ⭐ · best on an Indian connection', CH.filter(function(c){return c.geo}));
+  return rows;
+}
+
+function buildHub(){
+  var host=document.getElementById('hub'); if(!host)return;
+  var normal=CH.filter(function(c){return !c.geo&&hubPlayable(c)});
+  hubRows=homeRowDefs(20);
 
   // Hero: a few flagship channels (HD, with a logo) from Movies/Entertainment.
   hubHeroList=normal.filter(function(c){return c.logo&&isHD(c)&&/Movies|Entertainment/.test(catOf(c))}).slice(0,6);
@@ -2047,10 +2019,10 @@ function finish(){
   var last=parseInt(localStorage.getItem('stb_last')||'',10);
   currentNum=(last&&byNum(last))?last:CH[0].num;
   if(TV){
-    // TV: build only the lightweight channel list (not the 800-card grid) and
-    // stop the decorative SVG (SMIL) animations, which otherwise repaint
-    // constantly and make a weak TV box sluggish.
-    zone='list'; buildTVHome();
+    // TV: build the trimmed, lazy rails (only what's reached) and stop the
+    // decorative SVG (SMIL) animations, which otherwise repaint constantly and
+    // make a weak TV box sluggish.
+    buildTVHome();
     try{[].forEach.call(document.querySelectorAll('svg'),function(s){s.pauseAnimations&&s.pauseAnimations()})}catch(e){}
   }else{
     buildHub();                      // streaming-style home for web + phone app
