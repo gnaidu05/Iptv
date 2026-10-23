@@ -467,6 +467,94 @@
     .pbtn{height:36px;padding:0 11px}.pbtn .lbl{display:none}
     .pb-prog{padding-left:0;font-size:13.5px;white-space:normal;line-height:1.35;margin-top:8px}
   }
+
+  /* ===================== HUB: streaming-style home (web + phone app) =====================
+     Replaces the grid on non-TV surfaces with a hero banner + horizontal rails of
+     rounded channel tiles, grouped by category and language, plus a bottom nav —
+     the same design on the website and in the Android phone app. */
+  #hub{display:none}
+  html.hub #rail,html.hub #topctl,html.hub #hero,html.hub #tabs,html.hub #gridhead,html.hub #grid{display:none}
+  html.hub #main{overflow-y:auto;overflow-x:hidden;padding:0;-webkit-overflow-scrolling:touch}
+  html.hub #hub{display:block;padding-bottom:88px}
+
+  .hub-bar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;padding:14px 18px 12px;
+    background:linear-gradient(180deg,var(--bg) 70%,rgba(5,7,14,.0));backdrop-filter:blur(6px)}
+  .hub-logo{display:flex;align-items:center;gap:9px;margin-right:auto}
+  .hub-logo .bloom{width:30px;height:30px}
+  .hub-logo b{font-weight:900;font-size:20px;letter-spacing:.5px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hub-ic{width:42px;height:42px;border-radius:50%;border:1px solid var(--line2);background:rgba(255,255,255,.04);
+    display:grid;place-items:center;color:var(--txt);cursor:pointer}
+  .hub-ic svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2}
+  .hub-ic.on{color:var(--p3);border-color:rgba(255,92,168,.5)}
+
+  /* hero carousel */
+  #hubHero{position:relative;margin:4px 16px 8px;border-radius:20px;overflow:hidden;height:210px;cursor:pointer;
+    box-shadow:0 18px 44px rgba(0,0,0,.45)}
+  .hh-slide{position:absolute;inset:0;opacity:0;transition:opacity .6s;display:flex;align-items:flex-end;padding:20px}
+  .hh-slide.on{opacity:1}
+  .hh-bg{position:absolute;inset:0;z-index:0}
+  .hh-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.82),rgba(0,0,0,.15) 60%,transparent)}
+  .hh-logo{position:absolute;top:18px;right:18px;width:76px;height:56px;border-radius:12px;background:rgba(0,0,0,.35);
+    border:1px solid rgba(255,255,255,.18);display:grid;place-items:center;overflow:hidden;z-index:2}
+  .hh-logo img{max-width:84%;max-height:80%;object-fit:contain}
+  .hh-in{position:relative;z-index:2;max-width:78%}
+  .hh-tag{display:inline-flex;align-items:center;gap:6px;color:var(--live);font-weight:800;font-size:11px;letter-spacing:1.5px}
+  .hh-nm{font-size:26px;font-weight:900;line-height:1.05;margin:6px 0 4px;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+  .hh-sub{color:#dfe5f0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+  .hh-dots{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:3}
+  .hh-dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.4)}
+  .hh-dots i.on{background:#fff;width:18px;border-radius:4px}
+
+  /* rows */
+  .hrow{margin:18px 0 2px}
+  .hrow-h{display:flex;align-items:center;gap:8px;padding:0 18px 10px;font-size:18px;font-weight:800;color:#fff}
+  .hrow-t{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;padding:2px 16px 8px;scrollbar-width:none;scroll-snap-type:x proximity}
+  .hrow-t::-webkit-scrollbar{display:none}
+
+  .htile{flex:0 0 auto;width:158px;cursor:pointer;scroll-snap-align:start;transition:transform .14s}
+  .htile:active{transform:scale(.97)}
+  .htile-art{position:relative;height:94px;border-radius:14px;overflow:hidden;display:grid;place-items:center;
+    border:1px solid var(--line)}
+  .htile-art img{max-width:66%;max-height:62%;object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5))}
+  .htile-art .ph{font-size:30px;font-weight:900;color:#fff;opacity:.92}
+  .htile-live{position:absolute;left:8px;top:8px;display:flex;align-items:center;gap:5px;background:rgba(0,0,0,.45);
+    border-radius:20px;padding:3px 8px;font-size:9.5px;font-weight:800;letter-spacing:.6px;color:#fff}
+  .htile-live .d{width:6px;height:6px;border-radius:50%;background:var(--live);box-shadow:0 0 6px var(--live)}
+  .htile-hd{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.5);border-radius:6px;padding:1px 6px;font-size:9.5px;font-weight:700;color:#fff}
+  .htile-fav{position:absolute;right:8px;top:8px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.4);
+    display:grid;place-items:center;color:#fff;border:0;cursor:pointer}
+  .htile-fav svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+  .htile-fav.on{color:var(--p3)}.htile-fav.on svg{fill:var(--p3)}
+  .htile-nm{font-size:13.5px;font-weight:700;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .htile-sub{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+
+  /* circular tiles (news / sports) */
+  .hrow.circ .hrow-t{gap:16px}
+  .hcirc{flex:0 0 auto;width:88px;text-align:center;cursor:pointer}
+  .hcirc:active{transform:scale(.96)}
+  .hcirc-l{width:72px;height:72px;margin:0 auto;border-radius:50%;background:#fff;display:grid;place-items:center;overflow:hidden;
+    border:2px solid var(--line2)}
+  .hcirc-l img{max-width:74%;max-height:74%;object-fit:contain}
+  .hcirc-l .ph{font-size:24px;font-weight:900;color:#0a0f1c}
+  .hcirc-nm{font-size:11.5px;font-weight:600;margin-top:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--txt)}
+
+  /* bottom nav */
+  #hubNav{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:space-around;align-items:center;
+    padding:8px 4px calc(8px + env(safe-area-inset-bottom)) 4px;background:rgba(8,11,20,.96);border-top:1px solid var(--line);backdrop-filter:blur(8px)}
+  html:not(.hub) #hubNav{display:none}
+  .hn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted);font-size:10.5px;font-weight:600;
+    background:none;border:0;cursor:pointer;padding:4px 0}
+  .hn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2}
+  .hn.on{color:#fff}.hn.on svg{stroke:var(--p2)}
+
+  @media (min-width:900px){
+    #hubHero{height:300px;margin:8px 32px 10px}
+    .hh-nm{font-size:34px}
+    .hrow-h,.hub-bar{padding-left:32px;padding-right:32px}
+    .hrow-t{padding-left:30px;padding-right:30px}
+    .htile{width:190px}.htile-art{height:112px}
+    #hubNav{max-width:560px;left:50%;transform:translateX(-50%);border-radius:18px 18px 0 0;border:1px solid var(--line);border-bottom:0}
+  }
 </style>
 </head>
 <body>
@@ -596,8 +684,18 @@
     <div id="grid"></div>
     <!-- TV only: category rails replace the grid (built by buildTVHome) -->
     <div id="tvhome"></div>
+    <!-- Streaming-style home for web + phone app (built by buildHub) -->
+    <div id="hub"></div>
   </main>
 </div>
+<!-- Bottom nav for the hub home (web + phone) -->
+<nav id="hubNav">
+  <button class="hn on" data-nav="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 9v11h14V9"/></svg>Home</button>
+  <button class="hn" data-nav="guide"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5"/></svg>TV Guide</button>
+  <button class="hn" data-nav="news"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM8 9h8M8 13h8M8 17h5"/></svg>News</button>
+  <button class="hn" data-nav="movies"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 9h4M17 9h4M3 15h4M17 15h4"/></svg>Movies</button>
+  <button class="hn" data-nav="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>Search</button>
+</nav>
 
 <!-- HELP / ABOUT -->
 <div id="help">
@@ -705,7 +803,7 @@
   <div class="bbar"><i id="bootbar"></i></div>
   <div id="bootmsg">System ready</div>
   <button id="powerBtn">▶ Start watching</button>
-  <div class="firm">LIVE INDIAN TV · BUILD 2026.10.10</div>
+  <div class="firm">LIVE INDIAN TV · BUILD 2026.10.23</div>
 </div>
 
 <!-- Channel list. Loaded with normal HTTP caching (GitHub Pages revalidates it),
@@ -745,6 +843,8 @@ var PLAYALL=(_qs.get('app')==='1')||window.AURA_PLAYALL===true;
 // bigger layout and full D-pad zone navigation (rail ↔ tabs ↔ tools ↔ grid).
 var TV=(_qs.get('tv')==='1')||window.AURA_TV===true;
 if(TV){try{document.documentElement.classList.add('tv')}catch(e){}}
+// Non-TV surfaces (website + phone app) use the streaming-style hub home.
+if(!TV){try{document.documentElement.classList.add('hub')}catch(e){}}
 var PROXY=((_qs.get('proxy')||localStorage.getItem('aura_proxy')||PROXY_DEFAULT).trim()).replace(/\/+$/,'');
 if(_qs.get('proxy')!==null){try{PROXY?localStorage.setItem('aura_proxy',PROXY):localStorage.removeItem('aura_proxy')}catch(e){}}
 function canPx(){return PLAYALL||!!PROXY}
@@ -1108,6 +1208,12 @@ function closePlayer(){
   if(window.__hideSurf)window.__hideSurf();
   renderDots();
   if(TV){ refreshTVHome(); return; }   // rebuild rails (playing marker) + keep focus
+  if(document.documentElement.classList.contains('hub')){
+    // hub: keep the home as-is; just refresh fav markers on the tiles.
+    document.querySelectorAll('#hub .htile-fav').forEach(function(b){
+      var t=b.closest('.htile'); /* fav state re-synced on next build */ });
+    return;
+  }
   // return to the channel you were watching: mark it and bring it into view
   var pos=visible.findIndex(function(c){return c.num===currentNum});
   if(pos>=0)focusIndex=pos;
@@ -1378,6 +1484,12 @@ document.addEventListener('keydown',function(e){
     else if(e.key>='0'&&e.key<='9'){numJump(e.key)}
     else return;
     e.preventDefault(); return;
+  }
+  // Hub home is touch/click + native focus; don't hijack arrows for the hidden grid.
+  if(document.documentElement.classList.contains('hub')){
+    if(e.key==='/'){openSearch();e.preventDefault();}
+    else if(e.key>='0'&&e.key<='9')numJump(e.key);
+    return;
   }
   // Zone navigation (rail / tabs / tools / grid edges). If it handled the key,
   // we're done; otherwise fall through to in-grid movement and shortcuts.
@@ -1806,6 +1918,130 @@ function bootStart(){ if(poweredOn)return; document.getElementById('powerBtn').s
   (function step(){ if(i>=steps.length){finish();return}
     var s=steps[i++]; bar.style.width=s[0]+'%'; msg.textContent=s[1]; setTimeout(step,300+Math.random()*300) })();
 }
+/* ===================== HUB: streaming-style home (web + phone app) =====================
+   Hero carousel + horizontal rails of rounded channel tiles grouped by category
+   and language, built from the active channel list, with a bottom nav. */
+function hubPlayable(c){ return !(c.px&&!canPx()); }
+function hubClean(n){ return (n||'').replace(/\s*\(.*?\)\s*/,' ').trim(); }
+// Stable colour per channel so each tile/hero has its own tint.
+function hubHue(c){ var s=(c.name||'')+c.num,h=0; for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))%360; return h; }
+function hubArtBg(c){ var h=hubHue(c); return 'linear-gradient(135deg,hsl('+h+',55%,22%),hsl('+((h+40)%360)+',60%,13%))'; }
+var LANG_ROWS=[['Hindi','Hindi Entertainment'],['Tamil','Premium Tamil Channels 👑'],
+  ['Telugu','Premium Telugu Channels 👑'],['Malayalam','Premium Malayalam Channels 👑'],
+  ['Kannada','Top Kannada Channels'],['Marathi','The Marathi Zone'],['Bengali','Bengali Entertainment'],
+  ['Punjabi','Punjabi Hits'],['Gujarati','Gujarati Channels'],['Bhojpuri','Bhojpuri Masala'],
+  ['Odia','Odia Channels'],['Assamese','Assamese Channels']];
+var hubRows=[], hubHeroT=null, hubHeroI=0, hubHeroList=[];
+
+function buildHub(){
+  var host=document.getElementById('hub'); if(!host)return;
+  var normal=CH.filter(function(c){return !c.geo&&hubPlayable(c)});
+  function byCat(cat){return normal.filter(function(c){return catOf(c)===cat}).sort(function(a,b){return a.num-b.num})}
+  function byLang(l){return normal.filter(function(c){return (c.lang||'')===l}).sort(function(a,b){return a.num-b.num})}
+
+  hubRows=[];
+  function add(title,items,circ){ items=(items||[]).slice(0,20); if(items.length)hubRows.push({title:title,items:items,circ:!!circ}); }
+  var fav=CH.filter(function(c){return favs.has(c.num)&&hubPlayable(c)});
+  var rec=watchHist.map(byNum).filter(function(c){return c&&hubPlayable(c)});
+  add('Live News', byCat('News'), true);
+  add('Your Favourites', fav);
+  add('Continue Watching', rec);
+  add('Trending Movies', byCat('Movies'));
+  add('Entertainment', byCat('Entertainment'));
+  add('Tiny Titans', byCat('Kids'));
+  add('Comedy Central', byCat('Comedy'));
+  LANG_ROWS.forEach(function(lr){ add(lr[1], byLang(lr[0])); });
+  add('Classic TV', byCat('Classic TV'));
+  add('Music Mania', byCat('Music'));
+  add('Devotional', byCat('Devotional'));
+  add('Knowledge & Docs', byCat('Documentary'));
+  add('Lifestyle', byCat('Lifestyle'));
+  add('LIVE Sports Channels', byCat('Sports'), true);
+  if(CH.some(function(c){return c.fd})) add('DD Free Dish', CH.filter(function(c){return c.fd&&hubPlayable(c)}));
+  if(CH.some(function(c){return c.geo})) add('India ⭐ · best on an Indian connection', CH.filter(function(c){return c.geo}));
+
+  // Hero: a few flagship channels (HD, with a logo) from Movies/Entertainment.
+  hubHeroList=normal.filter(function(c){return c.logo&&isHD(c)&&/Movies|Entertainment/.test(catOf(c))}).slice(0,6);
+  if(hubHeroList.length<4)hubHeroList=normal.filter(function(c){return c.logo}).slice(0,6);
+
+  var html=''+
+    '<div class="hub-bar"><div class="hub-logo"><svg class="bloom"><use href="#bloom"/></svg><b>Aura</b></div>'+
+      '<button class="hub-ic" id="hubSearch" title="Search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></button>'+
+      '<button class="hub-ic" id="hubFav" title="Favourites"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9A5 5 0 0112 5a5 5 0 019.5 7c-2.5 4.5-9.5 9-9.5 9z"/></svg></button>'+
+      '<button class="hub-ic" id="hubHelp" title="About"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></button></div>'+
+    '<div id="hubHero"></div>'+
+    '<div id="hubRows"></div>';
+  host.innerHTML=html;
+
+  var rc=document.getElementById('hubRows'); var frag=document.createDocumentFragment();
+  hubRows.forEach(function(row,ri){
+    var sec=document.createElement('div'); sec.className='hrow'+(row.circ?' circ':''); sec.dataset.title=row.title;
+    var h=document.createElement('div'); h.className='hrow-h'; h.textContent=row.title; sec.appendChild(h);
+    var t=document.createElement('div'); t.className='hrow-t';
+    row.items.forEach(function(c){ t.appendChild(row.circ?hubCirc(c):hubTile(c)); });
+    sec.appendChild(t); frag.appendChild(sec);
+  });
+  rc.appendChild(frag);
+
+  document.getElementById('hubSearch').onclick=openSearch;
+  document.getElementById('hubHelp').onclick=openHelp;
+  document.getElementById('hubFav').onclick=function(){hubScrollTo('Your Favourites')||toast('Tap the heart on a channel to add favourites')};
+  buildHubHero();
+}
+function hubLogo(c,cls){ if(c.logo)return '<img loading="lazy" decoding="async" src="'+esc(c.logo)+'" onerror="this.parentNode.innerHTML=\'<span class=&quot;ph&quot;>'+esc(initials(c))+'</span>\'">'; return '<span class="ph">'+esc(initials(c))+'</span>'; }
+function hubTile(c){
+  var d=document.createElement('div'); d.className='htile'; d.tabIndex=0;
+  d.innerHTML='<div class="htile-art" style="background:'+hubArtBg(c)+'">'+hubLogo(c)+
+    '<span class="htile-live"><span class="d"></span>LIVE</span>'+
+    (isHD(c)?'<span class="htile-hd">HD</span>':'')+
+    '<button class="htile-fav'+(favs.has(c.num)?' on':'')+'" aria-label="Favourite"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9A5 5 0 0112 5a5 5 0 019.5 7c-2.5 4.5-9.5 9-9.5 9z"/></svg></button></div>'+
+    '<div class="htile-nm">'+esc(hubClean(c.name))+'</div>'+
+    '<div class="htile-sub">'+esc(cardProg(c)||catOf(c))+'</div>';
+  d.querySelector('.htile-fav').onclick=function(e){e.stopPropagation();toggleFav(c.num);this.classList.toggle('on',favs.has(c.num))};
+  d.onclick=function(){playChannel(c.num)};
+  d.onkeydown=function(e){if(e.key==='Enter')playChannel(c.num)};
+  return d;
+}
+function hubCirc(c){
+  var d=document.createElement('div'); d.className='hcirc'; d.tabIndex=0;
+  d.innerHTML='<div class="hcirc-l">'+hubLogo(c)+'</div><div class="hcirc-nm">'+esc(hubClean(c.name))+'</div>';
+  d.onclick=function(){playChannel(c.num)};
+  d.onkeydown=function(e){if(e.key==='Enter')playChannel(c.num)};
+  return d;
+}
+function buildHubHero(){
+  var el=document.getElementById('hubHero'); if(!el||!hubHeroList.length)return;
+  el.innerHTML=hubHeroList.map(function(c,i){
+    var st=EPG_READY?epgState(c.num):null, now=(st&&st.cur)?esc(st.cur[2]||'Live programme'):'Live now';
+    return '<div class="hh-slide'+(i===0?' on':'')+'" data-num="'+c.num+'">'+
+      '<div class="hh-bg" style="background:'+hubArtBg(c)+'"></div>'+
+      '<div class="hh-logo">'+hubLogo(c)+'</div>'+
+      '<div class="hh-in"><span class="hh-tag">● LIVE · '+esc(catOf(c))+'</span>'+
+      '<div class="hh-nm">'+esc(hubClean(c.name))+'</div><div class="hh-sub">'+now+'</div></div></div>';
+  }).join('')+'<div class="hh-dots">'+hubHeroList.map(function(_,i){return '<i class="'+(i===0?'on':'')+'"></i>'}).join('')+'</div>';
+  hubHeroI=0;
+  el.onclick=function(){var s=el.querySelector('.hh-slide.on'); if(s)playChannel(+s.dataset.num)};
+  clearInterval(hubHeroT);
+  hubHeroT=setInterval(function(){ if(inPlayer)return; var slides=el.querySelectorAll('.hh-slide'),dots=el.querySelectorAll('.hh-dots i');
+    if(!slides.length)return; slides[hubHeroI].classList.remove('on'); dots[hubHeroI].classList.remove('on');
+    hubHeroI=(hubHeroI+1)%slides.length; slides[hubHeroI].classList.add('on'); dots[hubHeroI].classList.add('on'); },5000);
+}
+function hubScrollTo(title){
+  var sec=document.querySelector('.hrow[data-title="'+title+'"]'); if(!sec)return false;
+  sec.scrollIntoView({behavior:'smooth',block:'start'}); return true;
+}
+// bottom nav
+(function(){var nav=document.getElementById('hubNav'); if(!nav)return;
+  nav.addEventListener('click',function(e){ var b=e.target.closest('.hn'); if(!b)return; var v=b.dataset.nav;
+    nav.querySelectorAll('.hn').forEach(function(x){x.classList.toggle('on',x===b)});
+    if(v==='home')document.getElementById('main').scrollTo({top:0,behavior:'smooth'});
+    else if(v==='guide')openEPG();
+    else if(v==='news')hubScrollTo('Live News');
+    else if(v==='movies')hubScrollTo('Trending Movies');
+    else if(v==='search')openSearch();
+  });
+})();
+
 function finish(){
   poweredOn=true; document.getElementById('boot').classList.add('hide');
   var last=parseInt(localStorage.getItem('stb_last')||'',10);
@@ -1817,7 +2053,7 @@ function finish(){
     zone='list'; buildTVHome();
     try{[].forEach.call(document.querySelectorAll('svg'),function(s){s.pauseAnimations&&s.pauseAnimations()})}catch(e){}
   }else{
-    buildTabs(); render(); renderRecent();
+    buildHub();                      // streaming-style home for web + phone app
   }
   setHero(currentNum); renderDots(); tick();
   loadEPG();
