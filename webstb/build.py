@@ -107,8 +107,20 @@ INDIC_LANGS = {"Tamil", "Telugu", "Malayalam", "Kannada", "Bengali", "Marathi",
 FOREIGN_RE = re.compile(
     r"\b(america|u\.?s\.?a|canada|australia|indonesia|indo-?china|malaysia|"
     r"singapore|dubai|u\.?a\.?e|qatar|middle east|europe|africa)\b", re.I)
-# Clearly English national/global channels that feeds sometimes mis-tag.
-ENGLISH_BRANDS_RE = re.compile(r"ndtv good times|\bgood times\b|\bwion\b", re.I)
+# Clearly English national/global channels that feeds sometimes mis-tag onto an
+# Indian language. Only brands that don't have a same-named regional variant.
+ENGLISH_BRANDS_RE = re.compile(
+    r"ndtv good times|\bgood times\b|\bwion\b|magellan ?tv|fashion ?tv|republic tv\b|"
+    r"discovery (channel|kids|science|turbo|jeet)|investigation discovery|\btlc\b|"
+    r"animal planet|travelxp|nat geo|national geographic", re.I)
+# Unambiguous regional brands — trusted over a (sometimes wrong) feed-map tag.
+# Kept deliberately narrow so ambiguous names (e.g. "Asianet Suvarna" = Kannada)
+# are NOT caught.
+STRONG_BRANDS = [
+    ("Malayalam", re.compile(
+        r"kaumudy|manorama|mazhavil|media ?one|flowers tv|amrita tv|"
+        r"asianet (news|plus|movies|hd|middle)", re.I)),
+]
 
 
 def _urlkey(url: str) -> str:
@@ -129,6 +141,9 @@ def _feed_id(tvg_id: str) -> str:
 
 def lang_of(name: str, url: str, group: str, tvg_id: str = "") -> str:
     for lang, rx in SCRIPT_RE:            # native script is unambiguous
+        if rx.search(name or ""):
+            return lang
+    for lang, rx in STRONG_BRANDS:       # unambiguous regional brand beats the feed
         if rx.search(name or ""):
             return lang
     if ENGLISH_BRANDS_RE.search(name or ""):   # e.g. NDTV Good Times (not Tamil)
