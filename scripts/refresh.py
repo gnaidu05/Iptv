@@ -17,6 +17,7 @@ Run from the repo root:  python scripts/refresh.py
 from __future__ import annotations
 
 import datetime as dt
+import json
 import os
 import subprocess
 import sys
@@ -228,6 +229,56 @@ def browser_playable(tracks, workers=40):
     return [t for t in tracks if t.path in good]
 
 
+LOGOS_API = "https://iptv-org.github.io/api/logos.json"
+
+
+def refresh_logos(playlists) -> None:
+    """Build playlists/logos.json: channel-id -> best logo URL, for every channel
+    id (tvg-id without an @feed) present in the given playlists, from the iptv-org
+    logo database. build.py uses it to fill in missing logos."""
+    import requests
+
+    ids = set()
+    for pl in playlists:
+        for t in pl.tracks:
+            cid = (t.attributes.get("tvg-id") or "").split("@")[0]
+            if cid:
+                ids.add(cid)
+    if not ids:
+        return
+    try:
+        data = requests.get(LOGOS_API, timeout=60).json()
+    except Exception as exc:  # noqa: BLE001
+        print(f"  ! logo fetch failed: {type(exc).__name__}")
+        return
+
+    def score(e):
+        s = 0
+        if e.get("in_use"):
+            s += 4
+        if not e.get("feed"):
+            s += 2
+        if str(e.get("format", "")).upper() in ("PNG", "SVG"):
+            s += 1
+        if (e.get("width") or 0) >= 100:
+            s += 1
+        return s
+
+    best = {}
+    for e in data:
+        cid = e.get("channel")
+        url = e.get("url")
+        if cid not in ids or not url:
+            continue
+        sc = score(e)
+        if cid not in best or sc > best[cid][1]:
+            best[cid] = (url, sc)
+    out = {cid: v[0] for cid, v in best.items()}
+    with open(os.path.join(PLAYLISTS, "logos.json"), "w", encoding="utf-8") as h:
+        json.dump(out, h, ensure_ascii=False)
+    print(f"Logo map: {len(out)} channel logos")
+
+
 def main() -> int:
     stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     pool = build_source_pool()
@@ -285,6 +336,10 @@ def main() -> int:
         os.remove(obsolete)
 
     write_report(counts, stamp)
+
+    # fill in channel logos from the iptv-org logo database, so the app shows a
+    # logo for channels whose stream entry has none.
+    refresh_logos([active_https, active_http, geo])
 
     # regenerate the STB channel database (reads india-active.m3u)
     subprocess.run([sys.executable, os.path.join(ROOT, "webstb", "build.py")], check=True)

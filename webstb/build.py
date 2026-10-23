@@ -49,6 +49,24 @@ try:
 except (OSError, ValueError):
     LANGMAP = {}
 
+# Channel-id -> logo URL, from the iptv-org logo database (refreshed by
+# scripts/refresh.py). Used to fill in logos for channels whose stream entry
+# has no tvg-logo. Keyed by the base channel id (tvg-id without an @feed).
+LOGOS_MAP = os.path.join(ROOT, "playlists", "logos.json")
+try:
+    with open(LOGOS_MAP, encoding="utf-8") as _h:
+        LOGOS = json.load(_h)
+except (OSError, ValueError):
+    LOGOS = {}
+
+
+def logo_for(tvg_logo: str, tvg_id: str) -> str:
+    """Prefer the stream's own logo; otherwise look one up by channel id."""
+    if tvg_logo:
+        return tvg_logo
+    base = (tvg_id or "").split("@")[0]
+    return LOGOS.get(base, "")
+
 # Native-script ranges: a channel name written in a script names its language.
 SCRIPTS = [
     ("Tamil", "஀-௿"), ("Telugu", "ఀ-౿"),
@@ -205,7 +223,7 @@ def main() -> int:
             "num": i,
             "name": name,
             "url": track.path,
-            "logo": attrs.get("tvg-logo", ""),
+            "logo": logo_for(attrs.get("tvg-logo", ""), attrs.get("tvg-id", "")),
             "group": group,
             "tvgId": attrs.get("tvg-id", ""),
             "lang": lang_of(name, track.path, group),
@@ -231,7 +249,7 @@ def main() -> int:
                     "num": base + j + 1,
                     "name": gname,
                     "url": track.path,
-                    "logo": a.get("tvg-logo", ""),
+                    "logo": logo_for(a.get("tvg-logo", ""), a.get("tvg-id", "")),
                     "group": ggroup,
                     "tvgId": a.get("tvg-id", ""),
                     "lang": lang_of(gname, track.path, ggroup),
