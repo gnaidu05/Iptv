@@ -98,6 +98,17 @@ LANG_KEYWORDS = [
 LANG_KW_RE = [(lang, re.compile(pat, re.I)) for lang, pat in LANG_KEYWORDS]
 # FAST channels we add are English-language unless clearly Indian.
 ENGLISH_GROUPS = {"Movies", "Comedy", "Classic TV"}
+INDIC_LANGS = {"Tamil", "Telugu", "Malayalam", "Kannada", "Bengali", "Marathi",
+               "Punjabi", "Gujarati", "Odia", "Assamese", "Bhojpuri", "Hindi"}
+# A foreign country/region in the name or in the iptv-org feed id (tvg-id after
+# @) marks a diaspora/overseas feed. On its own that doesn't change the language
+# (e.g. "Asianet Middle East" is still Malayalam), but a feed-map tag with no
+# supporting keyword on such a channel is unreliable — see lang_of.
+FOREIGN_RE = re.compile(
+    r"\b(america|u\.?s\.?a|canada|australia|indonesia|indo-?china|malaysia|"
+    r"singapore|dubai|u\.?a\.?e|qatar|middle east|europe|africa)\b", re.I)
+# Clearly English national/global channels that feeds sometimes mis-tag.
+ENGLISH_BRANDS_RE = re.compile(r"ndtv good times|\bgood times\b|\bwion\b", re.I)
 
 
 def _urlkey(url: str) -> str:
@@ -105,16 +116,36 @@ def _urlkey(url: str) -> str:
     return f"{m.group(1).lower()}{m.group(2)}" if m else (url or "")
 
 
-def lang_of(name: str, url: str, group: str) -> str:
+def _kw_lang(name: str):
+    for lang, rx in LANG_KW_RE:
+        if rx.search(name or ""):
+            return lang
+    return None
+
+
+def _feed_id(tvg_id: str) -> str:
+    return (tvg_id or "").split("@", 1)[1] if "@" in (tvg_id or "") else ""
+
+
+def lang_of(name: str, url: str, group: str, tvg_id: str = "") -> str:
     for lang, rx in SCRIPT_RE:            # native script is unambiguous
         if rx.search(name or ""):
             return lang
+    if ENGLISH_BRANDS_RE.search(name or ""):   # e.g. NDTV Good Times (not Tamil)
+        return "English"
     mapped = LANGMAP.get(_urlkey(url))    # iptv-org feed classification
+    kw = _kw_lang(name)                    # brand / word cue in the name
+    foreign = bool(FOREIGN_RE.search(name or "") or FOREIGN_RE.search(_feed_id(tvg_id)))
     if mapped:
+        # The feed tagged an Indian language, but if it's an overseas feed with
+        # no keyword backing that language, the tag is unreliable → English.
+        if mapped in INDIC_LANGS and kw != mapped and foreign:
+            return "English"
         return mapped
-    for lang, rx in LANG_KW_RE:           # brand / word cues
-        if rx.search(name or ""):
-            return lang
+    if kw:
+        return kw
+    if foreign:
+        return "English"
     if group in ENGLISH_GROUPS:           # FAST movie/comedy/classic adds
         return "English"
     # Unmapped and not Indian by script/keyword: a Latin-script name is almost
@@ -226,7 +257,7 @@ def main() -> int:
             "logo": logo_for(attrs.get("tvg-logo", ""), attrs.get("tvg-id", "")),
             "group": group,
             "tvgId": attrs.get("tvg-id", ""),
-            "lang": lang_of(name, track.path, group),
+            "lang": lang_of(name, track.path, group, attrs.get("tvg-id", "")),
         }
         if webset is not None and track.path not in webset:
             ch["px"] = 1  # not CORS-playable: needs the proxy / native shell
@@ -252,7 +283,7 @@ def main() -> int:
                     "logo": logo_for(a.get("tvg-logo", ""), a.get("tvg-id", "")),
                     "group": ggroup,
                     "tvgId": a.get("tvg-id", ""),
-                    "lang": lang_of(gname, track.path, ggroup),
+                    "lang": lang_of(gname, track.path, ggroup, a.get("tvg-id", "")),
                     "geo": 1,
                 }
             )

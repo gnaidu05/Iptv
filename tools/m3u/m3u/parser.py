@@ -8,7 +8,10 @@ from typing import List, Tuple
 from .model import Playlist, Track
 
 # Matches: #EXTINF:<duration> <attributes>,<title>
-_EXTINF_RE = re.compile(r"^#EXTINF:(?P<duration>-?\d+)(?P<attrs>[^,]*),(?P<title>.*)$")
+# `attrs` is greedy so it spans the whole attribute block (which may itself
+# contain commas, e.g. a user-agent value), and `title` is taken from the LAST
+# comma onward — otherwise a comma inside an attribute value leaks into the name.
+_EXTINF_RE = re.compile(r"^#EXTINF:(?P<duration>-?\d+)(?P<attrs>.*),(?P<title>[^,]*)$")
 # Matches key="value" attribute pairs inside an EXTINF line.
 _ATTR_RE = re.compile(r'([\w-]+)="([^"]*)"')
 
