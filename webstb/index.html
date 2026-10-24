@@ -528,8 +528,13 @@
 
   /* circular tiles (news / sports) */
   .hrow.circ .hrow-t{gap:16px}
-  .hcirc{flex:0 0 auto;width:88px;text-align:center;cursor:pointer}
+  .hcirc{flex:0 0 auto;width:88px;text-align:center;cursor:pointer;position:relative}
   .hcirc:active{transform:scale(.96)}
+  .hcirc-fav{position:absolute;right:4px;top:-2px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.6);
+    display:grid;place-items:center;color:#fff;border:1px solid rgba(255,255,255,.4);cursor:pointer;z-index:2;
+    box-shadow:0 2px 8px rgba(0,0,0,.45)}
+  .hcirc-fav svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+  .hcirc-fav.on{color:var(--p3)}.hcirc-fav.on svg{fill:var(--p3)}
   .hcirc-l{width:72px;height:72px;margin:0 auto;border-radius:50%;background:#fff;display:grid;place-items:center;overflow:hidden;
     border:2px solid var(--line2)}
   .hcirc-l img{max-width:74%;max-height:74%;object-fit:contain}
@@ -1076,6 +1081,8 @@ function renderDots(){
 function toggleFav(n){ if(favs.has(n))favs.delete(n); else favs.add(n);
   localStorage.setItem('stb_favs',JSON.stringify([...favs]));
   render(); renderDots(); syncPFav();
+  // keep the hub's "Your Favourites" row in sync without losing scroll position
+  if(document.documentElement.classList.contains('hub')){ var _sy=window.scrollY; renderHubRows(); window.scrollTo(0,_sy); }
   if(favView&&!favs.size){favView=false;setNav('live');render()}
   if(TV){ toast(favs.has(n)?'Added to Favourites':'Removed from Favourites'); } }
 
@@ -2041,7 +2048,10 @@ function hubTile(c){
 }
 function hubCirc(c){
   var d=document.createElement('div'); d.className='hcirc'; d.tabIndex=0;
-  d.innerHTML='<div class="hcirc-l">'+hubLogo(c)+'</div><div class="hcirc-nm">'+esc(hubClean(c.name))+'</div>';
+  d.innerHTML='<div class="hcirc-l">'+hubLogo(c)+'</div>'+
+    '<button class="hcirc-fav'+(favs.has(c.num)?' on':'')+'" aria-label="Favourite"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9A5 5 0 0112 5a5 5 0 019.5 7c-2.5 4.5-9.5 9-9.5 9z"/></svg></button>'+
+    '<div class="hcirc-nm">'+esc(hubClean(c.name))+'</div>';
+  d.querySelector('.hcirc-fav').onclick=function(e){e.stopPropagation();toggleFav(c.num);this.classList.toggle('on',favs.has(c.num))};
   d.onclick=function(){playChannel(c.num)};
   d.onkeydown=function(e){if(e.key==='Enter')playChannel(c.num)};
   return d;
