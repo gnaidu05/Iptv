@@ -74,7 +74,13 @@ export default {
         const html = await page.text();
         const m = html.match(/"newurl":"([^"]+)"/);
         if (!m) return new Response("sai url not found", { status: 502, headers: CORS });
-        const master = m[1].replace(/\\\//g, "/");
+        // The URL is a JSON string literal: it arrives with \/ for slashes and
+        // & for the & between query params. JSON.parse unescapes all of
+        // those at once (a plain \/-only replace would leave & in the
+        // token query string and the CDN rejects it with a 400).
+        let master;
+        try { master = JSON.parse('"' + m[1] + '"'); }
+        catch { master = m[1].replace(/\\u0026/g, "&").replace(/\\\//g, "/"); }
         const resp = await fetch(master, { headers: { "User-Agent": UA }, cf: { cacheTtl: 0 } });
         if (!resp.ok) return new Response("sai upstream " + resp.status, { status: 502, headers: CORS });
         const base = new URL(master);
