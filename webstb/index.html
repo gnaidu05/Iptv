@@ -405,6 +405,7 @@
   .tvbtn{height:52px;padding:0 22px;border-radius:14px;border:1px solid var(--line2);background:rgba(255,255,255,.04);
     color:var(--txt);font-size:18px;font-weight:700;display:inline-flex;align-items:center;gap:8px}
   .tvbtn.kbf{color:#fff;border-color:var(--p2);background:rgba(77,124,255,.28);box-shadow:0 0 0 3px var(--p2)}
+  .tvbtn.on{color:var(--p3);border-color:rgba(255,92,168,.55);background:rgba(255,92,168,.14)}
   #tvclock{margin-left:14px;color:var(--muted);font-size:17px;font-variant-numeric:tabular-nums}
 
   html.tv .hrow{margin:14px 0 4px;overflow:visible}
@@ -1528,18 +1529,24 @@ function moveFocus(d){focusIndex=Math.max(0,Math.min(visible.length-1,focusIndex
    logos revealed in a window around focus) so a low-power TV box stays fast.
    Up/Down = row, Left/Right = channel, OK = play, G = favourite. */
 function tvPlayable(c){ return !(c.px&&!canPx()); }
-var tvRows=[], tvRow=0, tvCols=[], tvZone='rails', tvBarIdx=0;
+var tvRows=[], tvRow=0, tvCols=[], tvZone='rails', tvBarIdx=0, tvFavView=false;
 window.tvImgErr=function(im){var s=document.createElement('span');s.className='ph';
   s.textContent=im.getAttribute('data-ph')||''; if(im.parentNode)im.replaceWith(s);};
 
 function buildTVHome(){
   var host=document.getElementById('tvhome'); if(!host)return;
-  tvRows=homeRowDefs(16).map(function(r){return {title:r.title,items:r.items,circ:r.circ,built:false,track:null}});
-  if(!tvRows.length)tvRows=[{title:'All channels',items:CH.slice(0,16),circ:false,built:false,track:null}];
+  if(tvFavView){
+    var fav=CH.filter(function(c){return favs.has(c.num)&&hubPlayable(c)}).sort(function(a,b){return a.num-b.num});
+    tvRows=[{title:fav.length?'Your Favourites':'No favourites yet — press G on a channel to add',items:fav,circ:false,built:false,track:null}];
+  } else {
+    tvRows=homeRowDefs(16).map(function(r){return {title:r.title,items:r.items,circ:r.circ,built:false,track:null}});
+    if(!tvRows.length)tvRows=[{title:'All channels',items:CH.slice(0,16),circ:false,built:false,track:null}];
+  }
   tvCols=tvRows.map(function(){return 0});
   tvRow=Math.max(0,Math.min(tvRow,tvRows.length-1));
   host.innerHTML='<div id="tvbar"><span class="brand">Aura</span>'+
     '<button class="tvbtn" data-act="search">\u{1F50D} Search</button>'+
+    '<button class="tvbtn'+(tvFavView?' on':'')+'" data-act="favs">❤ Favourites</button>'+
     '<button class="tvbtn" data-act="guide">\u{1F4FA} Guide</button>'+
     '<button class="tvbtn" data-act="settings">⚙ Settings</button>'+
     '<span id="tvclock"></span></div><div id="tvrows"></div>';
@@ -1595,7 +1602,17 @@ function tvFocus(r,i){
   track.parentNode.scrollIntoView({block:'center',behavior:'auto'});
   var c=tvRows[r].items[i]; if(c)currentNum=c.num;
 }
-function tvBarAct(a){ if(a==='search')openSearch(); else if(a==='guide')openEPG(); else if(a==='settings')openHelp(); }
+function tvBarAct(a){ if(a==='search')openSearch(); else if(a==='guide')openEPG(); else if(a==='settings')openHelp(); else if(a==='favs')toggleTVFavView(); }
+function toggleTVFavView(){
+  tvFavView=!tvFavView;
+  if(tvFavView&&!favs.size)toast('Press G (or OK → ❤) on a channel to add favourites');
+  tvRow=0; buildTVHome();        // rebuilds rows + focuses the first tile (rails)
+  // if the favourites view is empty, there's no tile to focus — park on the bar
+  if(tvFavView&&!favs.size){ tvZone='bar'; var bb=tvBarBtns(); tvBarIdx=0;
+    bb.forEach(function(x,ix){if(x.dataset.act==='favs')tvBarIdx=ix});
+    document.querySelectorAll('.tvbtn.kbf').forEach(function(x){x.classList.remove('kbf')});
+    if(bb[tvBarIdx])bb[tvBarIdx].classList.add('kbf'); }
+}
 function tvBarBtns(){return [].slice.call(document.querySelectorAll('#tvbar .tvbtn'))}
 function refreshTVHome(){
   var want=currentNum; buildTVHome();
@@ -1623,8 +1640,11 @@ function homeNavTV(e){
     else { tvZone='bar'; tvBarIdx=0; var bb=tvBarBtns(); if(bb[0])bb[0].classList.add('kbf'); document.getElementById('main').scrollTo({top:0,behavior:'auto'}); } }
   else if(k==='Enter'){ var c=row.items[col]; if(c)playChannel(c.num); }
   else if(k==='g'||k==='G'){ var cf=row.items[col]; if(cf){ toggleFav(cf.num);
-      var card=tvTileAt(tvRow,col), art=card&&card.querySelector('.htile-art');
-      if(art){ var dot=art.querySelector('.htile-favdot'); if(favs.has(cf.num)&&!dot){var s=document.createElement('span');s.className='htile-favdot';s.textContent='❤';art.appendChild(s);} else if(!favs.has(cf.num)&&dot){dot.remove();} } } }
+      if(tvFavView){ // un-favouriting here should drop the tile from the list
+        tvRow=0; tvCols[0]=Math.max(0,col-(favs.has(cf.num)?0:1)); buildTVHome(); }
+      else { var card=tvTileAt(tvRow,col), art=card&&card.querySelector('.htile-art');
+        if(art){ var dot=art.querySelector('.htile-favdot'); if(favs.has(cf.num)&&!dot){var s=document.createElement('span');s.className='htile-favdot';s.textContent='❤';art.appendChild(s);} else if(!favs.has(cf.num)&&dot){dot.remove();} } } } }
+  else if((k==='Escape'||k==='Backspace')&&tvFavView){ toggleTVFavView(); }
   else if(k==='/'){ openSearch(); }
   else return false;
   e.preventDefault(); return true;
