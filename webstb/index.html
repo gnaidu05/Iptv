@@ -528,6 +528,9 @@
 
   /* circular tiles (news / sports) */
   .hrow.circ .hrow-t{gap:16px}
+  .hrow.grid .hrow-t{flex-wrap:wrap;overflow:visible;row-gap:18px}
+  .hrow.grid .htile{width:calc(50% - 8px)}
+  @media (min-width:560px){.hrow.grid .htile{width:158px}}
   .hcirc{flex:0 0 auto;width:88px;text-align:center;cursor:pointer;position:relative}
   .hcirc:active{transform:scale(.96)}
   .hcirc-fav{position:absolute;right:4px;top:-2px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.6);
@@ -1949,7 +1952,7 @@ function homeRowDefs(cap){
   return rows;
 }
 
-var hubLang='ALL', hubCat='ALL';
+var hubLang='ALL', hubCat='ALL', hubFavView=false;
 function hubLangsPresent(){
   var set={}; CH.forEach(function(c){ if(!c.geo&&hubPlayable(c)){var l=c.lang||'Other'; set[l]=(set[l]||0)+1;} });
   return LANG_ORDER.filter(function(l){return set[l]}).concat(Object.keys(set).filter(function(l){return LANG_ORDER.indexOf(l)<0}));
@@ -1982,10 +1985,23 @@ function buildHub(){
 
   document.getElementById('hubSearch').onclick=openSearch;
   document.getElementById('hubHelp').onclick=openHelp;
-  document.getElementById('hubFav').onclick=function(){hubScrollTo('Your Favourites')||toast('Tap the heart on a channel to add favourites')};
+  document.getElementById('hubFav').onclick=toggleHubFavView;
+  syncHubFavBtn();
   renderHubRows();
 }
+function syncHubFavBtn(){var b=document.getElementById('hubFav'); if(b)b.classList.toggle('on',hubFavView);}
+function exitHubFavView(){ if(!hubFavView)return; hubFavView=false; syncHubFavBtn();
+  if(window.__hubRenderChips)window.__hubRenderChips(); renderHubRows(); }
+function toggleHubFavView(){
+  hubFavView=!hubFavView;
+  if(hubFavView){ hubLang='ALL'; hubCat='ALL';
+    if(!favs.size)toast('Tap the heart on a channel to add favourites'); }
+  if(window.__hubRenderChips)window.__hubRenderChips();
+  syncHubFavBtn(); renderHubRows();
+  var m=document.getElementById('main'); if(m)m.scrollTo({top:0,behavior:'auto'});
+}
 function setHubFilter(kind,val){
+  hubFavView=false; syncHubFavBtn();
   if(kind==='lang')hubLang=val; else hubCat=val;
   if(window.__hubRenderChips)window.__hubRenderChips();
   renderHubRows();
@@ -1995,6 +2011,10 @@ function hubRowsFor(){
   var normal=CH.filter(function(c){return !c.geo&&hubPlayable(c)});
   function byCat(cat,pool){return (pool||normal).filter(function(c){return catOf(c)===cat}).sort(function(a,b){return a.num-b.num})}
   function byLang(l,pool){return (pool||normal).filter(function(c){return (c.lang||'Other')===l}).sort(function(a,b){return a.num-b.num})}
+  if(hubFavView){
+    var f=CH.filter(function(c){return favs.has(c.num)&&hubPlayable(c)}).sort(function(a,b){return a.num-b.num});
+    return [{title:f.length?'Your Favourites':'No favourites yet — tap the heart on any channel', items:f}];
+  }
   if(hubLang==='ALL'&&hubCat==='ALL') return homeRowDefs(20);
   var pool=normal.filter(function(c){
     if(hubLang!=='ALL'&&(c.lang||'Other')!==hubLang)return false;
@@ -2013,9 +2033,12 @@ function hubRowsFor(){
   return rows;
 }
 function renderHubRows(){
+  if(!document.getElementById('hubRows'))return;   // hub not built yet
   hubRows=hubRowsFor();
-  var filtered=!(hubLang==='ALL'&&hubCat==='ALL');
-  // hero only in the unfiltered view
+  var filtered=hubFavView||!(hubLang==='ALL'&&hubCat==='ALL');
+  // the filter chips are irrelevant in the favourites-only view
+  var filterBar=document.querySelector('.hub-filters'); if(filterBar)filterBar.style.display=hubFavView?'none':'';
+  // hero only in the unfiltered home view
   var normal=CH.filter(function(c){return !c.geo&&hubPlayable(c)});
   hubHeroList=normal.filter(function(c){return c.logo&&isHD(c)&&/Movies|Entertainment/.test(catOf(c))}).slice(0,6);
   if(hubHeroList.length<4)hubHeroList=normal.filter(function(c){return c.logo}).slice(0,6);
@@ -2024,7 +2047,10 @@ function renderHubRows(){
 
   var rc=document.getElementById('hubRows'); rc.innerHTML=''; var frag=document.createDocumentFragment();
   hubRows.forEach(function(row){
-    var sec=document.createElement('div'); sec.className='hrow'+(row.circ?' circ':''); sec.dataset.title=row.title;
+    // the favourites view wraps its tiles into a grid instead of a horizontal
+    // rail, so you can see every favourite channel at once
+    var grid=hubFavView;
+    var sec=document.createElement('div'); sec.className='hrow'+(row.circ?' circ':'')+(grid?' grid':''); sec.dataset.title=row.title;
     var h=document.createElement('div'); h.className='hrow-h'; h.textContent=row.title; sec.appendChild(h);
     var t=document.createElement('div'); t.className='hrow-t';
     row.items.forEach(function(c){ t.appendChild(row.circ?hubCirc(c):hubTile(c)); });
@@ -2081,10 +2107,10 @@ function hubScrollTo(title){
 (function(){var nav=document.getElementById('hubNav'); if(!nav)return;
   nav.addEventListener('click',function(e){ var b=e.target.closest('.hn'); if(!b)return; var v=b.dataset.nav;
     nav.querySelectorAll('.hn').forEach(function(x){x.classList.toggle('on',x===b)});
-    if(v==='home')document.getElementById('main').scrollTo({top:0,behavior:'smooth'});
+    if(v==='home'){exitHubFavView();document.getElementById('main').scrollTo({top:0,behavior:'smooth'});}
     else if(v==='guide')openEPG();
-    else if(v==='news')hubScrollTo('Live News');
-    else if(v==='movies')hubScrollTo('Trending Movies');
+    else if(v==='news'){exitHubFavView();hubScrollTo('Live News');}
+    else if(v==='movies'){exitHubFavView();hubScrollTo('Trending Movies');}
     else if(v==='search')openSearch();
   });
 })();
