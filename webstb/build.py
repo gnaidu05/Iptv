@@ -316,22 +316,34 @@ def main() -> int:
             extras = []
         base = len(channels)
         for k, ex in enumerate(extras):
-            if not ex.get("yt"):
-                continue
-            channels.append(
-                {
-                    "num": base + k + 1,
-                    "name": ex.get("name", f"Channel {base + k + 1}"),
-                    "url": "",
-                    "logo": ex.get("logo", ""),
-                    "group": ex.get("group", "") or "General",
-                    "tvgId": "",
-                    "lang": ex.get("lang", "Other"),
-                    "yt": ex["yt"],
-                    "ytlive": 1 if ex.get("ytlive") else 0,
-                }
-            )
-            extras_n += 1
+            if ex.get("yt"):
+                channels.append(
+                    {
+                        "num": base + k + 1,
+                        "name": ex.get("name", f"Channel {base + k + 1}"),
+                        "url": "",
+                        "logo": ex.get("logo", ""),
+                        "group": ex.get("group", "") or "General",
+                        "tvgId": "",
+                        "lang": ex.get("lang", "Other"),
+                        "yt": ex["yt"],
+                        "ytlive": 1 if ex.get("ytlive") else 0,
+                    }
+                )
+                extras_n += 1
+            elif ex.get("url"):           # a direct HLS/proxy channel
+                channels.append(
+                    {
+                        "num": base + k + 1,
+                        "name": ex.get("name", f"Channel {base + k + 1}"),
+                        "url": ex["url"],
+                        "logo": ex.get("logo", ""),
+                        "group": ex.get("group", "") or "General",
+                        "tvgId": "",
+                        "lang": ex.get("lang", "Other"),
+                    }
+                )
+                extras_n += 1
 
     epg_url = pl.attributes.get("x-tvg-url", "")
     data = {"epg": epg_url, "channels": channels}

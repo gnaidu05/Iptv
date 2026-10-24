@@ -62,6 +62,39 @@ export default {
       }
     }
 
+    // Sri Sathya Sai (Prasanthi Nilayam) live darshan. The sai.org.in page mints
+    // a short-lived signed master-playlist URL on each load; we scrape the fresh
+    // token and return the master with child URLs made absolute (the variant
+    // playlists and segments are open + CORS, so the player fetches them direct).
+    if (here.pathname === "/sai") {
+      try {
+        const page = await fetch("https://sai.org.in/en/sai-video-popup", {
+          headers: { "User-Agent": UA }, cf: { cacheTtl: 0 },
+        });
+        const html = await page.text();
+        const m = html.match(/"newurl":"([^"]+)"/);
+        if (!m) return new Response("sai url not found", { status: 502, headers: CORS });
+        const master = m[1].replace(/\\\//g, "/");
+        const resp = await fetch(master, { headers: { "User-Agent": UA }, cf: { cacheTtl: 0 } });
+        if (!resp.ok) return new Response("sai upstream " + resp.status, { status: 502, headers: CORS });
+        const base = new URL(master);
+        const out = (await resp.text())
+          .split(/\r?\n/)
+          .map((line) => {
+            const t = line.trim();
+            if (!t || t.startsWith("#")) return line;
+            try { return new URL(t, base).toString(); } catch { return line; }
+          })
+          .join("\n");
+        return new Response(out, {
+          status: 200,
+          headers: { ...CORS, "Content-Type": "application/vnd.apple.mpegurl", "Cache-Control": "no-store" },
+        });
+      } catch (e) {
+        return new Response("sai fetch failed", { status: 502, headers: CORS });
+      }
+    }
+
     const target = here.searchParams.get("url");
     if (!target) {
       return new Response("Aura proxy. Use /?url=<encoded stream url>", {
