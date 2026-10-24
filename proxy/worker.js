@@ -62,7 +62,7 @@ export default {
       }
     }
 
-    // Sri Sathya Sai (Prasanthi Nilayam) live darshan. The sai.org.in page mints
+    // Shirdi Sai Baba Temple live darshan. The sai.org.in page mints
     // a short-lived signed master-playlist URL on each load; we scrape the fresh
     // token and return the master with child URLs made absolute (the variant
     // playlists and segments are open + CORS, so the player fetches them direct).

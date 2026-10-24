@@ -1705,5 +1705,5 @@ https://s3.itcnbd.live/channel/a5979fd53c01d1b2.m3u8
 https://cloudplay-sonyliv.pages.dev/sabhd.m3u8
 #EXTINF:-1 tvg-id="ShemarooFilmiGaane.in@HD" tvg-chno="853" tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/channel/0d5b07555b2d4415aa9f145273095ed7.png" group-title="Movies;Music",Shemaroo Filmi Gaane (1080p)
 https://prod-runn.cdn.runn.tv/shemaroo/stream/smrfgn/playlist.m3u8
-#EXTINF:-1 tvg-id="" tvg-chno="856" tvg-logo="https://sai.org.in/sites/default/files/logo_0.gif" group-title="Devotional",Sai Darshan — Prasanthi Nilayam
+#EXTINF:-1 tvg-id="" tvg-chno="856" tvg-logo="https://sai.org.in/sites/default/files/logo_0.gif" group-title="Devotional",Shirdi Sai Baba Temple (Live Darshan)
 https://aura-proxy.gnaidu05.workers.dev/sai
