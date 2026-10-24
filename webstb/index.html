@@ -232,6 +232,7 @@
     border:1px solid var(--line2);background:rgba(0,0,0,.4);color:#fff;cursor:pointer;font-size:14px;font-weight:600;flex:0 0 auto}
   .pbtn:hover{background:rgba(255,255,255,.1)}.pbtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2}
   .pico{padding:0 12px}
+  .pfav.on{color:var(--p3);border-color:var(--p3)}.pfav.on svg{fill:var(--p3)}
   .pvol{display:flex;align-items:center;gap:6px;flex:0 0 auto}
   .pvol-range{width:92px;height:4px;-webkit-appearance:none;appearance:none;background:rgba(255,255,255,.25);border-radius:20px;outline:none}
   .pvol-range::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#fff;cursor:pointer}
@@ -517,9 +518,10 @@
     border-radius:20px;padding:3px 8px;font-size:9.5px;font-weight:800;letter-spacing:.6px;color:#fff}
   .htile-live .d{width:6px;height:6px;border-radius:50%;background:var(--live);box-shadow:0 0 6px var(--live)}
   .htile-hd{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.5);border-radius:6px;padding:1px 6px;font-size:9.5px;font-weight:700;color:#fff}
-  .htile-fav{position:absolute;right:8px;top:8px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.4);
-    display:grid;place-items:center;color:#fff;border:0;cursor:pointer}
-  .htile-fav svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+  .htile-fav{position:absolute;right:7px;top:7px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.55);
+    display:grid;place-items:center;color:#fff;border:1px solid rgba(255,255,255,.35);cursor:pointer;
+    box-shadow:0 2px 8px rgba(0,0,0,.4);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+  .htile-fav svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
   .htile-fav.on{color:var(--p3)}.htile-fav.on svg{fill:var(--p3)}
   .htile-nm{font-size:13.5px;font-weight:700;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .htile-sub{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
@@ -731,6 +733,7 @@
         <input type="range" id="pVol" class="pvol-range" min="0" max="1" step="0.05" value="1" title="Volume" aria-label="Volume">
       </div>
       <button class="pbtn pico" id="pFsBtn" title="Fullscreen (F)"><svg id="pFsIcon" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
+      <button class="pbtn pico pfav" id="pFavBtn" title="Favourite (G)" aria-label="Favourite"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-9.5-9A5 5 0 0112 5a5 5 0 019.5 7c-2.5 4.5-9.5 9-9.5 9z"/></svg></button>
       <button class="pbtn" id="pGuideBtn" title="TV guide (▲)"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><span class="lbl">Guide</span></button>
       <div class="pb-live"><span class="dot"></span>LIVE</div>
     </div>
@@ -1072,7 +1075,7 @@ function renderDots(){
 /* ---------- favourites ---------- */
 function toggleFav(n){ if(favs.has(n))favs.delete(n); else favs.add(n);
   localStorage.setItem('stb_favs',JSON.stringify([...favs]));
-  render(); renderDots();
+  render(); renderDots(); syncPFav();
   if(favView&&!favs.size){favView=false;setNav('live');render()}
   if(TV){ toast(favs.has(n)?'Added to Favourites':'Removed from Favourites'); } }
 
@@ -1169,7 +1172,7 @@ function playChannel(n){
   inPlayer=true; document.getElementById('player').classList.add('show');
   document.getElementById('pbNum').textContent=String(n).padStart(3,'0');
   document.getElementById('pbName').textContent=c.name.replace(/\s*\(.*?\)\s*/,' ').trim();
-  updatePbarProg(n);
+  updatePbarProg(n); syncPFav();
   var v=document.getElementById('video'); applyVolume();
 
   // YouTube-embedded channels play in an official iframe, not via HLS.
@@ -1227,6 +1230,9 @@ document.getElementById('player').addEventListener('mousemove',function(){showPb
 document.getElementById('player').addEventListener('click',function(e){if(!e.target.closest('#pbar')&&!e.target.closest('#pguide'))togglePbar()});
 document.getElementById('pback').onclick=function(e){e.stopPropagation();closePlayer()};
 document.getElementById('watchBtn').onclick=function(){playChannel(currentNum||(visible[focusIndex]||CH[0]).num)};
+/* favourite toggle for the channel currently playing */
+function syncPFav(){var b=document.getElementById('pFavBtn'); if(b)b.classList.toggle('on',favs.has(currentNum));}
+document.getElementById('pFavBtn').onclick=function(e){e.stopPropagation();if(!currentNum)return;toggleFav(currentNum);syncPFav();};
 
 /* ---------- in-player EPG / channel surf ---------- */
 var pgOpen=false, pgList=[], pgSel=0;
