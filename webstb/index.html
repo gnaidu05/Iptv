@@ -797,7 +797,7 @@
     <div class="msg" id="pmsg">Tuning…</div>
     <div class="nosignal" id="pnosig">
       <div class="bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-      <div class="msg"><b>NO SIGNAL</b> — channel unavailable in browser</div>
+      <div class="msg" id="pnosigmsg"><b>NO SIGNAL</b> — channel unavailable in browser</div>
       <div class="ns-actions">
         <button class="pbtn" id="pRetryBtn"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7M21 4v4h-4"/></svg>Retry</button>
         <button class="pbtn" id="pNextBtn"><svg viewBox="0 0 24 24"><path d="M6 4l12 8-12 8V4z"/></svg>Next channel</button>
@@ -906,6 +906,12 @@ var watchHist=JSON.parse(localStorage.getItem('stb_hist')||'[]');
 var catFilter='ALL', favView=false, hdOnly=false, sortMode=0, query='', langFilter='ALL';
 var visible=[], focusIndex=0, currentNum=null, loadedNum=null, hls=null;
 var poweredOn=false, inPlayer=false, tuneTimer=null, vodPlaying=false;
+// Some phone browsers (notably budget Android / certain ColorOS-MIUI Chrome
+// builds) can't decode HEVC/H.265 through MSE, so HEVC-only "HD" channels won't
+// play there even though they work on other phones. Detect it so a failure can
+// explain the real reason instead of a misleading generic "unavailable".
+var HEVC_OK=(function(){ try{ return !!(window.MediaSource&&(MediaSource.isTypeSupported('video/mp4;codecs="hvc1.1.6.L93.B0"')||MediaSource.isTypeSupported('video/mp4;codecs="hev1.1.6.L93.B0"'))); }catch(e){ return false; } })();
+var tuneCodecFail=false;
 // remote-nav zones on the home screen: 'grid' | 'tabs' | 'tools' | 'rail'
 var zone='grid', railIdx=0, toolIdx=0, langSel=0;
 
@@ -1202,7 +1208,9 @@ function tune(v,url,vlc,onok,onfail){
     hls.on(window.Hls.Events.ERROR,function(e,d){
       if(!d||!d.fatal)return;                       // non-fatal: hls.js retries/skips the bad fragment itself
       var det=(d.details||'');
-      if(det.indexOf('IncompatibleCodecs')>=0||det.toLowerCase().indexOf('manifestparsing')>=0){onfail();return} // won't recover
+      var low=det.toLowerCase();
+      if(low.indexOf('codec')>=0){tuneCodecFail=true;onfail();return}           // HEVC/unsupported codec — won't recover
+      if(det.indexOf('IncompatibleCodecs')>=0||low.indexOf('manifestparsing')>=0){onfail();return} // won't recover
       if(recov<4){
         recov++;
         if(d.type===window.Hls.ErrorTypes.MEDIA_ERROR){try{hls.recoverMediaError();return}catch(_){}}
@@ -1238,6 +1246,7 @@ function playChannel(n){
   // through the proxy on their first attempt; geo (India ⭐) channels are
   // India-only, which the proxy (outside India) can't reach — so skip it.
   var settled=false, triedProxy=(!!c.geo)||(!!c.px&&!!PROXY&&!PLAYALL);
+  tuneCodecFail=false;
   clearTimeout(tuneTimer);
   function ok(){if(settled)return;settled=true;clearTimeout(tuneTimer);pStatus('off');v.play().catch(function(){})}
   function attempt(url,label){ clearTimeout(tuneTimer);
@@ -1245,9 +1254,17 @@ function playChannel(n){
     tuneTimer=setTimeout(fail,13000); tune(v,url,c.vlc,ok,fail); }
   function fail(){
     if(settled)return;
-    if(!triedProxy&&PROXY&&!PLAYALL){ triedProxy=true;
+    // A codec failure (HEVC/HDR on a device whose browser can't decode it) won't
+    // be fixed by the proxy — the bytes are fine, the decoder is missing. Skip
+    // the proxy retry and explain the real reason.
+    if(!tuneCodecFail&&!triedProxy&&PROXY&&!PLAYALL){ triedProxy=true;
       attempt(PROXY+'/?url='+encodeURIComponent(c.url),' (proxy)'); return; }
-    settled=true;clearTimeout(tuneTimer);pStatus('nosignal');
+    settled=true;clearTimeout(tuneTimer);
+    var nm=document.getElementById('pnosigmsg');
+    if(nm)nm.innerHTML=tuneCodecFail
+      ? '<b>Can’t play on this device</b> — this channel streams in HEVC/HDR, which this phone’s browser can’t decode. It works on devices with HEVC support.'
+      : '<b>NO SIGNAL</b> — channel unavailable in browser';
+    pStatus('nosignal');
   }
   attempt(streamUrl(c),'');
   showPbar(true);   // keep the OSD (programme + time left) visible after selecting
