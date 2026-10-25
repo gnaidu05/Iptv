@@ -1264,12 +1264,24 @@ function playVOD(m){
   document.getElementById('pbName').textContent=m.name;
   pStatus('tuning','Loading <b>'+esc(m.name)+'</b>…'); showPbar(true);
   v.controls=true; v.preload='auto'; try{v.playsInline=true}catch(e){} applyVolume();
-  var settled=false, timer=setTimeout(function(){ if(!settled){settled=true;pStatus('nosignal');} },45000);
+  var loaded=false;
   // clear the overlay as soon as the browser has the metadata (duration/first
   // frame) — don't wait for full buffering, which can take a while on mobile.
-  function ok(){ if(settled)return; settled=true; clearTimeout(timer); pStatus('off'); }
+  function ok(){ if(loaded)return; loaded=true; vodStopWatch(); pStatus('off'); }
   v.onloadedmetadata=ok; v.onloadeddata=ok; v.oncanplay=ok; v.onplaying=ok;
-  v.onerror=function(){ if(settled)return; settled=true; clearTimeout(timer); pStatus('nosignal'); };
+  v.ontimeupdate=function(){ if(v.currentTime>0)ok(); };
+  v.onerror=function(){ if(loaded)return; loaded=true; vodStopWatch(); vodFail(); };
+  // Progress-aware watchdog: only declare failure if, after a long grace
+  // period, NOTHING has been downloaded (dead link). A slow-but-working
+  // buffer keeps v.buffered growing / readyState>0, so we keep the "Loading"
+  // overlay instead of wrongly showing an error over a buffering video.
+  var start=Date.now();
+  vodStopWatch();
+  window.__vodWatch=setInterval(function(){
+    if(loaded||!vodPlaying){ vodStopWatch(); return; }
+    var hasData=(v.buffered&&v.buffered.length>0)||v.readyState>0;
+    if(!hasData && Date.now()-start>45000){ vodStopWatch(); if(!loaded){loaded=true;vodFail();} }
+  },3000);
   v.src=m.url; try{v.load()}catch(e){}
   // Start playback inside the tap gesture. Mobile browsers defer loading media
   // data until play() is called, so without this the video can sit forever on
@@ -1277,6 +1289,8 @@ function playVOD(m){
   // overlay still clears on metadata and the user taps the visible play button.
   var pr=v.play(); if(pr&&pr.catch)pr.catch(function(){});
 }
+function vodStopWatch(){ if(window.__vodWatch){clearInterval(window.__vodWatch);window.__vodWatch=null;} }
+function vodFail(){ pStatus('off'); toast('Couldn’t load this title — slow connection or unavailable. Try again or pick another.'); }
 /* ---------- on-demand series: episode picker ---------- */
 var epOpen=false, epShow=null, epSel=0;
 function openEpisodes(s){
@@ -1310,8 +1324,9 @@ document.getElementById('episodes').addEventListener('click',function(e){if(e.ta
 function closePlayer(){
   inPlayer=false; pbarPinned=false; closePGuide(); document.getElementById('player').classList.remove('show');
   var pl=document.getElementById('player'); pl.classList.remove('vod'); vodPlaying=false;
+  if(typeof vodStopWatch==='function')vodStopWatch();
   var v=document.getElementById('video'); v.controls=false;
-  v.onloadedmetadata=null; v.onloadeddata=null; v.oncanplay=null; v.onplaying=null; v.onerror=null;
+  v.onloadedmetadata=null; v.onloadeddata=null; v.oncanplay=null; v.onplaying=null; v.ontimeupdate=null; v.onerror=null;
   destroyHls(v); clearYt(); pStatus('off');
   if(window.__hideBuf)window.__hideBuf();
   if(window.__hideSurf)window.__hideSurf();

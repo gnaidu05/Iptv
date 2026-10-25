@@ -76,5 +76,29 @@
     "url": "https://archive.org/download/charlie_chaplin_film_fest/charlie_chaplin_film_fest_512kb.mp4",
     "logo": "https://archive.org/services/img/charlie_chaplin_film_fest",
     "group": "Comedy"
+  },
+  {
+    "name": "Betty Boop: Snow White (1933)",
+    "url": "https://archive.org/download/bb_snow_white/bb_snow_white_512kb.mp4",
+    "logo": "https://archive.org/services/img/bb_snow_white",
+    "group": "Cartoons"
+  },
+  {
+    "name": "Betty Boop: Minnie the Moocher (1932)",
+    "url": "https://archive.org/download/bb_minnie_the_moocher/bb_minnie_the_moocher_512kb.mp4",
+    "logo": "https://archive.org/services/img/bb_minnie_the_moocher",
+    "group": "Cartoons"
+  },
+  {
+    "name": "Popeye for President (1956)",
+    "url": "https://archive.org/download/Popeye_forPresident/Popeye_forPresident_512kb.mp4",
+    "logo": "https://archive.org/services/img/Popeye_forPresident",
+    "group": "Cartoons"
+  },
+  {
+    "name": "Private Eye Popeye (1954)",
+    "url": "https://archive.org/download/popeye_private_eye_popeye/popeye_private_eye_popeye_512kb.mp4",
+    "logo": "https://archive.org/services/img/popeye_private_eye_popeye",
+    "group": "Cartoons"
   }
 ]
