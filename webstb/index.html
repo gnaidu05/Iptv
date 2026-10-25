@@ -891,6 +891,11 @@ var AURA_T0=(window.performance&&performance.now)?performance.now():Date.now();
 var PROXY_DEFAULT='https://aura-proxy.gnaidu05.workers.dev';
 var _qs=new URLSearchParams(location.search);
 var PLAYALL=(_qs.get('app')==='1')||window.AURA_PLAYALL===true;
+// The native Android shell injects window.AuraShell and re-fetches cross-origin
+// requests itself (adding CORS), so it needs no web proxy. A plain browser does
+// — even at ?app=1 (which only sets the phone UI). Gate the CORS proxy on the
+// real shell, not on PLAYALL, or non-CORS channels fail in a normal browser.
+var NATIVE_APP=!!(window.AuraShell);
 // TV / 10-foot mode: the native shell adds &tv=1 on a television. Enables the
 // bigger layout and full D-pad zone navigation (rail ↔ tabs ↔ tools ↔ grid).
 var TV=(_qs.get('tv')==='1')||window.AURA_TV===true;
@@ -901,7 +906,7 @@ var PROXY=((_qs.get('proxy')||localStorage.getItem('aura_proxy')||PROXY_DEFAULT)
 if(_qs.get('proxy')!==null){try{PROXY?localStorage.setItem('aura_proxy',PROXY):localStorage.removeItem('aura_proxy')}catch(e){}}
 function canPx(){return PLAYALL||!!PROXY}
 function streamUrl(c){
-  if(c&&c.px&&PROXY&&!PLAYALL)return PROXY+'/?url='+encodeURIComponent(c.url);
+  if(c&&c.px&&PROXY&&!NATIVE_APP)return PROXY+'/?url='+encodeURIComponent(c.url);
   return c?c.url:'';
 }
 var favs=new Set(JSON.parse(localStorage.getItem('stb_favs')||'[]'));
@@ -1256,7 +1261,7 @@ function playChannel(n){
   // Proxy fallback applies to normal channels only. px channels already go
   // through the proxy on their first attempt; geo (India ⭐) channels are
   // India-only, which the proxy (outside India) can't reach — so skip it.
-  var settled=false, triedProxy=(!!c.geo)||(!!c.px&&!!PROXY&&!PLAYALL);
+  var settled=false, triedProxy=(!!c.geo)||(!!c.px&&!!PROXY&&!NATIVE_APP);
   tuneCodecFail=false;
   clearTimeout(tuneTimer);
   function ok(){if(settled)return;settled=true;clearTimeout(tuneTimer);pStatus('off');v.play().catch(function(){})}
@@ -1268,7 +1273,7 @@ function playChannel(n){
     // A codec failure (HEVC/HDR on a device whose browser can't decode it) won't
     // be fixed by the proxy — the bytes are fine, the decoder is missing. Skip
     // the proxy retry and explain the real reason.
-    if(!tuneCodecFail&&!triedProxy&&PROXY&&!PLAYALL){ triedProxy=true;
+    if(!tuneCodecFail&&!triedProxy&&PROXY&&!NATIVE_APP){ triedProxy=true;
       attempt(PROXY+'/?url='+encodeURIComponent(c.url),' (proxy)'); return; }
     settled=true;clearTimeout(tuneTimer);
     var nm=document.getElementById('pnosigmsg');
