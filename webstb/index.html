@@ -1263,12 +1263,19 @@ function playVOD(m){
   document.getElementById('pbNum').textContent='';
   document.getElementById('pbName').textContent=m.name;
   pStatus('tuning','Loading <b>'+esc(m.name)+'</b>…'); showPbar(true);
-  v.controls=true; applyVolume();
-  var settled=false, timer=setTimeout(function(){ if(!settled){settled=true;pStatus('nosignal');} },30000);
-  function ok(){ if(settled)return; settled=true; clearTimeout(timer); pStatus('off'); v.play().catch(function(){}); }
-  v.onloadeddata=ok; v.oncanplay=ok;
+  v.controls=true; v.preload='auto'; try{v.playsInline=true}catch(e){} applyVolume();
+  var settled=false, timer=setTimeout(function(){ if(!settled){settled=true;pStatus('nosignal');} },45000);
+  // clear the overlay as soon as the browser has the metadata (duration/first
+  // frame) — don't wait for full buffering, which can take a while on mobile.
+  function ok(){ if(settled)return; settled=true; clearTimeout(timer); pStatus('off'); }
+  v.onloadedmetadata=ok; v.onloadeddata=ok; v.oncanplay=ok; v.onplaying=ok;
   v.onerror=function(){ if(settled)return; settled=true; clearTimeout(timer); pStatus('nosignal'); };
   v.src=m.url; try{v.load()}catch(e){}
+  // Start playback inside the tap gesture. Mobile browsers defer loading media
+  // data until play() is called, so without this the video can sit forever on
+  // "Loading" showing only the native play button. If autoplay is refused the
+  // overlay still clears on metadata and the user taps the visible play button.
+  var pr=v.play(); if(pr&&pr.catch)pr.catch(function(){});
 }
 /* ---------- on-demand series: episode picker ---------- */
 var epOpen=false, epShow=null, epSel=0;
@@ -1303,7 +1310,8 @@ document.getElementById('episodes').addEventListener('click',function(e){if(e.ta
 function closePlayer(){
   inPlayer=false; pbarPinned=false; closePGuide(); document.getElementById('player').classList.remove('show');
   var pl=document.getElementById('player'); pl.classList.remove('vod'); vodPlaying=false;
-  var v=document.getElementById('video'); v.controls=false; v.onloadeddata=null; v.oncanplay=null; v.onerror=null;
+  var v=document.getElementById('video'); v.controls=false;
+  v.onloadedmetadata=null; v.onloadeddata=null; v.oncanplay=null; v.onplaying=null; v.onerror=null;
   destroyHls(v); clearYt(); pStatus('off');
   if(window.__hideBuf)window.__hideBuf();
   if(window.__hideSurf)window.__hideSurf();
