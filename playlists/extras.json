@@ -21,5 +21,21 @@
     "logo": "https://sai.org.in/sites/default/files/logo_0.gif",
     "group": "Devotional",
     "lang": "Marathi"
+  },
+  {
+    "name": "Great! Movies",
+    "url": "https://amg01753-narrativeuk-amg01753c3-lg-gb-1833.playouts.now.amagi.tv/playlist/amg01753-narrativeuk-greatmovies-lggb/playlist.m3u8",
+    "logo": "https://upload.wikimedia.org/wikipedia/en/thumb/9/92/Great%21_Movies_logo_2021.svg/500px-Great%21_Movies_logo_2021.svg.png",
+    "group": "Movies",
+    "lang": "English",
+    "px": true
+  },
+  {
+    "name": "Action Hollywood Movies",
+    "url": "https://cdn-apse1-prod.tsv2.amagi.tv/linear/amg01076-lightningintern-actionhollywood-samsungnz/playlist.m3u8",
+    "logo": "",
+    "group": "Movies",
+    "lang": "English",
+    "px": true
   }
 ]

@@ -240,6 +240,11 @@
   .ns-actions{display:flex;gap:12px;margin-top:14px}
   .ns-actions .pbtn{background:rgba(255,255,255,.06)}
   .pb-live{display:flex;align-items:center;gap:8px;color:var(--live);font-weight:700;letter-spacing:1px;flex:0 0 auto}
+  /* on-demand movie mode: drop the live OSD, let the native <video> controls show */
+  #player.vod .pvol,#player.vod #pGuideBtn,#player.vod #pFavBtn,#player.vod #pFsBtn,
+  #player.vod .pb-live,#player.vod .pb-prog,#player.vod .pb-num,
+  #player.vod #pProgress,#player.vod #surf{display:none!important}
+  #player.vod video{object-fit:contain;background:#000}
 
   /* in-player EPG / channel surf */
   #pguide{position:absolute;left:0;right:0;bottom:0;z-index:3;max-height:62%;display:flex;flex-direction:column;
@@ -524,6 +529,9 @@
     box-shadow:0 2px 8px rgba(0,0,0,.4);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
   .htile-fav svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
   .htile-fav.on{color:var(--p3)}.htile-fav.on svg{fill:var(--p3)}
+  .vtile-art img{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:cover;filter:none}
+  .vtile-play{position:absolute;inset:0;display:grid;place-items:center;font-size:30px;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.85);background:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.4))}
+  .vtile-free{position:absolute;left:8px;top:8px;background:var(--p3);color:#fff;font-size:9.5px;font-weight:800;border-radius:6px;padding:1px 6px;letter-spacing:.5px}
   .htile-nm{font-size:13.5px;font-weight:700;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .htile-sub{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
 
@@ -836,6 +844,8 @@ function ensureHls(cb){
 }
 
 var DATA=window.STB_DATA||{channels:[]}, CH=DATA.channels;
+// Public-domain on-demand movies (VOD, played as seekable .mp4 — not live channels).
+var VOD=window.STB_VOD||[];
 var AURA_T0=(window.performance&&performance.now)?performance.now():Date.now();
 
 /* ---------- non-CORS playback (proxy / native shell) ----------
@@ -864,7 +874,7 @@ var favs=new Set(JSON.parse(localStorage.getItem('stb_favs')||'[]'));
 var watchHist=JSON.parse(localStorage.getItem('stb_hist')||'[]');
 var catFilter='ALL', favView=false, hdOnly=false, sortMode=0, query='', langFilter='ALL';
 var visible=[], focusIndex=0, currentNum=null, loadedNum=null, hls=null;
-var poweredOn=false, inPlayer=false, tuneTimer=null;
+var poweredOn=false, inPlayer=false, tuneTimer=null, vodPlaying=false;
 // remote-nav zones on the home screen: 'grid' | 'tabs' | 'tools' | 'rail'
 var zone='grid', railIdx=0, toolIdx=0, langSel=0;
 
@@ -1211,9 +1221,29 @@ function playChannel(n){
   attempt(streamUrl(c),'');
   showPbar(true);   // keep the OSD (programme + time left) visible after selecting
 }
+/* On-demand movie playback: a seekable .mp4 via the native player (no HLS, no
+   live OSD). Internet Archive serves H.264 that the WebView/Chrome play direct;
+   native controls give the seek bar, volume and fullscreen. */
+function playVOD(m){
+  if(!m||!m.url)return;
+  inPlayer=true; vodPlaying=true; currentNum=-1;
+  var pl=document.getElementById('player'); pl.classList.add('show'); pl.classList.add('vod');
+  var v=document.getElementById('video'); destroyHls(v); clearYt();
+  document.getElementById('pbNum').textContent='';
+  document.getElementById('pbName').textContent=m.name;
+  pStatus('tuning','Loading <b>'+esc(m.name)+'</b>…'); showPbar(true);
+  v.controls=true; applyVolume();
+  var settled=false, timer=setTimeout(function(){ if(!settled){settled=true;pStatus('nosignal');} },30000);
+  function ok(){ if(settled)return; settled=true; clearTimeout(timer); pStatus('off'); v.play().catch(function(){}); }
+  v.onloadeddata=ok; v.oncanplay=ok;
+  v.onerror=function(){ if(settled)return; settled=true; clearTimeout(timer); pStatus('nosignal'); };
+  v.src=m.url; try{v.load()}catch(e){}
+}
 function closePlayer(){
   inPlayer=false; pbarPinned=false; closePGuide(); document.getElementById('player').classList.remove('show');
-  var v=document.getElementById('video'); destroyHls(v); clearYt(); pStatus('off');
+  var pl=document.getElementById('player'); pl.classList.remove('vod'); vodPlaying=false;
+  var v=document.getElementById('video'); v.controls=false; v.onloadeddata=null; v.oncanplay=null; v.onerror=null;
+  destroyHls(v); clearYt(); pStatus('off');
   if(window.__hideBuf)window.__hideBuf();
   if(window.__hideSurf)window.__hideSurf();
   renderDots();
@@ -1478,6 +1508,17 @@ document.addEventListener('keydown',function(e){
     return;
   }
   if(inPlayer){
+    if(vodPlaying){
+      var vv=document.getElementById('video');
+      if(e.key==='Escape'||e.key==='Backspace'){closePlayer()}
+      else if(e.key==='Enter'||e.key===' '){ if(vv.paused)vv.play(); else vv.pause(); showPbar(true); }
+      else if(e.key==='ArrowRight'){ vv.currentTime=Math.min((vv.duration||1e9),vv.currentTime+10); showPbar(true); }
+      else if(e.key==='ArrowLeft'){ vv.currentTime=Math.max(0,vv.currentTime-10); showPbar(true); }
+      else if(e.key==='f'||e.key==='F'){toggleFullscreen()}
+      else if(e.key==='m'||e.key==='M'){vv.muted=!vv.muted}
+      else return;   // let native video controls handle anything else
+      e.preventDefault(); return;
+    }
     if(pgOpen){
       if(e.key==='Escape'||e.key==='Backspace'){closePGuide()}
       else if(e.key==='ArrowUp'){pgMove(-1)} else if(e.key==='ArrowDown'){pgMove(1)}
@@ -1571,15 +1612,22 @@ function ensureTVRow(r){
   var frag=document.createDocumentFragment();
   row.items.forEach(function(c,i){
     var d=document.createElement('div');
-    if(row.circ){ d.className='hcirc';
-      d.innerHTML='<div class="hcirc-l">'+tvLogo(c)+'</div><div class="hcirc-nm">'+esc(hubClean(c.name))+'</div>'; }
+    if(row.vod){ d.className='htile vtile';
+      d.innerHTML='<div class="htile-art vtile-art" style="background:#0a0f1c">'+
+        (c.logo?'<img data-src="'+esc(c.logo)+'" data-ph="" decoding="async" onerror="tvImgErr(this)">':'')+
+        '<span class="vtile-play">▶</span><span class="vtile-free">FREE</span></div>'+
+        '<div class="htile-nm">'+esc(c.name)+'</div><div class="htile-sub">'+esc(c.group||'Movie')+' · On demand</div>';
+      (function(mv){d.onclick=function(){playVOD(mv)}})(c); }
+    else if(row.circ){ d.className='hcirc';
+      d.innerHTML='<div class="hcirc-l">'+tvLogo(c)+'</div><div class="hcirc-nm">'+esc(hubClean(c.name))+'</div>';
+      (function(cn){d.onclick=function(){playChannel(cn)}})(c.num); }
     else { d.className='htile';
       d.innerHTML='<div class="htile-art" style="background:'+hubArtBg(c)+'">'+tvLogo(c)+
         '<span class="htile-live"><span class="d"></span>LIVE</span>'+(isHD(c)?'<span class="htile-hd">HD</span>':'')+
         (favs.has(c.num)?'<span class="htile-favdot">❤</span>':'')+'</div>'+
-        '<div class="htile-nm">'+esc(hubClean(c.name))+'</div><div class="htile-sub">'+esc(cardProg(c)||catOf(c))+'</div>'; }
+        '<div class="htile-nm">'+esc(hubClean(c.name))+'</div><div class="htile-sub">'+esc(cardProg(c)||catOf(c))+'</div>';
+      (function(cn){d.onclick=function(){playChannel(cn)}})(c.num); }
     d.dataset.r=r; d.dataset.i=i;
-    (function(cn){d.onclick=function(){playChannel(cn)}})(c.num);
     frag.appendChild(d);
   });
   row.track.appendChild(frag);
@@ -1600,7 +1648,7 @@ function tvFocus(r,i){
   var track=card.parentNode; track.style.transform='translateX(-'+Math.max(0,card.offsetLeft-56)+'px)';
   tvRevealImages(r,i+5);
   track.parentNode.scrollIntoView({block:'center',behavior:'auto'});
-  var c=tvRows[r].items[i]; if(c)currentNum=c.num;
+  var c=tvRows[r].items[i]; if(c&&c.num!=null)currentNum=c.num;
 }
 function tvBarAct(a){ if(a==='search')openSearch(); else if(a==='guide')openEPG(); else if(a==='settings')openHelp(); else if(a==='favs')toggleTVFavView(); }
 function toggleTVFavView(){
@@ -1638,8 +1686,8 @@ function homeNavTV(e){
   else if(k==='ArrowDown')tvFocus(tvRow+1,tvCols[tvRow+1]!=null?tvCols[tvRow+1]:0);
   else if(k==='ArrowUp'){ if(tvRow>0)tvFocus(tvRow-1,tvCols[tvRow-1]!=null?tvCols[tvRow-1]:0);
     else { tvZone='bar'; tvBarIdx=0; var bb=tvBarBtns(); if(bb[0])bb[0].classList.add('kbf'); document.getElementById('main').scrollTo({top:0,behavior:'auto'}); } }
-  else if(k==='Enter'){ var c=row.items[col]; if(c)playChannel(c.num); }
-  else if(k==='g'||k==='G'){ var cf=row.items[col]; if(cf){ toggleFav(cf.num);
+  else if(k==='Enter'){ var c=row.items[col]; if(c){ row.vod?playVOD(c):playChannel(c.num); } }
+  else if(k==='g'||k==='G'){ var cf=row.items[col]; if(cf&&!row.vod){ toggleFav(cf.num);
       if(tvFavView){ // un-favouriting here should drop the tile from the list
         tvRow=0; tvCols[0]=Math.max(0,col-(favs.has(cf.num)?0:1)); buildTVHome(); }
       else { var card=tvTileAt(tvRow,col), art=card&&card.querySelector('.htile-art');
@@ -1957,6 +2005,7 @@ function homeRowDefs(cap){
   add('Your Favourites', CH.filter(function(c){return favs.has(c.num)&&hubPlayable(c)}));
   add('Continue Watching', watchHist.map(byNum).filter(function(c){return c&&hubPlayable(c)}));
   add('Trending Movies', byCat('Movies'));
+  if(typeof VOD!=='undefined'&&VOD.length)rows.push({title:'Free Movies · On Demand 🎬',items:VOD.slice(0,cap),vod:true});
   add('Entertainment', byCat('Entertainment'));
   add('Tiny Titans', byCat('Kids'));
   add('Comedy Central', byCat('Comedy'));
@@ -2073,7 +2122,7 @@ function renderHubRows(){
     var sec=document.createElement('div'); sec.className='hrow'+(row.circ?' circ':'')+(grid?' grid':''); sec.dataset.title=row.title;
     var h=document.createElement('div'); h.className='hrow-h'; h.textContent=row.title; sec.appendChild(h);
     var t=document.createElement('div'); t.className='hrow-t';
-    row.items.forEach(function(c){ t.appendChild(row.circ?hubCirc(c):hubTile(c)); });
+    row.items.forEach(function(c){ t.appendChild(row.vod?vodTile(c):row.circ?hubCirc(c):hubTile(c)); });
     sec.appendChild(t); frag.appendChild(sec);
   });
   rc.appendChild(frag);
@@ -2090,6 +2139,18 @@ function hubTile(c){
   d.querySelector('.htile-fav').onclick=function(e){e.stopPropagation();toggleFav(c.num);this.classList.toggle('on',favs.has(c.num))};
   d.onclick=function(){playChannel(c.num)};
   d.onkeydown=function(e){if(e.key==='Enter')playChannel(c.num)};
+  return d;
+}
+/* On-demand movie poster tile (VOD). Plays a seekable .mp4, not a live channel. */
+function vodTile(m){
+  var d=document.createElement('div'); d.className='htile vtile'; d.tabIndex=0;
+  d.innerHTML='<div class="htile-art vtile-art" style="background:#0a0f1c">'+
+    (m.logo?'<img loading="lazy" decoding="async" src="'+esc(m.logo)+'" onerror="this.style.display=\'none\'">':'')+
+    '<span class="vtile-play">▶</span><span class="vtile-free">FREE</span></div>'+
+    '<div class="htile-nm">'+esc(m.name)+'</div>'+
+    '<div class="htile-sub">'+esc(m.group||'Movie')+' · On demand</div>';
+  d.onclick=function(){playVOD(m)};
+  d.onkeydown=function(e){if(e.key==='Enter')playVOD(m)};
   return d;
 }
 function hubCirc(c){

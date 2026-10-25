@@ -1,0 +1,80 @@
+[
+  {
+    "name": "Night of the Living Dead (1968)",
+    "url": "https://archive.org/download/Night.Of.The.Living.Dead_1080p/NightOfTheLivingDead_DVD5_512kb.mp4",
+    "logo": "https://archive.org/services/img/Night.Of.The.Living.Dead_1080p",
+    "group": "Horror"
+  },
+  {
+    "name": "Nosferatu (1922)",
+    "url": "https://archive.org/download/Nosferatu_most_complete_version_93_mins./Nosferatu_1922_Symphony_of_Horror_512kb.mp4",
+    "logo": "https://archive.org/services/img/Nosferatu_most_complete_version_93_mins.",
+    "group": "Horror"
+  },
+  {
+    "name": "His Girl Friday (1940)",
+    "url": "https://archive.org/download/his_girl_friday/his_girl_friday_512kb.mp4",
+    "logo": "https://archive.org/services/img/his_girl_friday",
+    "group": "Comedy"
+  },
+  {
+    "name": "Jungle Book (1942)",
+    "url": "https://archive.org/download/JungleBook/Jungle_Book_512kb.mp4",
+    "logo": "https://archive.org/services/img/JungleBook",
+    "group": "Adventure"
+  },
+  {
+    "name": "The Stranger (1946)",
+    "url": "https://archive.org/download/TheStranger_0/The_Stranger_512kb.mp4",
+    "logo": "https://archive.org/services/img/TheStranger_0",
+    "group": "Thriller"
+  },
+  {
+    "name": "Suddenly (1954)",
+    "url": "https://archive.org/download/suddenly/suddenly_512kb.mp4",
+    "logo": "https://archive.org/services/img/suddenly",
+    "group": "Thriller"
+  },
+  {
+    "name": "House on Haunted Hill (1959)",
+    "url": "https://archive.org/download/house_on_haunted_hill_ipod/house_on_haunted_hill_512kb.mp4",
+    "logo": "https://archive.org/services/img/house_on_haunted_hill_ipod",
+    "group": "Horror"
+  },
+  {
+    "name": "Utopia (Atoll K) (1951)",
+    "url": "https://archive.org/download/utopia/Utopia.mp4",
+    "logo": "https://archive.org/services/img/utopia",
+    "group": "Comedy"
+  },
+  {
+    "name": "Sita Sings the Blues (2008)",
+    "url": "https://archive.org/download/Sita_Sings_the_Blues/Sita_Sings_the_Blues_DVD_NTSC1.mp4",
+    "logo": "https://archive.org/services/img/Sita_Sings_the_Blues",
+    "group": "Animation"
+  },
+  {
+    "name": "Abraham Lincoln (1930)",
+    "url": "https://archive.org/download/abraham_lincoln/abraham_lincoln_512kb.mp4",
+    "logo": "https://archive.org/services/img/abraham_lincoln",
+    "group": "Drama"
+  },
+  {
+    "name": "The Pied Piper of Hamelin (1957)",
+    "url": "https://archive.org/download/The_Pied_Piper_of_Hamelin/pied.mp4",
+    "logo": "https://archive.org/services/img/The_Pied_Piper_of_Hamelin",
+    "group": "Family"
+  },
+  {
+    "name": "Popeye Meets Sindbad (1936)",
+    "url": "https://archive.org/download/popeye-the-sailor-meets-sindbad-the-sailor-1936/Popeye%20the%20Sailor%20Meets%20Sindbad%20the%20Sailor%20%281936%29.mp4",
+    "logo": "https://archive.org/services/img/popeye-the-sailor-meets-sindbad-the-sailor-1936",
+    "group": "Animation"
+  },
+  {
+    "name": "Charlie Chaplin Festival (1938)",
+    "url": "https://archive.org/download/charlie_chaplin_film_fest/charlie_chaplin_film_fest_512kb.mp4",
+    "logo": "https://archive.org/services/img/charlie_chaplin_film_fest",
+    "group": "Comedy"
+  }
+]

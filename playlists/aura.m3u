@@ -1707,3 +1707,7 @@ https://cloudplay-sonyliv.pages.dev/sabhd.m3u8
 https://prod-runn.cdn.runn.tv/shemaroo/stream/smrfgn/playlist.m3u8
 #EXTINF:-1 tvg-id="" tvg-chno="856" tvg-logo="https://sai.org.in/sites/default/files/logo_0.gif" group-title="Devotional",Shirdi Sai Baba Temple (Live Darshan)
 https://aura-proxy.gnaidu05.workers.dev/sai
+#EXTINF:-1 tvg-id="" tvg-chno="857" tvg-logo="https://upload.wikimedia.org/wikipedia/en/thumb/9/92/Great%21_Movies_logo_2021.svg/500px-Great%21_Movies_logo_2021.svg.png" group-title="Movies",Great! Movies
+https://amg01753-narrativeuk-amg01753c3-lg-gb-1833.playouts.now.amagi.tv/playlist/amg01753-narrativeuk-greatmovies-lggb/playlist.m3u8
+#EXTINF:-1 tvg-id="" tvg-chno="858" tvg-logo="" group-title="Movies",Action Hollywood Movies
+https://cdn-apse1-prod.tsv2.amagi.tv/linear/amg01076-lightningintern-actionhollywood-samsungnz/playlist.m3u8
