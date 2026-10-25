@@ -1,0 +1,7 @@
+{
+  "_comment": "Per-channel source overrides, applied after the weekly refresh so they survive it. Key = tvg-id (exact). Swap a channel's stream URL (e.g. an HEVC/HDR-only feed that many phone browsers can't decode) for an H.264 one. Optional: name, group, lang, px (1 = route via proxy), hevc (0 = force-mark playable).",
+  "SunSurya.in@HD": {
+    "url": "https://indo51.gcdn.co/MALYLAM-SuryaHD/index.m3u8",
+    "note": "H.264 Malayalam Surya (HEVC/HDR cloudfront feed can't decode on some phone browsers)"
+  }
+}

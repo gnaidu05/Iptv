@@ -1009,6 +1009,7 @@ function buildTabs(){
 function computeVisible(){
   var list=CH.filter(function(c){
     if(codecDead.has(c.num))return false;   // hidden: this device can't decode it
+    if(c.hevc&&!HEVC_OK)return false;        // HEVC-only stream, no HEVC support here
     if(favView)return favs.has(c.num);
     if(catFilter==='GEO')return !!c.geo;
     if(c.geo)return false;                 // geo channels only show in the India tab
@@ -2117,7 +2118,7 @@ function bootStart(){ if(poweredOn)return; document.getElementById('powerBtn').s
 /* ===================== HUB: streaming-style home (web + phone app) =====================
    Hero carousel + horizontal rails of rounded channel tiles grouped by category
    and language, built from the active channel list, with a bottom nav. */
-function hubPlayable(c){ if(codecDead.has(c.num))return false; return !(c.px&&!canPx()); }
+function hubPlayable(c){ if(codecDead.has(c.num))return false; if(c.hevc&&!HEVC_OK)return false; return !(c.px&&!canPx()); }
 function hubClean(n){ return (n||'').replace(/\s*\(.*?\)\s*/,' ').trim(); }
 // Stable colour per channel so each tile/hero has its own tint.
 function hubHue(c){ var s=(c.name||'')+c.num,h=0; for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))%360; return h; }

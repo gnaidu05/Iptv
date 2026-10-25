@@ -14,6 +14,8 @@ import json
 import os
 import re
 import sys
+import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -257,6 +259,125 @@ def write_playlist(path: str, channels: list, epg_url: str) -> int:
     return n
 
 
+def apply_overrides(channels):
+    """Swap specific channels' sources from playlists/overrides.json (keyed by
+    tvg-id), applied after the refresh so the edits survive it. Used mainly to
+    replace HEVC/HDR-only feeds with H.264 ones that phone browsers can decode."""
+    path = os.path.join(ROOT, "playlists", "overrides.json")
+    if not os.path.exists(path):
+        return 0
+    try:
+        ov = json.load(open(path, encoding="utf-8"))
+    except ValueError:
+        return 0
+    n = 0
+    for ch in channels:
+        o = ov.get(ch.get("tvgId", ""))
+        if not isinstance(o, dict):
+            continue
+        if o.get("url"):
+            ch["url"] = o["url"]
+        for k in ("name", "group", "lang"):
+            if o.get(k):
+                ch[k] = o[k]
+        if o.get("px"):
+            ch["px"] = 1
+        if "hevc" in o:              # allow forcing the flag off (known-good H.264)
+            if o["hevc"]:
+                ch["hevc"] = 1
+            else:
+                ch.pop("hevc", None)
+            ch["hevcLock"] = 1       # don't let the probe overwrite an explicit choice
+        n += 1
+    return n
+
+
+_HEVC_UA = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/125.0 Safari/537.36"
+)
+_CODEC_RE = re.compile(r'CODECS="([^"]*)"', re.I)
+_STREAM_RE = re.compile(r"#EXT-X-STREAM-INF:", re.I)
+
+
+def _probe_hevc(url):
+    """Return True if the master playlist offers ONLY HEVC video (no H.264
+    alternative) — those can't play in browsers without HEVC/MSE support.
+    Returns False if any H.264 (avc1) variant exists, None if undetermined
+    (unreachable, not a master, geo-blocked). Conservative: only True when
+    positively confirmed, so working channels are never wrongly hidden."""
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": _HEVC_UA, "Accept": "*/*"})
+        with urllib.request.urlopen(req, timeout=7) as r:
+            text = r.read(20000).decode("utf-8", "replace")
+    except Exception:
+        return None
+    if "#EXTM3U" not in text or not _STREAM_RE.search(text):
+        return None  # not a master manifest (single variant / media playlist)
+    codecs = " ".join(_CODEC_RE.findall(text)).lower()
+    if not codecs:
+        return None
+    has_h264 = "avc1" in codecs or "avc3" in codecs
+    has_hevc = "hev1" in codecs or "hvc1" in codecs or "dvh" in codecs
+    if has_h264:
+        return False
+    if has_hevc:
+        return True
+    return None
+
+
+def tag_hevc(channels):
+    """Probe each non-geo live channel's master and tag HEVC-only ones with
+    hevc=1, so the app can hide them on devices whose browser lacks HEVC. Uses
+    playlists/hevc_cache.json (keyed by URL) so each weekly build only probes
+    new/changed stream URLs. Never un-flags on a failed probe."""
+    cache_path = os.path.join(ROOT, "playlists", "hevc_cache.json")
+    try:
+        cache = json.load(open(cache_path, encoding="utf-8"))
+    except Exception:
+        cache = {}
+
+    # channels to probe: have a URL, not geo (geo = India-only, unreachable from
+    # CI anyway), not a YouTube embed, not locked by an explicit override.
+    todo = []
+    for ch in channels:
+        url = (ch.get("url") or "").strip()
+        if not url or ch.get("yt") or ch.get("geo") or ch.get("hevcLock"):
+            continue
+        if url in cache:
+            if cache[url]:
+                ch["hevc"] = 1
+            continue
+        todo.append((ch, url))
+
+    def work(item):
+        ch, url = item
+        return url, _probe_hevc(url)
+
+    probed = 0
+    if todo:
+        with ThreadPoolExecutor(max_workers=24) as ex:
+            for url, res in ex.map(work, todo):
+                probed += 1
+                if res is not None:
+                    cache[url] = bool(res)
+        # apply freshly-cached results
+        for ch, url in todo:
+            if cache.get(url):
+                ch["hevc"] = 1
+        try:
+            json.dump(cache, open(cache_path, "w", encoding="utf-8"),
+                      ensure_ascii=False, separators=(",", ":"))
+        except Exception:
+            pass
+
+    hevc_n = sum(1 for c in channels if c.get("hevc"))
+    # hevcLock is internal bookkeeping — don't ship it to the app
+    for c in channels:
+        c.pop("hevcLock", None)
+    return hevc_n, probed
+
+
 def main() -> int:
     pl = m3u.parse_file(PLAYLIST)
     webset = _web_urls()
@@ -346,6 +467,12 @@ def main() -> int:
                 channels.append(ch)
                 extras_n += 1
 
+    # Per-channel source overrides (e.g. swap an HEVC-only feed for H.264), then
+    # tag the remaining HEVC-only channels so the app can hide them on devices
+    # whose browser can't decode HEVC.
+    ovr_n = apply_overrides(channels)
+    hevc_n, hevc_probed = tag_hevc(channels)
+
     # Public-domain / freely-licensed on-demand movies (Internet Archive), kept
     # in playlists/movies.json. These are VOD (individual .mp4 files played with
     # a seek bar), not live channels, so they live in a separate list and never
@@ -413,6 +540,8 @@ def main() -> int:
     print(f"India (geo-blocked) group: {geo_n} channels")
     print(f"Non-CORS (px, need proxy/native): {px} channels")
     print(f"Extras (YouTube live): {extras_n} channels")
+    print(f"Source overrides applied: {ovr_n}")
+    print(f"HEVC-only channels tagged: {hevc_n} (probed {hevc_probed} this run)")
     print(f"On-demand movies (VOD): {len(vod)} titles")
     print(f"On-demand series (VOD): {len(series)} shows, {sum(len(s['episodes']) for s in series)} episodes")
     print(f"Portable playlist: {m3u_n} entries -> {aura_m3u}")
