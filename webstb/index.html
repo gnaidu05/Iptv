@@ -274,6 +274,24 @@
   .pg-hint{padding:8px 22px 12px;color:var(--muted);font-size:12px}.pg-hint b{color:var(--txt)}
 
   /* ---------------- SEARCH ---------------- */
+  /* on-demand series episode picker */
+  #episodes{position:fixed;inset:0;z-index:46;display:none;background:rgba(5,7,14,.94);backdrop-filter:blur(8px);padding:28px 0 0;flex-direction:column}
+  #episodes.show{display:flex}
+  .ep-head{display:flex;align-items:center;gap:16px;width:min(760px,92%);margin:0 auto 14px;padding:0 4px}
+  .ep-art{width:64px;height:64px;border-radius:12px;background:#0a0f1c;overflow:hidden;flex:0 0 auto;border:1px solid var(--line2)}
+  .ep-art img{width:100%;height:100%;object-fit:cover}
+  .ep-meta{flex:1;min-width:0}
+  .ep-show{font-size:24px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ep-sub{color:var(--muted);font-size:13px;margin-top:3px}
+  .ep-close{width:44px;height:44px;border-radius:50%;border:1px solid var(--line2);background:rgba(255,255,255,.05);color:#fff;font-size:18px;cursor:pointer;flex:0 0 auto}
+  .ep-list{width:min(760px,92%);margin:0 auto;flex:1;overflow:auto;-webkit-overflow-scrolling:touch}
+  .ep-row{display:flex;align-items:center;gap:14px;padding:13px 16px;border-radius:12px;cursor:pointer;border:1px solid transparent}
+  .ep-row:hover,.ep-row.sel{background:rgba(77,124,255,.16);border-color:var(--p2)}
+  .ep-row .ep-ix{width:30px;color:var(--muted);font-weight:800;font-size:14px;flex:0 0 auto;text-align:center}
+  .ep-row .ep-ti{flex:1;color:#fff;font-size:15.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ep-row .ep-pl{color:var(--p3);font-size:15px}
+  .ep-hint{width:min(760px,92%);margin:10px auto 16px;color:var(--muted);font-size:13px;text-align:center}
+  html.tv .ep-show{font-size:30px} html.tv .ep-row{padding:16px 20px} html.tv .ep-row .ep-ti{font-size:19px}
   #search{position:fixed;inset:0;z-index:45;display:none;background:rgba(5,7,14,.9);backdrop-filter:blur(6px);padding:80px 40px}
   #search.show{display:block}
   .s-in{width:min(720px,90%);margin:0 auto;display:flex;align-items:center;gap:14px;border-bottom:2px solid var(--line2);padding:12px 4px}
@@ -803,6 +821,17 @@
   </div>
 </div>
 
+<!-- EPISODE PICKER (on-demand series) -->
+<div id="episodes">
+  <div class="ep-head">
+    <div class="ep-art" id="epArt"></div>
+    <div class="ep-meta"><div class="ep-show" id="epShowName">—</div><div class="ep-sub" id="epShowSub"></div></div>
+    <button class="ep-close" id="epClose">✕</button>
+  </div>
+  <div class="ep-list" id="epList"></div>
+  <div class="ep-hint">▲▼ or tap to choose · <b>OK</b> to play · <b>Back</b> to close</div>
+</div>
+
 <!-- SEARCH -->
 <div id="search">
   <div class="s-in"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
@@ -846,6 +875,8 @@ function ensureHls(cb){
 var DATA=window.STB_DATA||{channels:[]}, CH=DATA.channels;
 // Public-domain on-demand movies (VOD, played as seekable .mp4 — not live channels).
 var VOD=window.STB_VOD||[];
+// Public-domain on-demand TV series: each show has a list of episodes.
+var SERIES=window.STB_SERIES||[];
 var AURA_T0=(window.performance&&performance.now)?performance.now():Date.now();
 
 /* ---------- non-CORS playback (proxy / native shell) ----------
@@ -1239,6 +1270,36 @@ function playVOD(m){
   v.onerror=function(){ if(settled)return; settled=true; clearTimeout(timer); pStatus('nosignal'); };
   v.src=m.url; try{v.load()}catch(e){}
 }
+/* ---------- on-demand series: episode picker ---------- */
+var epOpen=false, epShow=null, epSel=0;
+function openEpisodes(s){
+  if(!s||!s.episodes||!s.episodes.length)return;
+  epShow=s; epSel=0; epOpen=true;
+  document.getElementById('epShowName').textContent=s.show;
+  document.getElementById('epShowSub').textContent=(s.genre||'Series')+' · '+s.episodes.length+' episodes · Free';
+  document.getElementById('epArt').innerHTML=s.logo?'<img src="'+esc(s.logo)+'" onerror="this.style.display=\'none\'">':'';
+  renderEpList();
+  document.getElementById('episodes').classList.add('show');
+}
+function renderEpList(){
+  var L=document.getElementById('epList'); L.innerHTML='';
+  epShow.episodes.forEach(function(ep,i){
+    var r=document.createElement('div'); r.className='ep-row'+(i===epSel?' sel':''); r.dataset.i=i;
+    r.innerHTML='<span class="ep-ix">'+(i+1)+'</span><span class="ep-ti">'+esc(ep.title)+'</span><span class="ep-pl">▶</span>';
+    r.onclick=function(){ epSel=i; epPlay(); };
+    L.appendChild(r);
+  });
+}
+function epSelect(i){ var rows=document.querySelectorAll('#epList .ep-row'); if(!rows.length)return;
+  epSel=Math.max(0,Math.min(rows.length-1,i));
+  rows.forEach(function(x,k){x.classList.toggle('sel',k===epSel)});
+  rows[epSel].scrollIntoView({block:'nearest'});
+}
+function epPlay(){ var ep=epShow&&epShow.episodes[epSel]; if(!ep)return;
+  closeEpisodes(); playVOD({name:epShow.show+' — '+ep.title, url:ep.url}); }
+function closeEpisodes(){ epOpen=false; document.getElementById('episodes').classList.remove('show'); }
+document.getElementById('epClose').onclick=closeEpisodes;
+document.getElementById('episodes').addEventListener('click',function(e){if(e.target.id==='episodes')closeEpisodes()});
 function closePlayer(){
   inPlayer=false; pbarPinned=false; closePGuide(); document.getElementById('player').classList.remove('show');
   var pl=document.getElementById('player'); pl.classList.remove('vod'); vodPlaying=false;
@@ -1507,6 +1568,14 @@ document.addEventListener('keydown',function(e){
     else if(e.key==='Enter'){var f=document.querySelector('#sResults .cardc');if(f)f.click()}
     return;
   }
+  if(epOpen){
+    if(e.key==='Escape'||e.key==='Backspace'){closeEpisodes()}
+    else if(e.key==='ArrowDown'){epSelect(epSel+1)}
+    else if(e.key==='ArrowUp'){epSelect(epSel-1)}
+    else if(e.key==='Enter'){epPlay()}
+    else return;
+    e.preventDefault(); return;
+  }
   if(inPlayer){
     if(vodPlaying){
       var vv=document.getElementById('video');
@@ -1580,7 +1649,7 @@ function buildTVHome(){
     var fav=CH.filter(function(c){return favs.has(c.num)&&hubPlayable(c)}).sort(function(a,b){return a.num-b.num});
     tvRows=[{title:fav.length?'Your Favourites':'No favourites yet — press G on a channel to add',items:fav,circ:false,built:false,track:null}];
   } else {
-    tvRows=homeRowDefs(16).map(function(r){return {title:r.title,items:r.items,circ:r.circ,built:false,track:null}});
+    tvRows=homeRowDefs(16).map(function(r){return {title:r.title,items:r.items,circ:r.circ,vod:r.vod,series:r.series,built:false,track:null}});
     if(!tvRows.length)tvRows=[{title:'All channels',items:CH.slice(0,16),circ:false,built:false,track:null}];
   }
   tvCols=tvRows.map(function(){return 0});
@@ -1612,7 +1681,13 @@ function ensureTVRow(r){
   var frag=document.createDocumentFragment();
   row.items.forEach(function(c,i){
     var d=document.createElement('div');
-    if(row.vod){ d.className='htile vtile';
+    if(row.series){ d.className='htile vtile';
+      d.innerHTML='<div class="htile-art vtile-art" style="background:#0a0f1c">'+
+        (c.logo?'<img data-src="'+esc(c.logo)+'" data-ph="" decoding="async" onerror="tvImgErr(this)">':'')+
+        '<span class="vtile-play">▶</span><span class="vtile-free">SERIES</span></div>'+
+        '<div class="htile-nm">'+esc(c.show)+'</div><div class="htile-sub">'+esc(c.genre||'Series')+' · '+(c.episodes?c.episodes.length:0)+' eps</div>';
+      (function(sh){d.onclick=function(){openEpisodes(sh)}})(c); }
+    else if(row.vod){ d.className='htile vtile';
       d.innerHTML='<div class="htile-art vtile-art" style="background:#0a0f1c">'+
         (c.logo?'<img data-src="'+esc(c.logo)+'" data-ph="" decoding="async" onerror="tvImgErr(this)">':'')+
         '<span class="vtile-play">▶</span><span class="vtile-free">FREE</span></div>'+
@@ -1686,8 +1761,8 @@ function homeNavTV(e){
   else if(k==='ArrowDown')tvFocus(tvRow+1,tvCols[tvRow+1]!=null?tvCols[tvRow+1]:0);
   else if(k==='ArrowUp'){ if(tvRow>0)tvFocus(tvRow-1,tvCols[tvRow-1]!=null?tvCols[tvRow-1]:0);
     else { tvZone='bar'; tvBarIdx=0; var bb=tvBarBtns(); if(bb[0])bb[0].classList.add('kbf'); document.getElementById('main').scrollTo({top:0,behavior:'auto'}); } }
-  else if(k==='Enter'){ var c=row.items[col]; if(c){ row.vod?playVOD(c):playChannel(c.num); } }
-  else if(k==='g'||k==='G'){ var cf=row.items[col]; if(cf&&!row.vod){ toggleFav(cf.num);
+  else if(k==='Enter'){ var c=row.items[col]; if(c){ row.series?openEpisodes(c):row.vod?playVOD(c):playChannel(c.num); } }
+  else if(k==='g'||k==='G'){ var cf=row.items[col]; if(cf&&!row.vod&&!row.series){ toggleFav(cf.num);
       if(tvFavView){ // un-favouriting here should drop the tile from the list
         tvRow=0; tvCols[0]=Math.max(0,col-(favs.has(cf.num)?0:1)); buildTVHome(); }
       else { var card=tvTileAt(tvRow,col), art=card&&card.querySelector('.htile-art');
@@ -1838,6 +1913,7 @@ window.auraBack=function(){
     var se=document.getElementById('search');
     if(se&&se.classList.contains('show')){closeSearch();return true}
     if(typeof epgOpen!=='undefined'&&epgOpen){closeEPG();return true}
+    if(typeof epOpen!=='undefined'&&epOpen){closeEpisodes();return true}
     if(typeof pgOpen!=='undefined'&&pgOpen){closePGuide();return true}
     if(typeof inPlayer!=='undefined'&&inPlayer){closePlayer();return true}
     // On the home screen, Back from a side zone returns to the content; only
@@ -2006,6 +2082,7 @@ function homeRowDefs(cap){
   add('Continue Watching', watchHist.map(byNum).filter(function(c){return c&&hubPlayable(c)}));
   add('Trending Movies', byCat('Movies'));
   if(typeof VOD!=='undefined'&&VOD.length)rows.push({title:'Free Movies · On Demand 🎬',items:VOD.slice(0,cap),vod:true});
+  if(typeof SERIES!=='undefined'&&SERIES.length)rows.push({title:'Free Series · On Demand 📺',items:SERIES.slice(0,cap),series:true});
   add('Entertainment', byCat('Entertainment'));
   add('Tiny Titans', byCat('Kids'));
   add('Comedy Central', byCat('Comedy'));
@@ -2122,7 +2199,7 @@ function renderHubRows(){
     var sec=document.createElement('div'); sec.className='hrow'+(row.circ?' circ':'')+(grid?' grid':''); sec.dataset.title=row.title;
     var h=document.createElement('div'); h.className='hrow-h'; h.textContent=row.title; sec.appendChild(h);
     var t=document.createElement('div'); t.className='hrow-t';
-    row.items.forEach(function(c){ t.appendChild(row.vod?vodTile(c):row.circ?hubCirc(c):hubTile(c)); });
+    row.items.forEach(function(c){ t.appendChild(row.series?seriesTile(c):row.vod?vodTile(c):row.circ?hubCirc(c):hubTile(c)); });
     sec.appendChild(t); frag.appendChild(sec);
   });
   rc.appendChild(frag);
@@ -2151,6 +2228,18 @@ function vodTile(m){
     '<div class="htile-sub">'+esc(m.group||'Movie')+' · On demand</div>';
   d.onclick=function(){playVOD(m)};
   d.onkeydown=function(e){if(e.key==='Enter')playVOD(m)};
+  return d;
+}
+/* On-demand series poster tile. Opens an episode picker (a show has many eps). */
+function seriesTile(s){
+  var d=document.createElement('div'); d.className='htile vtile'; d.tabIndex=0;
+  d.innerHTML='<div class="htile-art vtile-art" style="background:#0a0f1c">'+
+    (s.logo?'<img loading="lazy" decoding="async" src="'+esc(s.logo)+'" onerror="this.style.display=\'none\'">':'')+
+    '<span class="vtile-play">▶</span><span class="vtile-free">SERIES</span></div>'+
+    '<div class="htile-nm">'+esc(s.show)+'</div>'+
+    '<div class="htile-sub">'+esc(s.genre||'Series')+' · '+(s.episodes?s.episodes.length:0)+' episodes</div>';
+  d.onclick=function(){openEpisodes(s)};
+  d.onkeydown=function(e){if(e.key==='Enter')openEpisodes(s)};
   return d;
 }
 function hubCirc(c){

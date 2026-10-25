@@ -365,6 +365,25 @@ def main() -> int:
         except ValueError:
             vod = []
 
+    # Public-domain / freely-licensed on-demand TV series (Internet Archive),
+    # kept in playlists/series.json: a list of shows, each with its episodes.
+    # Also VOD (seekable .mp4), kept separate from the channel lineup.
+    series = []
+    series_path = os.path.join(ROOT, "playlists", "series.json")
+    if os.path.exists(series_path):
+        try:
+            for s in json.load(open(series_path, encoding="utf-8")):
+                eps = [e for e in s.get("episodes", []) if e.get("url")]
+                if eps:
+                    series.append({
+                        "show": s.get("show", "Series"),
+                        "genre": s.get("genre", "") or "Series",
+                        "logo": s.get("logo", ""),
+                        "episodes": [{"title": e.get("title", "Episode"), "url": e["url"]} for e in eps],
+                    })
+        except ValueError:
+            series = []
+
     epg_url = pl.attributes.get("x-tvg-url", "")
     data = {"epg": epg_url, "channels": channels}
     with open(OUT, "w", encoding="utf-8") as handle:
@@ -374,6 +393,9 @@ def main() -> int:
         handle.write(";\n")
         handle.write("window.STB_VOD = ")
         json.dump(vod, handle, ensure_ascii=False, separators=(",", ":"))
+        handle.write(";\n")
+        handle.write("window.STB_SERIES = ")
+        json.dump(series, handle, ensure_ascii=False, separators=(",", ":"))
         handle.write(";\n")
 
     # Also emit a single portable playlist that mirrors the app's lineup, so it
@@ -392,6 +414,7 @@ def main() -> int:
     print(f"Non-CORS (px, need proxy/native): {px} channels")
     print(f"Extras (YouTube live): {extras_n} channels")
     print(f"On-demand movies (VOD): {len(vod)} titles")
+    print(f"On-demand series (VOD): {len(series)} shows, {sum(len(s['episodes']) for s in series)} episodes")
     print(f"Portable playlist: {m3u_n} entries -> {aura_m3u}")
     return 0
 

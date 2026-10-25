@@ -1,0 +1,437 @@
+[
+ {
+  "show": "The Lone Ranger",
+  "genre": "Western",
+  "logo": "https://archive.org/services/img/theloneranger_201705",
+  "episodes": [
+   {
+    "title": "S01E01 — Enterthe Lone Ranger",
+    "url": "https://archive.org/download/theloneranger_201705/s01e01_EntertheLoneRanger.mp4"
+   },
+   {
+    "title": "S01E02 — The Lone Ranger Fights On",
+    "url": "https://archive.org/download/theloneranger_201705/s01e02_TheLoneRangerFightsOn.mp4"
+   },
+   {
+    "title": "S01E03 — The Lone Rangers Triumph",
+    "url": "https://archive.org/download/theloneranger_201705/s01e03TheLoneRangersTriumph.mp4"
+   },
+   {
+    "title": "S01E04 — The Legionof Old Timers",
+    "url": "https://archive.org/download/theloneranger_201705/s01e04_TheLegionofOldTimers.mp4"
+   },
+   {
+    "title": "S01E05 — Rustlers Hideout",
+    "url": "https://archive.org/download/theloneranger_201705/s01e05_RustlersHideout.mp4"
+   },
+   {
+    "title": "S01E06 — Warhorse",
+    "url": "https://archive.org/download/theloneranger_201705/s01e06_Warhorse.mp4"
+   },
+   {
+    "title": "S01E07 — Peteand Pedro",
+    "url": "https://archive.org/download/theloneranger_201705/s01e07_PeteandPedro.mp4"
+   },
+   {
+    "title": "S01E08 — The Renegades",
+    "url": "https://archive.org/download/theloneranger_201705/s01e08_TheRenegades.mp4"
+   },
+   {
+    "title": "S01E09 — The Tenderfeet",
+    "url": "https://archive.org/download/theloneranger_201705/s01e09_TheTenderfeet.mp4"
+   },
+   {
+    "title": "S01E10 — Highheels",
+    "url": "https://archive.org/download/theloneranger_201705/s01e10_Highheels.mp4"
+   },
+   {
+    "title": "S01E11 — Sixguns Legacy",
+    "url": "https://archive.org/download/theloneranger_201705/s01e11_SixgunsLegacy.mp4"
+   },
+   {
+    "title": "S01E12 — Returnoftheconvict",
+    "url": "https://archive.org/download/theloneranger_201705/s01e12_Returnoftheconvict.mp4"
+   },
+   {
+    "title": "S01E13 — finderskeepers",
+    "url": "https://archive.org/download/theloneranger_201705/s01e13_finderskeepers.mp4"
+   },
+   {
+    "title": "S01E14 — themaskedrider",
+    "url": "https://archive.org/download/theloneranger_201705/s01e14_themaskedrider.mp4"
+   },
+   {
+    "title": "S01E15 — Old Joes Sister",
+    "url": "https://archive.org/download/theloneranger_201705/s01e15_OldJoesSister.mp4"
+   },
+   {
+    "title": "S01E16 — Canon Ball Mckay",
+    "url": "https://archive.org/download/theloneranger_201705/s01e16_CanonBallMckay.mp4"
+   }
+  ]
+ },
+ {
+  "show": "Bonanza",
+  "genre": "Western",
+  "logo": "https://archive.org/services/img/Bonanza_pd",
+  "episodes": [
+   {
+    "title": "S01E19",
+    "url": "https://archive.org/download/Bonanza_pd/Bonanza%20s01e19.mp4"
+   },
+   {
+    "title": "S01E20",
+    "url": "https://archive.org/download/Bonanza_pd/Bonanza%20s01e20.mp4"
+   },
+   {
+    "title": "S01E21",
+    "url": "https://archive.org/download/Bonanza_pd/Bonanza%20s01e21.mp4"
+   },
+   {
+    "title": "S01E22",
+    "url": "https://archive.org/download/Bonanza_pd/Bonanza%20s01e22.mp4"
+   },
+   {
+    "title": "S01E23",
+    "url": "https://archive.org/download/Bonanza_pd/Bonanza%20s01e23.mp4"
+   },
+   {
+    "title": "S01E24",
+    "url": "https://archive.org/download/Bonanza_pd/Bonanza%20s01e24.mp4"
+   },
+   {
+    "title": "S01E25",
+    "url": "https://archive.org/download/Bonanza_pd/Bonanza%20s01e25.mp4"
+   },
+   {
+    "title": "S01E26",
+    "url": "https://archive.org/download/Bonanza_pd/Bonanza%20s01e26.mp4"
+   },
+   {
+    "title": "S01E27",
+    "url": "https://archive.org/download/Bonanza_pd/Bonanza%20s01e27.mp4"
+   },
+   {
+    "title": "S01E28",
+    "url": "https://archive.org/download/Bonanza_pd/Bonanza%20s01e28.mp4"
+   },
+   {
+    "title": "S01E29",
+    "url": "https://archive.org/download/Bonanza_pd/Bonanza%20s01e29.mp4"
+   },
+   {
+    "title": "S01E30",
+    "url": "https://archive.org/download/Bonanza_pd/Bonanza%20s01e30.mp4"
+   },
+   {
+    "title": "S01E31",
+    "url": "https://archive.org/download/Bonanza_pd/Bonanza%20s01e31.mp4"
+   },
+   {
+    "title": "S01E32",
+    "url": "https://archive.org/download/Bonanza_pd/Bonanza%20s01e32.mp4"
+   },
+   {
+    "title": "S02E02",
+    "url": "https://archive.org/download/Bonanza_pd/BonanzaS02e02.mp4"
+   },
+   {
+    "title": "S02E03",
+    "url": "https://archive.org/download/Bonanza_pd/BonanzaS02e03.mp4"
+   },
+   {
+    "title": "S02E04",
+    "url": "https://archive.org/download/Bonanza_pd/BonanzaS02e04.mp4"
+   },
+   {
+    "title": "S02E05",
+    "url": "https://archive.org/download/Bonanza_pd/BonanzaS02e05.mp4"
+   },
+   {
+    "title": "S02E06",
+    "url": "https://archive.org/download/Bonanza_pd/BonanzaS02e06.mp4"
+   },
+   {
+    "title": "S02E07",
+    "url": "https://archive.org/download/Bonanza_pd/BonanzaS02e07.mp4"
+   }
+  ]
+ },
+ {
+  "show": "Sherlock Holmes (1954)",
+  "genre": "Mystery",
+  "logo": "https://archive.org/services/img/SherlockHolmes1954",
+  "episodes": [
+   {
+    "title": "1. The Case of the Cunningham Heritage",
+    "url": "https://archive.org/download/SherlockHolmes1954/Sherlock%20Holmes%2001%20The%20Case%20of%20the%20Cunningham%20Heritage.mp4"
+   },
+   {
+    "title": "2. The Case Of Lady Beryl",
+    "url": "https://archive.org/download/SherlockHolmes1954/Sherlock%20Holmes%2002%20The%20Case%20Of%20Lady%20Beryl.mp4"
+   },
+   {
+    "title": "3. The Case of the Pennsylvania Gun",
+    "url": "https://archive.org/download/SherlockHolmes1954/Sherlock%20Holmes%2003%20The%20Case%20of%20the%20Pennsylvania%20Gun.mp4"
+   },
+   {
+    "title": "4. The Case Of The Texas Cowgirl",
+    "url": "https://archive.org/download/SherlockHolmes1954/Sherlock%20Holmes%2004%20The%20Case%20Of%20The%20Texas%20Cowgirl.mp4"
+   },
+   {
+    "title": "5. The Case Of The Belligerent Ghost",
+    "url": "https://archive.org/download/SherlockHolmes1954/Sherlock%20Holmes%2005%20The%20Case%20Of%20The%20Belligerent%20Ghost.mp4"
+   },
+   {
+    "title": "6. The Case Of The Shy Ballerina",
+    "url": "https://archive.org/download/SherlockHolmes1954/Sherlock%20Holmes%2006%20The%20Case%20Of%20The%20Shy%20Ballerina.mp4"
+   },
+   {
+    "title": "7. The Case Of The Winthrop Legend",
+    "url": "https://archive.org/download/SherlockHolmes1954/Sherlock%20Holmes%2007%20The%20Case%20Of%20The%20Winthrop%20Legend.mp4"
+   },
+   {
+    "title": "8. The Case Of The Blind Man's Bluff",
+    "url": "https://archive.org/download/SherlockHolmes1954/Sherlock%20Holmes%2008%20The%20Case%20Of%20The%20Blind%20Man%27s%20Bluff.mp4"
+   },
+   {
+    "title": "9. The Case Of Harry Crocker",
+    "url": "https://archive.org/download/SherlockHolmes1954/Sherlock%20Holmes%2009%20The%20Case%20Of%20Harry%20Crocker.mp4"
+   },
+   {
+    "title": "10. Mother Hubbard",
+    "url": "https://archive.org/download/SherlockHolmes1954/Sherlock%20Holmes%2010%20Mother%20Hubbard.mp4"
+   },
+   {
+    "title": "11. Red Headed League",
+    "url": "https://archive.org/download/SherlockHolmes1954/Sherlock%20Holmes%2011%20Red%20Headed%20League.mp4"
+   },
+   {
+    "title": "12. Shoeless Engineer",
+    "url": "https://archive.org/download/SherlockHolmes1954/Sherlock%20Holmes%2012%20Shoeless%20Engineer.mp4"
+   },
+   {
+    "title": "13. Split Ticket",
+    "url": "https://archive.org/download/SherlockHolmes1954/Sherlock%20Holmes%2013%20Split%20Ticket.mp4"
+   },
+   {
+    "title": "14. French Interpreter",
+    "url": "https://archive.org/download/SherlockHolmes1954/Sherlock%20Holmes%2014%20French%20Interpreter.mp4"
+   },
+   {
+    "title": "15. Singing Violin",
+    "url": "https://archive.org/download/SherlockHolmes1954/Sherlock%20Holmes%2015%20Singing%20Violin.mp4"
+   },
+   {
+    "title": "16. The Case Of The Greystone Insription",
+    "url": "https://archive.org/download/SherlockHolmes1954/Sherlock%20Holmes%2016%20The%20Case%20Of%20The%20Greystone%20Insription.mp4"
+   },
+   {
+    "title": "17. The Case Of The Laughing Mummy",
+    "url": "https://archive.org/download/SherlockHolmes1954/Sherlock%20Holmes%2017%20The%20Case%20Of%20The%20Laughing%20Mummy.mp4"
+   },
+   {
+    "title": "18. The Case Of The Thistle Killer",
+    "url": "https://archive.org/download/SherlockHolmes1954/Sherlock%20Holmes%2018%20The%20Case%20Of%20The%20Thistle%20Killer.mp4"
+   },
+   {
+    "title": "19. The Case Of The Vanished Detective",
+    "url": "https://archive.org/download/SherlockHolmes1954/Sherlock%20Holmes%2019%20The%20Case%20Of%20The%20Vanished%20Detective.mp4"
+   },
+   {
+    "title": "20. The Case Of The Careless Suffragette",
+    "url": "https://archive.org/download/SherlockHolmes1954/Sherlock%20Holmes%2020%20The%20Case%20Of%20The%20Careless%20Suffragette.mp4"
+   }
+  ]
+ },
+ {
+  "show": "Dragnet (1951)",
+  "genre": "Crime",
+  "logo": "https://archive.org/services/img/Dragnet1951",
+  "episodes": [
+   {
+    "title": "S01E01 — The Human Bomb",
+    "url": "https://archive.org/download/Dragnet1951/Dragnet/Season%201/Dragnet%20%281951%29%20-%20S01E01%20-%20The%20Human%20Bomb.mp4"
+   },
+   {
+    "title": "S01E02 — The Big Actor",
+    "url": "https://archive.org/download/Dragnet1951/Dragnet/Season%201/Dragnet%20%281951%29%20-%20S01E02%20-%20The%20Big%20Actor.mp4"
+   },
+   {
+    "title": "S01E05 — The Big Cast",
+    "url": "https://archive.org/download/Dragnet1951/Dragnet/Season%201/Dragnet%20%281951%29%20-%20S01E05%20-%20The%20Big%20Cast.mp4"
+   },
+   {
+    "title": "S01E11 — The Big September Man",
+    "url": "https://archive.org/download/Dragnet1951/Dragnet/Season%201/Dragnet%20%281951%29%20-%20S01E11%20-%20The%20Big%20September%20Man.mp4"
+   },
+   {
+    "title": "S01E12 — The Big Phone Call",
+    "url": "https://archive.org/download/Dragnet1951/Dragnet/Season%201/Dragnet%20%281951%29%20-%20S01E12%20-%20The%20Big%20Phone%20Call.mp4"
+   },
+   {
+    "title": "S01E13 — The Big Chasing",
+    "url": "https://archive.org/download/Dragnet1951/Dragnet/Season%201/Dragnet%20%281951%29%20-%20S01E13%20-%20The%20Big%20Chasing.mp4"
+   },
+   {
+    "title": "S01E14 — The Big Lamp",
+    "url": "https://archive.org/download/Dragnet1951/Dragnet/Season%201/Dragnet%20%281951%29%20-%20S01E14%20-%20The%20Big%20Lamp.mp4"
+   },
+   {
+    "title": "S02E01 — The Big Jump",
+    "url": "https://archive.org/download/Dragnet1951/Dragnet/Season%202/Dragnet%20%281951%29%20-%20S02E01%20-%20The%20Big%20Jump.mp4"
+   },
+   {
+    "title": "S02E02 — The Big Sorrow",
+    "url": "https://archive.org/download/Dragnet1951/Dragnet/Season%202/Dragnet%20%281951%29%20-%20S02E02%20-%20The%20Big%20Sorrow.mp4"
+   },
+   {
+    "title": "S02E04 — The Big Seventeen",
+    "url": "https://archive.org/download/Dragnet1951/Dragnet/Season%202/Dragnet%20%281951%29%20-%20S02E04%20-%20The%20Big%20Seventeen.mp4"
+   },
+   {
+    "title": "S02E07 — The Big .22 Rifle for Christmas",
+    "url": "https://archive.org/download/Dragnet1951/Dragnet/Season%202/Dragnet%20%281951%29%20-%20S02E07%20-%20The%20Big%20.22%20Rifle%20for%20Christmas.mp4"
+   },
+   {
+    "title": "S02E09 — The Big Grandma",
+    "url": "https://archive.org/download/Dragnet1951/Dragnet/Season%202/Dragnet%20%281951%29%20-%20S02E09%20-%20The%20Big%20Grandma.mp4"
+   },
+   {
+    "title": "S02E11 — The Big Show",
+    "url": "https://archive.org/download/Dragnet1951/Dragnet/Season%202/Dragnet%20%281951%29%20-%20S02E11%20-%20The%20Big%20Show.mp4"
+   },
+   {
+    "title": "S02E14 — The Big Hate",
+    "url": "https://archive.org/download/Dragnet1951/Dragnet/Season%202/Dragnet%20%281951%29%20-%20S02E14%20-%20The%20Big%20Hate.mp4"
+   },
+   {
+    "title": "S02E18 — The Big Run",
+    "url": "https://archive.org/download/Dragnet1951/Dragnet/Season%202/Dragnet%20%281951%29%20-%20S02E18%20-%20The%20Big%20Run.mp4"
+   },
+   {
+    "title": "S02E19 — The Big Break",
+    "url": "https://archive.org/download/Dragnet1951/Dragnet/Season%202/Dragnet%20%281951%29%20-%20S02E19%20-%20The%20Big%20Break.mp4"
+   },
+   {
+    "title": "S02E20 — The Big Light",
+    "url": "https://archive.org/download/Dragnet1951/Dragnet/Season%202/Dragnet%20%281951%29%20-%20S02E20%20-%20The%20Big%20Light.mp4"
+   },
+   {
+    "title": "S02E22 — The Big Test",
+    "url": "https://archive.org/download/Dragnet1951/Dragnet/Season%202/Dragnet%20%281951%29%20-%20S02E22%20-%20The%20Big%20Test.mp4"
+   },
+   {
+    "title": "S02E26 — The Big Frank",
+    "url": "https://archive.org/download/Dragnet1951/Dragnet/Season%202/Dragnet%20%281951%29%20-%20S02E26%20-%20The%20Big%20Frank.mp4"
+   },
+   {
+    "title": "S02E27 — The Big Lease",
+    "url": "https://archive.org/download/Dragnet1951/Dragnet/Season%202/Dragnet%20%281951%29%20-%20S02E27%20-%20The%20Big%20Lease.mp4"
+   }
+  ]
+ },
+ {
+  "show": "Green Acres",
+  "genre": "Comedy",
+  "logo": "https://archive.org/services/img/GreenAcresCompleteSeries",
+  "episodes": [
+   {
+    "title": "1. Oliver Buys A Farm",
+    "url": "https://archive.org/download/GreenAcresCompleteSeries/Green%20Acres%20Season%201/Green%20Acres%20-%20001%20-%20Oliver%20Buys%20A%20Farm.mp4"
+   },
+   {
+    "title": "2. Lisa's First Day on the Farm",
+    "url": "https://archive.org/download/GreenAcresCompleteSeries/Green%20Acres%20Season%201/Green%20Acres%20-%20002%20-%20Lisa%27s%20First%20Day%20on%20the%20Farm.mp4"
+   },
+   {
+    "title": "3. The Decorator",
+    "url": "https://archive.org/download/GreenAcresCompleteSeries/Green%20Acres%20Season%201/Green%20Acres%20-%20003%20-%20The%20Decorator.mp4"
+   },
+   {
+    "title": "4. The Best Laid Plans - (TV Rip)",
+    "url": "https://archive.org/download/GreenAcresCompleteSeries/Green%20Acres%20Season%201/Green%20Acres%20-%20004%20-%20The%20Best%20Laid%20Plans%20-%20%28TV%20Rip%29.mp4"
+   },
+   {
+    "title": "5. My Husband, The Rooster Renter",
+    "url": "https://archive.org/download/GreenAcresCompleteSeries/Green%20Acres%20Season%201/Green%20Acres%20-%20005%20-%20My%20Husband%2C%20The%20Rooster%20Renter.mp4"
+   },
+   {
+    "title": "6. Furniture, Furniture, Who's Got the Furniture",
+    "url": "https://archive.org/download/GreenAcresCompleteSeries/Green%20Acres%20Season%201/Green%20Acres%20-%20006%20-%20Furniture%2C%20Furniture%2C%20Who%27s%20Got%20the%20Furniture.mp4"
+   },
+   {
+    "title": "7. Neighborliness - (TV Rip)",
+    "url": "https://archive.org/download/GreenAcresCompleteSeries/Green%20Acres%20Season%201/Green%20Acres%20-%20007%20-%20Neighborliness%20-%20%28TV%20Rip%29.mp4"
+   },
+   {
+    "title": "8. Lisa, The Helpmate - (TV Rip)",
+    "url": "https://archive.org/download/GreenAcresCompleteSeries/Green%20Acres%20Season%201/Green%20Acres%20-%20008%20-%20Lisa%2C%20The%20Helpmate%20-%20%28TV%20Rip%29.mp4"
+   },
+   {
+    "title": "9. You Can't Plug In A 2 with a 6",
+    "url": "https://archive.org/download/GreenAcresCompleteSeries/Green%20Acres%20Season%201/Green%20Acres%20-%20009%20-%20You%20Can%27t%20Plug%20In%20A%202%20with%20a%206.mp4"
+   },
+   {
+    "title": "10. Don't Call Us, We'll Call You",
+    "url": "https://archive.org/download/GreenAcresCompleteSeries/Green%20Acres%20Season%201/Green%20Acres%20-%20010%20-%20Don%27t%20Call%20Us%2C%20We%27ll%20Call%20You.mp4"
+   },
+   {
+    "title": "11. Parity Begins At Home - (TV Rip)",
+    "url": "https://archive.org/download/GreenAcresCompleteSeries/Green%20Acres%20Season%201/Green%20Acres%20-%20011%20-%20Parity%20Begins%20At%20Home%20-%20%28TV%20Rip%29.mp4"
+   },
+   {
+    "title": "12. Lisa Has a Calf",
+    "url": "https://archive.org/download/GreenAcresCompleteSeries/Green%20Acres%20Season%201/Green%20Acres%20-%20012%20-%20Lisa%20Has%20a%20Calf.mp4"
+   },
+   {
+    "title": "13. The Wedding Anniversary - (TV Rip)",
+    "url": "https://archive.org/download/GreenAcresCompleteSeries/Green%20Acres%20Season%201/Green%20Acres%20-%20013%20-%20The%20Wedding%20Anniversary%20-%20%28TV%20Rip%29.mp4"
+   },
+   {
+    "title": "14. What Happened In Scranton - (TV Rip)",
+    "url": "https://archive.org/download/GreenAcresCompleteSeries/Green%20Acres%20Season%201/Green%20Acres%20-%20014%20-%20What%20Happened%20In%20Scranton%20-%20%28TV%20Rip%29.mp4"
+   },
+   {
+    "title": "15. How to Enlarge a Bedroom",
+    "url": "https://archive.org/download/GreenAcresCompleteSeries/Green%20Acres%20Season%201/Green%20Acres%20-%20015%20-%20How%20to%20Enlarge%20a%20Bedroom.mp4"
+   },
+   {
+    "title": "16. Give Me Land, Lots Of Land",
+    "url": "https://archive.org/download/GreenAcresCompleteSeries/Green%20Acres%20Season%201/Green%20Acres%20-%20016%20-%20Give%20Me%20Land%2C%20Lots%20Of%20Land.mp4"
+   },
+   {
+    "title": "17. I Didn't Raise My Husband to Be a Fireman",
+    "url": "https://archive.org/download/GreenAcresCompleteSeries/Green%20Acres%20Season%201/Green%20Acres%20-%20017%20-%20I%20Didn%27t%20Raise%20My%20Husband%20to%20Be%20a%20Fireman.mp4"
+   },
+   {
+    "title": "18. Lisa Bakes A Cake - (TV Rip)",
+    "url": "https://archive.org/download/GreenAcresCompleteSeries/Green%20Acres%20Season%201/Green%20Acres%20-%20018%20-%20Lisa%20Bakes%20A%20Cake%20-%20%28TV%20Rip%29.mp4"
+   },
+   {
+    "title": "19. Sprained Ankle Country Style - (TV Rip)",
+    "url": "https://archive.org/download/GreenAcresCompleteSeries/Green%20Acres%20Season%201/Green%20Acres%20-%20019%20-%20Sprained%20Ankle%20Country%20Style%20-%20%28TV%20Rip%29.mp4"
+   },
+   {
+    "title": "20. The Price of Apples",
+    "url": "https://archive.org/download/GreenAcresCompleteSeries/Green%20Acres%20Season%201/Green%20Acres%20-%20020%20-%20The%20Price%20of%20Apples.mp4"
+   },
+   {
+    "title": "21. What's In A Name - (TV Rip)",
+    "url": "https://archive.org/download/GreenAcresCompleteSeries/Green%20Acres%20Season%201/Green%20Acres%20-%20021%20-%20What%27s%20In%20A%20Name%20-%20%28TV%20Rip%29.mp4"
+   },
+   {
+    "title": "22. The Day Of Decision - (TV Rip)",
+    "url": "https://archive.org/download/GreenAcresCompleteSeries/Green%20Acres%20Season%201/Green%20Acres%20-%20022%20-%20The%20Day%20Of%20Decision%20-%20%28TV%20Rip%29.mp4"
+   },
+   {
+    "title": "23. A Pig In a Poke",
+    "url": "https://archive.org/download/GreenAcresCompleteSeries/Green%20Acres%20Season%201/Green%20Acres%20-%20023%20-%20A%20Pig%20In%20a%20Poke.mp4"
+   },
+   {
+    "title": "24. The Ballard Of Molly Turgess - (TV Rip)",
+    "url": "https://archive.org/download/GreenAcresCompleteSeries/Green%20Acres%20Season%201/Green%20Acres%20-%20024%20-%20The%20Ballard%20Of%20Molly%20Turgess%20-%20%28TV%20Rip%29.mp4"
+   }
+  ]
+ }
+]
