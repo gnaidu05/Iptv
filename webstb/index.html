@@ -748,6 +748,9 @@
         <button id="proxySave" style="border:0;border-radius:9px;padding:0 14px;font-weight:700;color:#fff;background:var(--grad);cursor:pointer">Save</button>
       </div>
     </div></div>
+    <div class="help-row"><span class="ic">📺</span><div style="flex:1"><b>Hidden channels</b> <span>— channels this device can’t decode (HEVC/HDR) are auto-hidden so you only see what plays here. Tap to show them again.</span>
+      <div style="margin-top:8px"><button id="resetCodec" style="border:1px solid var(--line2);border-radius:9px;padding:8px 14px;font-weight:700;color:#fff;background:var(--card2);cursor:pointer">Show hidden channels (<span id="codecDeadN">0</span>)</button></div>
+    </div></div>
     <button class="help-close" id="helpClose">Got it</button>
   </div>
 </div>
@@ -903,6 +906,12 @@ function streamUrl(c){
 }
 var favs=new Set(JSON.parse(localStorage.getItem('stb_favs')||'[]'));
 var watchHist=JSON.parse(localStorage.getItem('stb_hist')||'[]');
+// Channels this specific device's browser couldn't decode (HEVC/HDR on a phone
+// without HEVC support). Remembered per-device so the lineup self-cleans to only
+// the channels that actually play here; cleared from Settings.
+var codecDead=new Set(JSON.parse(localStorage.getItem('stb_codecdead')||'[]'));
+function markCodecDead(n){ if(codecDead.has(n))return; codecDead.add(n);
+  try{localStorage.setItem('stb_codecdead',JSON.stringify([...codecDead]))}catch(e){} }
 var catFilter='ALL', favView=false, hdOnly=false, sortMode=0, query='', langFilter='ALL';
 var visible=[], focusIndex=0, currentNum=null, loadedNum=null, hls=null;
 var poweredOn=false, inPlayer=false, tuneTimer=null, vodPlaying=false;
@@ -999,6 +1008,7 @@ function buildTabs(){
 /* ---------- filtering / sorting ---------- */
 function computeVisible(){
   var list=CH.filter(function(c){
+    if(codecDead.has(c.num))return false;   // hidden: this device can't decode it
     if(favView)return favs.has(c.num);
     if(catFilter==='GEO')return !!c.geo;
     if(c.geo)return false;                 // geo channels only show in the India tab
@@ -1262,9 +1272,12 @@ function playChannel(n){
     settled=true;clearTimeout(tuneTimer);
     var nm=document.getElementById('pnosigmsg');
     if(nm)nm.innerHTML=tuneCodecFail
-      ? '<b>Can’t play on this device</b> — this channel streams in HEVC/HDR, which this phone’s browser can’t decode. It works on devices with HEVC support.'
+      ? '<b>Can’t play on this device</b> — this channel streams in HEVC/HDR, which this phone’s browser can’t decode. Hiding it here; it works on devices with HEVC support.'
       : '<b>NO SIGNAL</b> — channel unavailable in browser';
     pStatus('nosignal');
+    // Remember codec failures for this device so the dead channel drops out of
+    // the lineup — the app self-cleans to only what actually plays here.
+    if(tuneCodecFail){ markCodecDead(n); refreshHome(); }
   }
   attempt(streamUrl(c),'');
   showPbar(true);   // keep the OSD (programme + time left) visible after selecting
@@ -1585,9 +1598,16 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Escape'&&document.getElementById('langMenu').classList.contains('open')){
     e.stopPropagation(); closeLangMenu(); } },true);
 /* help / about */
-function openHelp(){var pi=document.getElementById('proxyInput');if(pi)pi.value=PROXY||'';document.getElementById('help').classList.add('show')}
+function openHelp(){var pi=document.getElementById('proxyInput');if(pi)pi.value=PROXY||'';
+  var n=document.getElementById('codecDeadN'); if(n)n.textContent=String(codecDead.size);
+  document.getElementById('help').classList.add('show')}
 function closeHelp(){document.getElementById('help').classList.remove('show');setNav('live')}
 document.getElementById('helpClose').onclick=closeHelp;
+(function(){var rb=document.getElementById('resetCodec'); if(!rb)return;
+  rb.onclick=function(){ codecDead.clear(); try{localStorage.removeItem('stb_codecdead')}catch(e){}
+    var n=document.getElementById('codecDeadN'); if(n)n.textContent='0';
+    refreshHome(); toast('Hidden channels restored'); };
+})();
 (function(){var b=document.getElementById('proxySave');if(!b)return;
   b.onclick=function(){var v=(document.getElementById('proxyInput').value||'').trim().replace(/\/+$/,'');
     try{v?localStorage.setItem('aura_proxy',v):localStorage.removeItem('aura_proxy')}catch(e){}
@@ -2097,7 +2117,7 @@ function bootStart(){ if(poweredOn)return; document.getElementById('powerBtn').s
 /* ===================== HUB: streaming-style home (web + phone app) =====================
    Hero carousel + horizontal rails of rounded channel tiles grouped by category
    and language, built from the active channel list, with a bottom nav. */
-function hubPlayable(c){ return !(c.px&&!canPx()); }
+function hubPlayable(c){ if(codecDead.has(c.num))return false; return !(c.px&&!canPx()); }
 function hubClean(n){ return (n||'').replace(/\s*\(.*?\)\s*/,' ').trim(); }
 // Stable colour per channel so each tile/hero has its own tint.
 function hubHue(c){ var s=(c.name||'')+c.num,h=0; for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))%360; return h; }
@@ -2217,6 +2237,13 @@ function hubRowsFor(){
   }
   if(!rows.length)add('No channels match', []);
   return rows;
+}
+// Rebuild whichever home surface is active (used after hiding a codec-dead
+// channel so it drops out immediately).
+function refreshHome(){
+  if(TV){ if(typeof refreshTVHome==='function')refreshTVHome(); return; }
+  if(document.documentElement.classList.contains('hub')){ renderHubRows(); return; }
+  if(typeof render==='function')render();
 }
 function renderHubRows(){
   if(!document.getElementById('hubRows'))return;   // hub not built yet
