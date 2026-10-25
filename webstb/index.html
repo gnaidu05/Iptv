@@ -2121,7 +2121,13 @@ function buildHubHero(){
 }
 function hubScrollTo(title){
   var sec=document.querySelector('.hrow[data-title="'+title+'"]'); if(!sec)return false;
-  sec.scrollIntoView({behavior:'smooth',block:'start'}); return true;
+  var main=document.getElementById('main'); if(!main){sec.scrollIntoView({behavior:'smooth',block:'start'});return true;}
+  // offset for the sticky top bar + filter chips, or the row lands hidden behind them
+  var bar=document.querySelector('.hub-bar'), filt=document.querySelector('.hub-filters');
+  var off=(bar?bar.offsetHeight:0)+((filt&&getComputedStyle(filt).display!=='none')?filt.offsetHeight:0)+8;
+  var top=main.scrollTop+sec.getBoundingClientRect().top-main.getBoundingClientRect().top-off;
+  main.scrollTo({top:Math.max(0,top),behavior:'smooth'});
+  return true;
 }
 // bottom nav
 (function(){var nav=document.getElementById('hubNav'); if(!nav)return;
