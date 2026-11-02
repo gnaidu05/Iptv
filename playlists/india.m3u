@@ -3594,3 +3594,192 @@ https://ev-eu-hw-fast-mpd.starzplayarabia.com/Zee_Tamil/dash/drm/index.mpd
 https://stream.ottlive.co.in/zingabad/index.m3u8
 #EXTINF:-1 tvg-id="AathavanTV.uk@SD" tvg-logo="https://i.imgur.com/LEVEhTH.png" group-title="Entertainment",Aathavan TV (720p)
 https://yuppmumfta1.vgcdn.net/211125/athvantv/manifest.mpd
+#EXTINF:-1 tvg-id="4TVNews.in@SD" tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/4_TV.png" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="News",4TV News (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/647/master.m3u8
+#EXTINF:-1 tvg-id="ABPSanjha.in@SD" tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/ABP_Sanjha.png" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="News",ABP Sanjha (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/641/master.m3u8
+#EXTINF:-1 tvg-id="AngelTV.in@India" tvg-logo="https://i.imgur.com/qKLEGU7.png" group-title="Religious",Angel TV (1080p)
+https://cdn.pishow.tv/ott/live/453/master.m3u8
+#EXTINF:-1 tvg-id="AsianetSuvarnaNews.in@SD" tvg-logo="https://dtil.tmsimg.com/assets/s142682_ld_h15_aa.png?lock=720x540" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="News",Asianet Suvarna News (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/692/master.m3u8
+#EXTINF:-1 tvg-id="Astroscience.in@SD" tvg-logo="https://d229kpbsb5jevy.cloudfront.net/yupptvnew/content/common/channel/logos/bvwquh.png" group-title="Undefined",Astroscience (576p)
+https://yuppnimrestreammum.akamaized.net/181224/smil:astrotech.smil/playlist.m3u8?hdnts=st=1735898689~exp=1835898688~acl=*~hmac=f5fe24724fe05481e3841f9eb5ab8efdee0a3dd83645ae9dcf45703f525bab7b
+#EXTINF:-1 tvg-id="BalleBalle.in@SD" tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/Balle_Balle_TV.png" group-title="Music",Balle Balle (1080p)
+https://mcncdndigital.com/worldpunjabitv/index.m3u8
+#EXTINF:-1 tvg-id="BIGTV.in@SD" tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/Big_TV.png" group-title="News",BIG TV (1080p)
+https://stream.ottlive.co.in/bigtv/index.m3u8
+#EXTINF:-1 tvg-id="DDArunPrabha.in@SD" tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_DD_ARUNPRABHA/images/LOGO_HD/image.png" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="General",DD Arun Prabha (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/203/master.m3u8
+#EXTINF:-1 tvg-id="DDAssam.in@SD" tvg-logo="https://dtil.tmsimg.com/assets/s142777_ld_h15_aa.png?lock=720x540" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="General",DD Assam (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/672/master.m3u8
+#EXTINF:-1 tvg-id="DDBangla.in@SD" tvg-logo="https://dtil.tmsimg.com/assets/s142778_ld_h15_aa.png?lock=720x540" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="General",DD Bangla (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/197/master.m3u8
+#EXTINF:-1 tvg-id="DDGirnar.in@SD" tvg-logo="https://dtil.tmsimg.com/assets/s142782_ld_h15_aa.png?lock=720x540" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="General",DD Girnar (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/368/master.m3u8
+#EXTINF:-1 tvg-id="DDGoa.in@SD" tvg-logo="https://ltsk-cdn.s3.eu-west-1.amazonaws.com/jumpstart/Temp_Live/cdn/HLS/Channel/transparentImages/DD-Goa-Logo_2000_X_1125_Transpharent.png" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="General",DD Goa (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/367/master.m3u8
+#EXTINF:-1 tvg-id="DDHaryana.in@SD" tvg-logo="https://ltsk-cdn.s3.eu-west-1.amazonaws.com/jumpstart/Temp_Live/cdn/HLS/Channel/transparentImages/DD-Haryana-Logo_2000_X_1125_Transpharent.png" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="General",DD Haryana (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/580/master.m3u8
+#EXTINF:-1 tvg-id="DDHimachalPradesh.in@SD" tvg-logo="https://dtil.tmsimg.com/assets/s142785_ld_h9_aa.png?lock=720x540" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="General",DD Himachal Pradesh (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/575/master.m3u8
+#EXTINF:-1 tvg-id="DDJharkhand.in@SD" tvg-logo="https://dtil.tmsimg.com/assets/s142787_ld_h15_aa.png?lock=720x540" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="General",DD Jharkhand (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/573/master.m3u8
+#EXTINF:-1 tvg-id="DDKashir.in@SD" tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_DD_KASHIR/images/LOGO_HD/image.png" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="General",DD Kashir (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/248/master.m3u8
+#EXTINF:-1 tvg-id="DDMalayalam.in@SD" tvg-logo="https://i.postimg.cc/BZjmjJJs/DD-Malayalam.png" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="Entertainment",DD Malayalam (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/680/master.m3u8
+#EXTINF:-1 tvg-id="DDManipur.in@SD" tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_DD_IMPHAL/images/LOGO_HD/image.png" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="General",DD Manipur (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/671/master.m3u8
+#EXTINF:-1 tvg-id="DDMizoram.in@SD" tvg-logo="https://i.imgur.com/I5zT1DG.png" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="Culture;News",DD Mizoram (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/381/master.m3u8
+#EXTINF:-1 tvg-id="DDNagaland.in@SD" tvg-logo="https://i.imgur.com/HUL4aF6.png" http-user-agent="#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="General",DD Nagaland (576p)
+#EXTVLCOPT:http-user-agent=#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/670/master.m3u8
+#EXTINF:-1 tvg-id="DDNews.in@HD" tvg-logo="https://ltsk-cdn.s3.eu-west-1.amazonaws.com/jumpstart/Temp_Live/cdn/HLS/Channel/transparentImages/DD%20News%20HD.png" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="News",DD News HD (1080p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/117/117_0.m3u8
+#EXTINF:-1 tvg-id="DDPunjabi.in@SD" tvg-logo="https://dtil.tmsimg.com/assets/s142800_ld_h15_aa.png?lock=720x540" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="Culture",DD Punjabi (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/177/master.m3u8
+#EXTINF:-1 tvg-id="DDSahyadri.in@SD" tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_DD_SAHYADRI/images/LOGO_HD/image.png" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="General",DD Sahyadri (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/187/master.m3u8
+#EXTINF:-1 tvg-id="DDTamil.in@SD" tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_DD_TAMIL/images/LOGO_HD/image.png" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="General",DD Tamil (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/679/master.m3u8
+#EXTINF:-1 tvg-id="DDTripura.in@SD" tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_DD_TRIPURA/images/LOGO_HD/image.png" http-user-agent="#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="General",DD Tripura (576p)
+#EXTVLCOPT:http-user-agent=#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/661/master.m3u8
+#EXTINF:-1 tvg-id="DDYadagiri.in@SD" tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_DD_YADAGIRI/images/LOGO_HD/image.png" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="General",DD Yadagiri (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/678/master.m3u8
+#EXTINF:-1 tvg-id="DharmSandesh.in@SD" tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/Arihant_TV.png" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="Religious",Dharm Sandesh (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/625/master.m3u8
+#EXTINF:-1 tvg-id="DNN.in@SD" tvg-logo="https://i.imgur.com/H5Kd0k6.png" group-title="News",DNN (576p)
+https://samitaorigin.tangotv.in/DNN/SAMITAORIGIN/index.m3u8
+#EXTINF:-1 tvg-id="Dukhniwaran.in@SD" tvg-logo="https://papaji.freetvindia.com/media/channels/dukhniwaran.png" group-title="Religious",Dukhniwaran (576p)
+https://mumt03.tangotv.in/Dsly5z3HDUKHNIWARAN/index.m3u8
+#EXTINF:-1 tvg-id="FashionTV.in@SD" tvg-logo="https://ltsk-cdn.s3.eu-west-1.amazonaws.com/jumpstart/Temp_Live/cdn/HLS/Channel/transparentImages/Fashion%20TV.png" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="Lifestyle",FashionTV (India) (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/144/144_0.m3u8
+#EXTINF:-1 tvg-id="GTCPunjabi.in@UK" tvg-logo="https://media.thegtcnetwork.com/uploads/gtc-pujabin-s.jpg" group-title="Entertainment",GTC Punjabi UK (1080p)
+https://neotv.ottlive.co.in/gtcpunjabiuk/index.m3u8
+#EXTINF:-1 tvg-id="GTCPunjabi.in@US" tvg-logo="https://media.thegtcnetwork.com/uploads/gtc-pujabin-s.jpg" group-title="Entertainment",GTC Punjabi US (1080p)
+https://neotv.ottlive.co.in/gtcpunjabiusa/index.m3u8
+#EXTINF:-1 tvg-id="GulistanNews.in@SD" tvg-logo="https://dtil.tmsimg.com/assets/s143097_ld_h15_aa.png?lock=720x540" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="News",Gulistan News (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/427/master.m3u8
+#EXTINF:-1 tvg-id="HosannaTV.in@Tamil" tvg-logo="https://i.imgur.com/VYorU1L.png" group-title="Religious",Hosanna TV (720p)
+https://yuppnimresmum.akamaized.net/28072023/smil:hosanna.smil/playlist.m3u8?hdnts=st=1735898689~exp=1835898688~acl=*~hmac=f5fe24724fe05481e3841f9eb5ab8efdee0a3dd83645ae9dcf45703f525bab7b
+#EXTINF:-1 tvg-id="Ind24.in@SD" tvg-logo="https://i.imgur.com/exRpVmL.png" group-title="News",Ind 24 (720p)
+https://livestream.jswk.online/ind24/live/index.m3u8
+#EXTINF:-1 tvg-id="IndiaNews.in@SD" tvg-logo="https://dtil.tmsimg.com/assets/s143190_ld_h15_aa.png?lock=720x540" group-title="News",India News (576p)
+https://mumt03.tangotv.in/Dsly5z3HINDIANEWS/index.m3u8
+#EXTINF:-1 tvg-id="IndiaNewsGujarati.in@SD" tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/India_News_Gujarat.png" http-user-agent="#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="News",India News Gujarati (576p)
+#EXTVLCOPT:http-user-agent=#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/653/master.m3u8
+#EXTINF:-1 tvg-id="IndiaNewsHaryana.in@SD" tvg-logo="https://dtil.tmsimg.com/assets/s143192_ld_h15_aa.png?lock=720x540" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="News",India News Haryana (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/590/master.m3u8
+#EXTINF:-1 tvg-id="IndiaNewsMadhyaPradeshChhattisgarh.in@SD" tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/India_News_MP.png" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="News",India News Madhya Pradesh/Chhattisgarh (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/600/master.m3u8
+#EXTINF:-1 tvg-id="IndiaNewsPunjabHimachal.in@SD" tvg-logo="https://i.imgur.com/Mu1MPvt.png" group-title="News",India News Punjab/Himachal (576p)
+https://mumt03.tangotv.in/Dsly5z3HINDIANEWSPBHPJ&K/index.m3u8
+#EXTINF:-1 tvg-id="IndiaNewsRajasthan.in@SD" tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/India_News_Rajasthan.png" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="News",India News Rajasthan (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/601/master.m3u8
+#EXTINF:-1 tvg-id="IndiaNewsUttarPradesh.in@SD" tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/India_News_UP.png" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="News",India News Uttar Pradesh (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/304/master.m3u8
+#EXTINF:-1 tvg-id="INH24x7.in@SD" tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_INH_24X7/images/LOGO_HD/image.png" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="News",INH 24x7 (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/99/99_0.m3u8
+#EXTINF:-1 tvg-id="MahaMovie.in@SD" tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/Maha_Movies.png" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="Movies",Maha Movie (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/48/48_0.m3u8
+#EXTINF:-1 tvg-id="MahaPunjabi.in@SD" tvg-logo="https://i.imgur.com/AWUcSb8.png" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="Entertainment",Maha Punjabi (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/640/master.m3u8
+#EXTINF:-1 tvg-id="MahotsavTV.in@SD" tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/Mahotsav_TV.png" group-title="Religious",Mahotsav TV (576p)
+https://livetv.mahotsavtv.com/mahotsavtv/playout/index.m3u8
+#EXTINF:-1 tvg-id="MHOne.in@SD" tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/mh1_Music.png" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="General",MH One (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/353/master.m3u8
+#EXTINF:-1 tvg-id="NambikkaiTV.in@SD" tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_NAMBIKKAI_TV/images/LOGO_HD/image.png" group-title="Religious",Nambikkai TV (576p)
+https://d1msejlow1t3l4.cloudfront.net/fta/nambikkaitv/playlist.m3u8
+#EXTINF:-1 tvg-id="NaxatraNews.in@SD" tvg-logo="https://i.imgur.com/IGduUk4.png" http-user-agent="#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="News",Naxatra News (576p)
+#EXTVLCOPT:http-user-agent=#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/668/master.m3u8
+#EXTINF:-1 tvg-id="NaxatraNewsHindi.in@SD" tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/Naxatra_News_Hindi.png" group-title="News",Naxatra News Hindi (576p)
+https://d2gvyg6lvauoko.cloudfront.net/230226/naxatranewshindi/playlist.m3u8?hdnts=st=1735898689~exp=1835898688~acl=*~hmac=f5fe24724fe05481e3841f9eb5ab8efdee0a3dd83645ae9dcf45703f525bab7b
+#EXTINF:-1 tvg-id="NDTV.in@SD" tvg-logo="https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c3/Ndtv-logo-new.svg/1280px-Ndtv-logo-new.svg.png" group-title="News",NDTV (576p)
+https://cdn.pishow.tv/ott/live/315/master.m3u8
+#EXTINF:-1 tvg-id="NewsHour.in@SD" tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/channel/b83af98cdfd7d995b46178788a835bff.png" group-title="News",News Hour (576p)
+https://mumt07.tangotv.in/zHjX9OFlNEWSHOUR/index.m3u8
+#EXTINF:-1 tvg-id="NewsIndia24x7.in@SD" tvg-logo="https://dtil.tmsimg.com/assets/GNLZZGG002N1TXH.png?lock=720x540" group-title="News",News India 24x7 (576p)
+https://samitaorigin.tangotv.in/NEWSINDIA24X7/SAMITAORIGIN/index.m3u8
+#EXTINF:-1 tvg-id="NewsMalayalam24x7.in@SD" tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_NEWS_MALAYALAM_24X7/images/LOGO_HD/image.png" group-title="News",News Malayalam 24x7 (576p)
+https://cdn.pishow.tv/ott/live/1629/master.m3u8
+#EXTINF:-1 tvg-id="NireekshanaTV.in@SD" tvg-logo="https://i.imgur.com/nGJv6QR.png" http-user-agent="#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="Religious",Nireekshana TV (576p)
+#EXTVLCOPT:http-user-agent=#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/706/master.m3u8
+#EXTINF:-1 tvg-id="Pitaara.in@SD" tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_PITAARA/images/LOGO_HD/image.png" group-title="Movies",Pitaara (1080p)
+https://d2lk5u59tns74c.cloudfront.net/out/v1/500a6b45f5ae41dda445d912b59eaa09/index.m3u8
+#EXTINF:-1 tvg-id="PrathamNews.in@SD" tvg-logo="https://papaji.freetvindia.com/media/channels/Pratham_news.png" group-title="News",Pratham News (576p)
+https://mumt03.tangotv.in/Dsly5z3HPRATHAMNEWS/index.m3u8
+#EXTINF:-1 tvg-id="PublicFirst.in@SD" tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/Public_First.png" group-title="News",Public First (576p)
+https://samitaorigin.tangotv.in/PUBLICFIRST/SAMITAORIGIN/index.m3u8
+#EXTINF:-1 tvg-id="QTV.in@SD" tvg-logo="https://www.theq.tv/wp-content/uploads/2023/10/The-Q-new-Logo.png" group-title="Entertainment",Q TV (576p)
+https://samitaorigin.tangotv.in/THEQ/SAMITAORIGIN/index.m3u8
+#EXTINF:-1 tvg-id="SaamTV.in@SD" tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_SAAM_TV/images/LOGO_HD/image.png" group-title="Undefined",Saam TV (576p)
+https://streams.tangotv.in/SAAMTV/ORIGIN/index.m3u8
+#EXTINF:-1 tvg-id="ShaheedanLive.in@SD" tvg-logo="https://papaji.freetvindia.com/media/Shaheedan_Live.png" group-title="Religious",Shaheedan Live (576p)
+https://mumt06.tangotv.in/qYyB8fXVSHAHEEDDANLIVE/index.m3u8
+#EXTINF:-1 tvg-id="ShaheedanShahib.in@SD" tvg-logo="https://papaji.freetvindia.com/media/channels/Shaheed_Baba_Deep_Singh.png" group-title="Religious",Shaheedan Shahib (576p)
+https://mumt03.tangotv.in/Dsly5z3HSHAHEEDBABADEEPSINGH/index.m3u8
+#EXTINF:-1 tvg-id="ShikshaTV.in@SD" tvg-logo="https://play-lh.googleusercontent.com/1ibQhkMCsnXaI9LOiZH-Iyw8rM8CMVJEZAlbFphWuZApSPIp-eZsjltDlN6rqJzIonQ" group-title="Culture;Education",Shiksha TV (720p)
+http://103.89.46.106:8080/hls/shikshatvhd/index.m3u8
+#EXTINF:-1 tvg-id="ShreeSanatanTV.in@SD" tvg-logo="https://papaji.freetvindia.com/media/channels/shri_Sanatan_TV.png" group-title="Religious",Shree Sanatan TV (720p)
+http://sanatan.valamtv.in/hls/shree/bhattji.m3u8
+#EXTINF:-1 tvg-id="StarMovies.in@HD" tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_STAR_MOVIES/images/LOGO_HD/image.png" group-title="Movies",Star Movies (India) HD (1080p)
+http://103.151.60.162:2122/play/a02k/index.m3u8?hls
+#EXTINF:-1 tvg-id="STVHaryanaNews.in@SD" tvg-logo="https://i.imgur.com/TJRZo9e.png" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="News",STV Haryana News (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/607/master.m3u8
+#EXTINF:-1 tvg-id="TotalTVHaryana.in@SD" tvg-logo="https://xstreamcp-assets-msp.streamready.in/assets/LIVETV/LIVECHANNEL/LIVETV_LIVETVCHANNEL_TOTAL_TV/images/LOGO_HD/image.png" group-title="Undefined",Total TV Haryana (576p)
+https://mumt04.tangotv.in/m18aqlK4TOTALTV/index.m3u8
+#EXTINF:-1 tvg-id="TTN24.in@SD" tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/TTN24.png" group-title="News",TTN24 (720p)
+https://stream.joytvindia.com/stream/hls/ttn24/index.m3u8
+#EXTINF:-1 tvg-id="TV100.in@SD" tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/TV_100.png" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="Undefined",TV 100 (India) (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/310/master.m3u8
+#EXTINF:-1 tvg-id="ValamTV.in@SD" tvg-logo="https://papaji.freetvindia.com/media/channels/Valam_TV.png" group-title="Religious",Valam TV (720p)
+http://cabletv.valamtv.in/hls/stream0.m3u8
+#EXTINF:-1 tvg-id="VisionBeats.in@SD" tvg-logo="https://i.imgur.com/xx5RQdi.png" group-title="Music",Vision Beats (720p)
+http://a-edge.bliscdn.com/Visionbeats/index.m3u8
+#EXTINF:-1 tvg-id="WahPunjabi.in@SD" tvg-logo="https://jiotvimages.cdn.jio.com/dare_images/images/Wah_Punjabi.png" group-title="Music",Wah Punjabi (720p)
+https://yuppnimrestreammum.akamaized.net/181224/smil:wahpunjabi.smil/playlist.m3u8?hdnts=st=1735898689~exp=1835898688~acl=*~hmac=f5fe24724fe05481e3841f9eb5ab8efdee0a3dd83645ae9dcf45703f525bab7b
+#EXTINF:-1 tvg-id="ZeeAction.in@SD" tvg-logo="https://dtil.tmsimg.com/assets/GNLZZGG0022K5ZV.png?lock=720x540" http-user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36" group-title="Movies",Zee Action (576p)
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36
+https://fta.ektv.in/live/270/master.m3u8
+#EXTINF:-1 tvg-id="BollywoodClassic.ro@Romania" tvg-logo="https://i.imgur.com/ugPo6ca.png" group-title="Classic;Movies",Bollywood Classic Romania (576p)
+https://hls02ns.antenaplay.ro/hls/bollywood-sd/index.m3u8
+#EXTINF:-1 tvg-id="BTLTV.nl@SD" tvg-logo="https://yt3.googleusercontent.com/ytc/APkrFKZYgQTsDhkbaqmPRCPZIf0UgZqF1wa6aG2eo8ti=s176-c-k-c0x00ffffff-no-rj-mo" group-title="Religious",BTL TV (Netherlands) (720p)
+https://livecdn.live247stream.com/btl/tv/playlist.m3u8
